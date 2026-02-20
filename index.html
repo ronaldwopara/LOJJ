@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOJJ Landing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Clash Display Font from Fontshare -->
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Font Loading */
+        @font-face {
+            font-family: 'LogoFont';
+            src: url('LOGO.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --brand-green: rgb(34, 61, 20);
+            --off-white: #cccec9;
+            --nav-border: rgba(255, 255, 255, 0.9);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-blur: 24px;
+        }
+
+        body {
+            font-family: 'Clash Display', sans-serif;
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-color: #8a9c80; /* Matches placeholder dominant color to prevent flash */
+        }
+
+        /* Hide scrollbar */
+        html, body {
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        
+        html, body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Fixed Background Placeholder */
+        #bg-placeholder {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -51;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* Fixed Background Video */
+        #bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -50;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        #video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* Dark overlay for global readability */
+            z-index: -40;
+        }
+
+        .font-romantica {
+            font-family: 'LogoFont', 'Playfair Display', serif;
+            letter-spacing: -0.01em;
+        }
+
+        /* Glassmorphic Pills */
+        .nav-pill {
+            background: rgba(34, 61, 20, 0.3);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            height: 56px; 
+            box-shadow: 
+                0 10px 40px -10px rgba(34, 61, 20, 0.12),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        }
+
+        /* Smoothing */
+        h1, h2, h3, button, a, p {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        
+        /* Custom Button Shadow */
+        .button-strong-shadow {
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.7);
+        }
+
+        /* Rotating Beam Effect Logic */
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        .rotating-border-btn {
+            --btn-color: rgb(34, 61, 20);
+            --beam-color: #ffffff; /* White beam for contrast */
+            
+            position: relative;
+            background-color: var(--btn-color); /* Fallback */
+            color: white;
+            
+            /* Two background layers: 
+               1. Top (Padding Box): The solid green button face 
+               2. Bottom (Border Box): The spinning conic gradient */
+            background-image: 
+                linear-gradient(var(--btn-color), var(--btn-color)), 
+                conic-gradient(from var(--angle), transparent 50%, var(--beam-color), transparent 80%);
+            
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            border: 1.5px solid transparent; /* The width of the beam path */
+            
+            animation: rotate-beam 4s linear infinite;
+        }
+        
+        .rotating-border-btn:hover {
+            /* On hover: solid white border, stop animation */
+            border-color: #ffffff;
+            background-image: linear-gradient(var(--btn-color), var(--btn-color));
+            animation: none;
+        }
+
+        @keyframes rotate-beam {
+            to {
+                --angle: 360deg;
+            }
+        }
+
+        /* Symmetrical Toggle Logic */
+        @media (min-width: 768px) {
+            .pill-switch-container {
+                position: relative;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                width: 340px; 
+                padding: 4px;
+                box-sizing: border-box;
+            }
+
+            .active-slider {
+                position: absolute;
+                height: calc(100% - 8px);
+                top: 4px;
+                left: 4px;
+                width: calc(50% - 4px);
+                background-color: var(--brand-green);
+                border-radius: 9999px;
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1;
+                transform: translateX(100%);
+            }
+
+            .watch-demo-trigger:hover ~ .active-slider {
+                transform: translateX(0%);
+            }
+
+            .nav-link {
+                position: relative;
+                z-index: 10;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: color 0.3s ease, font-weight 0.2s ease;
+                font-weight: 400;
+            }
+
+            .watch-demo-trigger:hover { 
+                color: white; 
+                font-weight: 700; 
+            }
+            .watch-demo-trigger:hover ~ .waitlist-trigger { 
+                color: white; 
+                font-weight: 400; 
+            }
+            
+            .waitlist-trigger { 
+                color: white; 
+                font-weight: 700; 
+            }
+            .watch-demo-trigger { 
+                color: white; 
+                font-weight: 400; 
+            }
+        }
+
+        /* Mobile specific styles */
+        @media (max-width: 767px) {
+            .pill-switch-container {
+                display: flex;
+                align-items: center;
+                width: auto;
+                gap: 8px;
+                padding: 4px;
+            }
+            .active-slider {
+                display: none;
+            }
+            .waitlist-trigger-mobile {
+                background-color: var(--brand-green);
+                color: white;
+            }
+        }
+
+        #mobile-menu {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            background: rgba(235, 237, 233, 0.9);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            overflow: hidden;
+        }
+
+        /* Smooth fade-in animations */
+        #main-nav {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        }
+
+        /* Hero Box Styling - Modified for global video background */
+        #dynamic-hero-box {
+            border-radius: 40px;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(30px);
+            /* Glassmorphism instead of solid/video */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        }
+        
+        #dynamic-hero-box.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hero heading responsive sizing */
+        .hero-heading {
+            font-size: clamp(2.4rem, 7vw, 3.2rem);
+            line-height: 1.05;
+        }
+
+        @media (min-width: 768px) {
+            .hero-heading {
+                font-size: 4.5rem; /* ~72px */
+                line-height: 1.1;
+            }
+        }
+
+        .visualization-section {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 1.4s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .scroll-indicator.visible {
+            opacity: 0.7;
+            will-change: transform;
+            animation: bounce 4.5s infinite;
+        }
+
+        /* Hide scroll indicator on desktop */
+        @media (min-width: 768px) {
+            .scroll-indicator {
+                display: none;
+            }
+        }
+
+        .scroll-indicator-arrow {
+            width: 24px;
+            height: 24px;
+            border-right: 2px solid white;
+            border-bottom: 2px solid white;
+            transform: rotate(45deg);
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+            40% {
+                transform: translate3d(0, -5px, 0);
+            }
+            60% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+
+        /* Visualization Container - Glassmorphic like nav bar */
+        .visualization-container {
+            background: rgba(34, 61, 20, 0.3);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 10px 40px -10px rgba(34, 61, 20, 0.12),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+            position: relative;
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        }
+
+        /* Step cards glow effect - target divs with border-white classes */
+        .visualization-section div[class*="border"][class*="border-white"] {
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        }
+
+
+        /* --- SVG Specific Animations --- */
+        
+        /* 1. Message stays visible, then fades when bell arrives */
+        @keyframes msg-to-bell {
+            0%, 35% { opacity: 1; }
+            45%, 90% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .anim-msg-icon {
+            will-change: opacity;
+            animation: msg-to-bell 6s ease infinite;
+        }
+
+        /* Notification dot pops on the message */
+        @keyframes dot-appear {
+            0%, 8% { transform: scale(0); opacity: 0; }
+            12% { transform: scale(1.4); opacity: 1; }
+            16%, 35% { transform: scale(1); opacity: 1; }
+            42%, 100% { transform: scale(0); opacity: 0; }
+        }
+        .anim-bell-dot {
+            transform-origin: center;
+            will-change: transform, opacity;
+            animation: dot-appear 6s ease infinite;
+        }
+
+        /* Call bell - T button pushes down, bell compresses */
+        @keyframes bell-press {
+            0%, 35% { opacity: 0; transform: translateY(0) scaleY(1); }
+            38% { opacity: 1; transform: translateY(0) scaleY(1); }
+            /* T button presses down */
+            42% { transform: translateY(2px) scaleY(0.98); }
+            45% { transform: translateY(6px) scaleY(0.94); }
+            48% { transform: translateY(10px) scaleY(0.88); }
+            /* Impact - clapper hits bottom */
+            50% { transform: translateY(8px) scaleY(0.92); }
+            /* Bounce back up */
+            53% { transform: translateY(3px) scaleY(0.97); }
+            56% { transform: translateY(-1px) scaleY(1.02); }
+            59% { transform: translateY(0) scaleY(1); }
+            /* Second press */
+            65% { transform: translateY(4px) scaleY(0.96); }
+            68% { transform: translateY(8px) scaleY(0.9); }
+            70% { transform: translateY(6px) scaleY(0.93); }
+            73% { transform: translateY(1px) scaleY(0.99); }
+            76%, 85% { transform: translateY(0) scaleY(1); opacity: 1; }
+            92%, 100% { opacity: 0; transform: translateY(0) scaleY(0.95); }
+        }
+        .anim-bell {
+            transform-origin: top center;
+            will-change: transform, opacity;
+            animation: bell-press 6s ease infinite;
+        }
+
+        /* T button presses down first, then releases, fades with bell */
+        @keyframes t-button-press {
+            0%, 35% { transform: translateY(0); opacity: 0; }
+            38% { opacity: 1; }
+            42% { transform: translateY(3px); }
+            45% { transform: translateY(8px); }
+            48% { transform: translateY(12px); }
+            /* Release */
+            50% { transform: translateY(10px); }
+            53% { transform: translateY(4px); }
+            56% { transform: translateY(-1px); }
+            59%, 65% { transform: translateY(0); }
+            /* Second press */
+            68% { transform: translateY(6px); }
+            70% { transform: translateY(9px); }
+            73% { transform: translateY(2px); }
+            76%, 85% { transform: translateY(0); opacity: 1; }
+            92%, 100% { transform: translateY(0); opacity: 0; }
+        }
+        .anim-t-button {
+            transform-origin: top center;
+            will-change: transform, opacity;
+            animation: t-button-press 6s ease infinite;
+        }
+
+        /* Clapper moves down with bell, hits bottom on impact */
+        @keyframes clapper-hit {
+            0%, 35% { transform: translateY(0); }
+            42% { transform: translateY(4px); }
+            45% { transform: translateY(8px); }
+            /* Impact - clapper hits bottom */
+            48% { transform: translateY(12px) scaleY(0.7); }
+            /* Bounce back */
+            50% { transform: translateY(10px) scaleY(1.1); }
+            53% { transform: translateY(5px) scaleY(1); }
+            56% { transform: translateY(1px); }
+            59%, 65% { transform: translateY(0); }
+            /* Second hit */
+            68% { transform: translateY(6px); }
+            70% { transform: translateY(10px) scaleY(0.75); }
+            73% { transform: translateY(4px) scaleY(1.05); }
+            76%, 100% { transform: translateY(0) scaleY(1); }
+        }
+        .anim-clapper {
+            transform-origin: center;
+            will-change: transform;
+            animation: clapper-hit 6s ease infinite;
+        }
+
+
+        /* 1. Message Bubble Pulse - Optimized for performance */
+        @keyframes message-pulse {
+            0%, 100% { opacity: 0.5; transform: translate3d(0, 0, 0); }
+            50% { opacity: 1; transform: translate3d(2px, 0, 0); }
+        }
+        .anim-msg-line {
+            will-change: transform, opacity;
+            animation: message-pulse 4s ease infinite;
+        }
+
+        /* 2. Task Assignment Story: Clipboard in center, teams/tools cycle around */
+        /* 4-beat sequence: Assign (clock) → Engineering (tool) → Housekeeping (broom) → Maintenance (wrench) */
+        @keyframes task-clock-seq {
+            0%, 20%   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            25%, 100% { opacity: 0; transform: translate3d(2px, -6px, 0) scale(0.96); }
+        }
+        .task-icon-clock {
+            will-change: opacity, transform;
+            animation: task-clock-seq 8.6s ease infinite;
+        }
+
+        @keyframes task-tool-seq {
+            0%, 20%   { opacity: 0; transform: translate3d(-4px, -2px, 0) scale(0.96); }
+            25%, 45%  { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            50%, 100% { opacity: 0; transform: translate3d(-6px, -6px, 0) scale(0.96); }
+        }
+        .task-icon-tool {
+            will-change: opacity, transform;
+            animation: task-tool-seq 8.6s ease infinite;
+        }
+
+        @keyframes task-broom-seq {
+            0%, 45%   { opacity: 0; transform: translate3d(-4px, 8px, 0) scale(0.96); }
+            50%, 70%  { opacity: 1; transform: translate3d(0, 2px, 0) scale(1); }
+            75%, 100% { opacity: 0; transform: translate3d(-6px, 12px, 0) scale(0.96); }
+        }
+        .task-icon-broom {
+            will-change: opacity, transform;
+            animation: task-broom-seq 8.6s ease infinite;
+        }
+
+        @keyframes task-wrench-seq {
+            0%, 70%   { opacity: 0; transform: translate3d(6px, 8px, 0) scale(0.96); }
+            75%, 95%  { opacity: 1; transform: translate3d(0, 2px, 0) scale(1); }
+            100%      { opacity: 0; transform: translate3d(8px, 12px, 0) scale(0.96); }
+        }
+        .task-icon-wrench {
+            will-change: opacity, transform;
+            animation: task-wrench-seq 8.6s ease infinite;
+        }
+
+        /* 3. Team Collaboration: Step 2-style corner badges (no overlap) */
+        @keyframes team-users-bob {
+            0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.95; }
+            50% { transform: translate3d(0, -2px, 0); opacity: 1; }
+        }
+        .team-users-base {
+            will-change: transform, opacity;
+            animation: team-users-bob 4s ease-in-out infinite;
+        }
+
+        @keyframes team-badge-core {
+            0%, 8% { opacity: 0; transform: translate3d(-4px, 4px, 0) scale(0.92); }
+            12%, 24% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            28%, 100% { opacity: 0; transform: translate3d(4px, -4px, 0) scale(0.92); }
+        }
+        .team-badge-core {
+            will-change: transform, opacity;
+            animation: team-badge-core 16s ease infinite;
+        }
+
+        @keyframes team-badge-handoff {
+            0%, 24% { opacity: 0; transform: translate3d(4px, 4px, 0) scale(0.92); }
+            28%, 46% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            50%, 100% { opacity: 0; transform: translate3d(-4px, -4px, 0) scale(0.92); }
+        }
+        .team-badge-handoff {
+            will-change: transform, opacity;
+            animation: team-badge-handoff 16s ease infinite;
+        }
+
+        @keyframes team-badge-community {
+            0%, 46% { opacity: 0; transform: translate3d(-4px, 6px, 0) scale(0.92); }
+            50%, 68% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            72%, 100% { opacity: 0; transform: translate3d(4px, 10px, 0) scale(0.92); }
+        }
+        .team-badge-community {
+            will-change: transform, opacity;
+            animation: team-badge-community 16s ease infinite;
+        }
+
+        @keyframes team-badge-sync {
+            0%, 68% { opacity: 0; transform: translate3d(4px, -4px, 0) scale(0.92); }
+            72%, 92% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            96%, 100% { opacity: 0; transform: translate3d(-4px, 4px, 0) scale(0.92); }
+        }
+        .team-badge-sync {
+            will-change: transform, opacity;
+            animation: team-badge-sync 16s ease infinite;
+        }
+
+        /* 1. Guest Request: Step 3-style four corners (stable center + cycling corner badges) */
+        @keyframes guest-base-bob {
+            0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.95; }
+            50% { transform: translate3d(0, -2px, 0); opacity: 1; }
+        }
+        .guest-base {
+            will-change: transform, opacity;
+            animation: guest-base-bob 4s ease-in-out infinite;
+        }
+
+        @keyframes guest-badge-a {
+            0%, 8% { opacity: 0; transform: translate3d(-4px, 4px, 0) scale(0.92); }
+            12%, 24% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            28%, 100% { opacity: 0; transform: translate3d(4px, -4px, 0) scale(0.92); }
+        }
+        .guest-badge-a { will-change: transform, opacity; animation: guest-badge-a 14s ease infinite; }
+
+        @keyframes guest-badge-b {
+            0%, 24% { opacity: 0; transform: translate3d(4px, 4px, 0) scale(0.92); }
+            28%, 46% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            50%, 100% { opacity: 0; transform: translate3d(-4px, -4px, 0) scale(0.92); }
+        }
+        .guest-badge-b { will-change: transform, opacity; animation: guest-badge-b 14s ease infinite; }
+
+        @keyframes guest-badge-c {
+            0%, 46% { opacity: 0; transform: translate3d(-4px, 6px, 0) scale(0.92); }
+            50%, 68% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            72%, 100% { opacity: 0; transform: translate3d(4px, 10px, 0) scale(0.92); }
+        }
+        .guest-badge-c { will-change: transform, opacity; animation: guest-badge-c 14s ease infinite; }
+
+        @keyframes guest-badge-d {
+            0%, 68% { opacity: 0; transform: translate3d(4px, -4px, 0) scale(0.92); }
+            72%, 92% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            96%, 100% { opacity: 0; transform: translate3d(-4px, 4px, 0) scale(0.92); }
+        }
+        .guest-badge-d { will-change: transform, opacity; animation: guest-badge-d 14s ease infinite; }
+
+        /* Track Progress corner badges (independent staggered pulses) */
+        @keyframes track-badge-a {
+            0%, 12% { opacity: 0; transform: translate3d(-3px, 3px, 0) scale(0.9); }
+            18%, 32% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            40%, 100% { opacity: 0; transform: translate3d(3px, -3px, 0) scale(0.9); }
+        }
+        .track-badge-a { will-change: transform, opacity; animation: track-badge-a 16s ease infinite; }
+
+        @keyframes track-badge-b {
+            0%, 22% { opacity: 0; transform: translate3d(3px, 3px, 0) scale(0.9); }
+            28%, 46% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            54%, 100% { opacity: 0; transform: translate3d(-3px, -3px, 0) scale(0.9); }
+        }
+        .track-badge-b { will-change: transform, opacity; animation: track-badge-b 16s ease infinite; }
+
+        @keyframes track-badge-c {
+            0%, 38% { opacity: 0; transform: translate3d(-3px, 5px, 0) scale(0.9); }
+            44%, 62% { opacity: 1; transform: translate3d(0, 1px, 0) scale(1); }
+            70%, 100% { opacity: 0; transform: translate3d(3px, 7px, 0) scale(0.9); }
+        }
+        .track-badge-c { will-change: transform, opacity; animation: track-badge-c 16s ease infinite; }
+
+        @keyframes track-badge-d {
+            0%, 56% { opacity: 0; transform: translate3d(3px, -3px, 0) scale(0.9); }
+            62%, 80% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            88%, 100% { opacity: 0; transform: translate3d(-3px, 3px, 0) scale(0.9); }
+        }
+        .track-badge-d { will-change: transform, opacity; animation: track-badge-d 16s ease infinite; }
+
+        /* Task Completion corner badges (independent staggered pulses) */
+        @keyframes complete-badge-a {
+            0%, 10% { opacity: 0; transform: translate3d(-3px, 3px, 0) scale(0.9); }
+            18%, 30% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            38%, 100% { opacity: 0; transform: translate3d(3px, -3px, 0) scale(0.9); }
+        }
+        .complete-badge-a { will-change: transform, opacity; animation: complete-badge-a 14s ease infinite; }
+
+        @keyframes complete-badge-b {
+            0%, 22% { opacity: 0; transform: translate3d(3px, 3px, 0) scale(0.9); }
+            30%, 44% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            52%, 100% { opacity: 0; transform: translate3d(-3px, -3px, 0) scale(0.9); }
+        }
+        .complete-badge-b { will-change: transform, opacity; animation: complete-badge-b 14s ease infinite; }
+
+        @keyframes complete-badge-c {
+            0%, 36% { opacity: 0; transform: translate3d(-3px, 5px, 0) scale(0.9); }
+            44%, 60% { opacity: 1; transform: translate3d(0, 1px, 0) scale(1); }
+            68%, 100% { opacity: 0; transform: translate3d(3px, 7px, 0) scale(0.9); }
+        }
+        .complete-badge-c { will-change: transform, opacity; animation: complete-badge-c 14s ease infinite; }
+
+        @keyframes complete-badge-d {
+            0%, 52% { opacity: 0; transform: translate3d(3px, -3px, 0) scale(0.9); }
+            60%, 76% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            84%, 100% { opacity: 0; transform: translate3d(-3px, 3px, 0) scale(0.9); }
+        }
+        .complete-badge-d { will-change: transform, opacity; animation: complete-badge-d 14s ease infinite; }
+
+        /* Better Reviews corner badges (independent staggered pulses) */
+        @keyframes reviews-badge-a {
+            0%, 12% { opacity: 0; transform: translate3d(-3px, 3px, 0) scale(0.9); }
+            18%, 32% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            40%, 100% { opacity: 0; transform: translate3d(3px, -3px, 0) scale(0.9); }
+        }
+        .reviews-badge-a { will-change: transform, opacity; animation: reviews-badge-a 16s ease infinite; }
+
+        @keyframes reviews-badge-b {
+            0%, 24% { opacity: 0; transform: translate3d(3px, 3px, 0) scale(0.9); }
+            30%, 46% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            54%, 100% { opacity: 0; transform: translate3d(-3px, -3px, 0) scale(0.9); }
+        }
+        .reviews-badge-b { will-change: transform, opacity; animation: reviews-badge-b 16s ease infinite; }
+
+        @keyframes reviews-badge-c {
+            0%, 38% { opacity: 0; transform: translate3d(-3px, 5px, 0) scale(0.9); }
+            44%, 62% { opacity: 1; transform: translate3d(0, 1px, 0) scale(1); }
+            70%, 100% { opacity: 0; transform: translate3d(3px, 7px, 0) scale(0.9); }
+        }
+        .reviews-badge-c { will-change: transform, opacity; animation: reviews-badge-c 16s ease infinite; }
+
+        @keyframes reviews-badge-d {
+            0%, 56% { opacity: 0; transform: translate3d(3px, -3px, 0) scale(0.9); }
+            62%, 80% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+            88%, 100% { opacity: 0; transform: translate3d(-3px, 3px, 0) scale(0.9); }
+        }
+        .reviews-badge-d { will-change: transform, opacity; animation: reviews-badge-d 16s ease infinite; }
+
+        /* (Removed) handoff token */
+
+        /* Clipboard lines subtly float to show list being updated */
+        @keyframes float-check {
+            0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.6; }
+            50% { transform: translate3d(0, -1px, 0); opacity: 1; }
+        }
+        .anim-clipboard-item {
+            will-change: transform, opacity;
+            animation: float-check 4s ease infinite;
+        }
+
+        /* 3. Team Bobbing - Optimized for performance */
+        @keyframes bob-head {
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            50% { transform: translate3d(0, -2px, 0); }
+        }
+        .anim-team-member {
+            will-change: transform;
+            animation: bob-head 4s ease infinite;
+        }
+
+        /* 4. Chart Bars Equalizer - Optimized for performance */
+        @keyframes bar-equalize {
+            0%, 100% { transform: scale3d(1, 0.6, 1); }
+            50% { transform: scale3d(1, 1, 1); }
+        }
+        .anim-bar {
+            transform-box: fill-box;
+            transform-origin: bottom;
+            will-change: transform;
+            animation: bar-equalize 4s ease infinite;
+        }
+
+        /* 5. Checkmark Draw Animation - Optimized for performance */
+        @keyframes draw-check {
+            0% {
+                stroke-dashoffset: 18;
+                opacity: 0.9;
+            }
+            50% {
+                stroke-dashoffset: 0;
+                opacity: 1;
+            }
+            100% {
+                stroke-dashoffset: 0;
+                opacity: 0.9;
+            }
+        }
+        .anim-check polyline {
+            stroke-dasharray: 18;
+            stroke-dashoffset: 18;
+            will-change: stroke-dashoffset, opacity;
+            animation: draw-check 4s ease infinite;
+        }
+        .anim-check {
+            transform-origin: center;
+            transform-box: fill-box;
+        }
+
+
+        /* (Removed) hover-based animation speed changes */
+
+        /* --- Footer Styles --- */
+        .site-footer {
+            position: relative;
+            width: 95%;
+            max-width: 1280px;
+            padding: 60px 40px 20px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+            margin-top: 140px;
+        }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-cta {
+            flex: 1;
+            min-width: 280px;
+            max-width: 500px;
+        }
+
+        .footer-cta h2 {
+            font-size: 2.5rem;
+            line-height: 1.05;
+            font-weight: 800;
+            margin: 0 0 30px 0;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            color: white;
+        }
+
+        .newsletter-form {
+            position: relative;
+            margin-bottom: 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+            z-index: 1;
+        }
+
+        .newsletter-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 12px 0;
+            font-size: 0.9rem;
+            font-family: 'Clash Display', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            background: transparent;
+            color: white;
+            letter-spacing: 0.05em;
+        }
+
+        .newsletter-input::placeholder {
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .newsletter-btn {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            color: white;
+            font-family: 'Clash Display', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            transition: opacity 0.3s ease;
+        }
+
+        .newsletter-btn:hover {
+            opacity: 0.6;
+        }
+
+        /* Form validation tooltip */
+        .form-tooltip {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            padding: 6px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+            z-index: 10;
+        }
+
+        .form-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-tooltip::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            right: 16px;
+            border: 5px solid transparent;
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-tooltip.no-arrow::before {
+            display: none;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 60px;
+            text-align: right;
+        }
+
+        .link-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .link-column-heading {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            text-transform: uppercase;
+            color: white;
+            letter-spacing: -0.01em;
+        }
+
+        .link-column a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .link-column a:hover {
+            color: white;
+            opacity: 1;
+        }
+
+        #footer-canvas-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            overflow: visible;
+        }
+
+        #footer-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            font-size: 0.85rem;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 900px) {
+            .footer-top {
+                flex-direction: column;
+            }
+            .footer-links {
+                justify-content: space-between;
+                text-align: left;
+                width: 100%;
+            }
+            #footer-canvas-container {
+                height: 250px;
+            }
+            .site-footer {
+                padding: 40px 20px 20px 20px;
+                margin-top: 80px;
+            }
+            .footer-cta h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center relative">
+
+    <!-- Global Background Placeholder -->
+    <img id="bg-placeholder" src="bg-placeholder.png" alt="Background placeholder">
+    
+    <!-- Global Background Video -->
+    <video id="bg-video" autoplay muted loop playsinline>
+        <source src="bg-video.mp4" type="video/mp4">
+    </video>
+    <div id="video-overlay"></div>
+
+    <!-- Navigation Bar Container -->
+    <nav id="main-nav" class="mt-8 w-[95%] max-w-7xl h-20 flex items-center justify-between px-2 md:px-0 relative z-50">
+        
+        <!-- Left Navigation Pill -->
+        <div id="left-pill" class="nav-pill flex items-center gap-8 px-6 md:px-8 py-2 rounded-full">
+            <div class="flex items-center">
+                <span class="font-romantica text-2xl font-semibold text-white tracking-wide">LOJJ.IO</span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
+                <a href="#" class="hover:text-white transition-colors">About</a>
+                <a href="#" class="hover:text-white transition-colors">Features</a>
+            </div>
+        </div>
+
+        <!-- Right Navigation Pill (The Toggle) -->
+        <div id="right-pill" class="nav-pill pill-switch-container rounded-full overflow-hidden">
+            
+            <!-- Mobile Menu Toggle -->
+            <button id="hamburger-btn" class="md:hidden flex items-center justify-center w-12 h-full text-white/80 hover:text-white transition-colors z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+
+            <!-- Desktop Link 1 (Request Demo) -->
+            <a href="#" class="hidden md:flex nav-link watch-demo-trigger text-sm whitespace-nowrap">
+                Request Demo
+            </a>
+            
+            <!-- Link 2 (Waitlist) -->
+            <a href="#" class="waitlist-trigger waitlist-trigger-mobile md:nav-link px-5 md:px-0 rounded-full md:rounded-none h-full md:h-auto flex items-center justify-center text-sm font-semibold whitespace-nowrap z-10">
+                Contact us
+            </a>
+
+            <!-- The animated green slider (Desktop Only) -->
+            <div class="active-slider shadow-md"></div>
+        </div>
+    </nav>
+
+    <!-- Dynamic Hero Box -->
+    <div class="relative w-full flex justify-center mt-6">
+        <!-- items-start = Horizontal Left | justify-center = Vertical Center -->
+        <div id="dynamic-hero-box" class="w-[95%] max-w-7xl min-h-[500px] md:min-h-[600px] flex flex-col items-start justify-center text-left px-6 py-10 md:px-20 md:py-12 relative overflow-hidden shadow-2xl">
+            
+            <!-- Hero Background Video -->
+            <video 
+                autoplay 
+                muted 
+                loop 
+                playsinline
+                class="absolute inset-0 w-full h-full object-cover z-0"
+            >
+                <source src="hero.mp4" type="video/mp4">
+            </video>
+
+            <!-- Legibility Overlay (DARKENED for better contrast) -->
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20 z-[1]"></div>
+
+            <div class="relative z-10 max-w-2xl">
+                <!-- Using Clash Display with bold weight and tightened width for evident wrap -->
+                <h1 class="hero-heading font-bold text-white mb-4 md:mb-6 tracking-tight max-w-2xl grid grid-cols-[auto_auto] justify-start gap-x-[0.25em] gap-y-0">
+                    <span>Better</span><span class="italic">reviews.</span>
+                    <span>Faster</span><span class="italic">service.</span>
+                    <span>Higher</span><span class="italic">revenue.</span>
+                </h1>
+                <p class="text-white/90 text-base md:text-xl font-bold leading-relaxed max-w-xl">
+                    Capture requests, complete tasks, and deliver five-star stays.
+                </p>
+            </div>
+
+            <!-- Bottom Right CTA -->
+            <a href="#" data-scroll-signup class="rotating-border-btn absolute bottom-6 right-6 md:bottom-10 md:right-10 z-20 flex items-center justify-center gap-3 px-10 md:px-12 h-[64px] md:h-[68px] rounded-full transition-all duration-300 group button-strong-shadow">
+                <span class="text-white font-bold text-base md:text-lg transition-colors">Join the waitlist</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+        <div class="scroll-indicator-arrow"></div>
+    </div>
+
+    <!-- Visualization Container -->
+    <div class="visualization-section relative w-full flex justify-center mt-32 md:mt-40">
+        <div class="w-[95%] max-w-7xl">
+            <h2 class="text-4xl md:text-6xl font-bold text-white mb-6 text-center">How Requests Get Done</h2>
+            <div class="relative -z-10 w-full rounded-2xl sm:block visualization-container p-8 md:p-12">
+                <div class="w-full relative flex items-center justify-center py-8" style="z-index: 1;">
+                    <!-- 5-Step Process Flow -->
+                    <div class="w-full max-w-6xl grid grid-cols-2 md:flex md:flex-nowrap items-start justify-between relative gap-8 md:gap-0">
+                        
+                        <!-- Step 1: Guest Request (4 Corners) -->
+                        <div class="flex flex-col items-center relative z-10 w-full md:w-auto md:flex-1 group">
+                            <!-- Card -->
+                            <div class="w-24 h-20 md:w-28 md:h-24 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-30 flex items-center justify-center mb-4 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-2 relative bg-[#223d14]/60" style="will-change: transform; transform: translateZ(0);">
+                                <!-- Center base: message request -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" shape-rendering="geometricPrecision" class="text-white opacity-90 guest-base">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    <line x1="8" y1="9" x2="16" y2="9" class="anim-msg-line" style="animation-delay: 0s;"></line>
+                                    <line x1="8" y1="13" x2="12" y2="13" class="anim-msg-line" style="animation-delay: 0.5s;"></line>
+                                    <!-- Notification dot on message -->
+                                    <circle cx="20" cy="3" r="2.5" fill="currentColor" stroke="none" shape-rendering="geometricPrecision" class="anim-bell-dot"/>
+                                </svg>
+
+                                <!-- Corner A (top-left) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute guest-badge-a" style="top: -6px; left: -4px;">
+                                    <path d="M240,96H208a8,8,0,0,0-8-8H136a8,8,0,0,0-8,8H64V52A12,12,0,0,1,76,40a12.44,12.44,0,0,1,12.16,9.59,8,8,0,0,0,15.68-3.18A28.32,28.32,0,0,0,76,24,28,28,0,0,0,48,52V96H16a8,8,0,0,0-8,8v40a56.06,56.06,0,0,0,56,56v16a8,8,0,0,0,16,0V200h96v16a8,8,0,0,0,16,0V200a56.06,56.06,0,0,0,56-56V104A8,8,0,0,0,240,96Zm-48,8v32H144V104Zm40,40a40,40,0,0,1-40,40H64a40,40,0,0,1-40-40V112H128v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V112h24Z"></path>
+                                </svg>
+
+                                <!-- Corner B (top-right): cart / channel icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute guest-badge-b" style="top: -6px; right: -4px;">
+                                    <path d="M88,224a16,16,0,1,1-16-16A16,16,0,0,1,88,224Zm128-16a16,16,0,1,0,16,16A16,16,0,0,0,216,208Zm24-32H56V75.31A15.86,15.86,0,0,0,51.31,64L29.66,42.34A8,8,0,0,0,18.34,53.66L40,75.31V176H32a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM72,144V72A16,16,0,0,1,88,56h32V40a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V56h32a16,16,0,0,1,16,16v72a16,16,0,0,1-16,16H88A16,16,0,0,1,72,144Zm64-88h32V40H136ZM88,144H216V72H88Z"></path>
+                                </svg>
+
+                                <!-- Corner C (bottom-left) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute guest-badge-c" style="bottom: -6px; left: -4px;">
+                                    <path d="M241.57,171.2,141.33,96l23.46-17.6A8,8,0,0,0,168,72a40,40,0,1,0-80,0,8,8,0,0,0,16,0,24,24,0,0,1,47.69-3.78L123.34,89.49l-.28.21L14.43,171.2A16,16,0,0,0,24,200H232a16,16,0,0,0,9.6-28.8ZM232,184H24l104-78,104,78Z"></path>
+                                </svg>
+
+                                <!-- Corner D (bottom-right): service bell / urgency -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute guest-badge-d" style="bottom: -6px; right: -4px;">
+                                    <path d="M224,112H32a8,8,0,0,0-8,8,104.35,104.35,0,0,0,56,92.28V216a16,16,0,0,0,16,16h64a16,16,0,0,0,16-16v-3.72A104.35,104.35,0,0,0,232,120,8,8,0,0,0,224,112Zm-59.34,88a8,8,0,0,0-4.66,7.27V216H96v-8.71A8,8,0,0,0,91.34,200a88.29,88.29,0,0,1-51-72H215.63A88.29,88.29,0,0,1,164.66,200ZM81.77,55c5.35-6.66,6.67-11.16,6.12-13.14-.42-1.49-2.41-2.26-2.43-2.26A8,8,0,0,1,88,24a8.11,8.11,0,0,1,2.38.36c1,.31,9.91,3.33,12.79,12.76,2.46,8.07-.55,17.45-8.94,27.89-5.35,6.66-6.67,11.16-6.12,13.14.42,1.49,2.37,2.24,2.39,2.25A8,8,0,0,1,88,96a8.11,8.11,0,0,1-2.38-.36c-1-.31-9.91-3.33-12.79-12.76C70.37,74.81,73.38,65.43,81.77,55Zm40,0c5.35-6.66,6.67-11.16,6.12-13.14-.42-1.49-2.41-2.26-2.43-2.26A8,8,0,0,1,128,24a8.11,8.11,0,0,1,2.38.36c1,.31,9.91,3.33,12.79,12.76,2.46,8.07-.55,17.45-8.94,27.89-5.35,6.66-6.67,11.16-6.12,13.14.42,1.49,2.37,2.24,2.39,2.25A8,8,0,0,1,128,96a8.11,8.11,0,0,1-2.38-.36c-1-.31-9.91-3.33-12.79-12.76C110.37,74.81,113.38,65.43,121.77,55Zm40,0c5.35-6.66,6.67-11.16,6.12-13.14-.42-1.49-2.41-2.26-2.43-2.26A8,8,0,0,1,168,24a8.11,8.11,0,0,1,2.38.36c1,.31,9.91,3.33,12.79,12.76,2.46,8.07-.55,17.45-8.94,27.89-5.35,6.66-6.67,11.16-6.12,13.14.42,1.49,2.37,2.24,2.39,2.25A8,8,0,0,1,168,96a8.11,8.11,0,0,1-2.38-.36c-1-.31-9.91-3.33-12.79-12.76C150.37,74.81,153.38,65.43,161.77,55Z"></path>
+                                </svg>
+                            </div>
+                            <!-- Number -->
+                            <div class="text-white text-2xl font-bold mb-1 opacity-80">1</div>
+                            <!-- Label -->
+                            <div class="text-white text-sm font-bold text-center opacity-90 tracking-wide">Guest Request</div>
+                        </div>
+
+                        <!-- Step 2: Task Assignment (Clipboard + Clock → Broom → Wrench) -->
+                        <div class="flex flex-col items-center relative z-10 w-full md:w-auto md:flex-1 group">
+                            <!-- Card -->
+                            <div class="w-24 h-20 md:w-28 md:h-24 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-30 flex items-center justify-center mb-4 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-2 relative bg-[#223d14]/60" style="will-change: transform; transform: translateZ(0);">
+                                <!-- Central clipboard: the task list -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white opacity-90">
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <path d="M9 10h6" class="anim-clipboard-item" style="animation-delay: 0s;"></path>
+                                    <path d="M9 14h6" class="anim-clipboard-item" style="animation-delay: 0.2s;"></path>
+                                    <path d="M9 18h4" class="anim-clipboard-item" style="animation-delay: 0.4s;"></path>
+                                </svg>
+
+                                <!-- Clock User: task created & assigned (top-right) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute task-icon-clock" style="top: -6px; right: -4px;">
+                                    <path d="M136,72v43.05l36.42-18.21a8,8,0,0,1,7.16,14.31l-48,24A8,8,0,0,1,120,128V72a8,8,0,0,1,16,0Zm-8,144a88,88,0,1,1,88-88,8,8,0,0,0,16,0A104,104,0,1,0,128,232a8,8,0,0,0,0-16Zm103.73,5.94a8,8,0,1,1-15.46,4.11C213.44,215.42,203.46,208,192,208s-21.44,7.42-24.27,18.05A8,8,0,0,1,160,232a8.15,8.15,0,0,1-2.06-.27,8,8,0,0,1-5.67-9.79,40,40,0,0,1,17.11-23.32,32,32,0,1,1,45.23,0A40,40,0,0,1,231.73,221.94ZM176,176a16,16,0,1,0,16-16A16,16,0,0,0,176,176Z"></path>
+                                </svg>
+
+                                <!-- Broom: housekeeping task (bottom-left) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute task-icon-broom" style="bottom: -6px; left: -4px;">
+                                    <path d="M235.5,216.81c-22.56-11-35.5-34.58-35.5-64.8V134.73a15.94,15.94,0,0,0-10.09-14.87L165,110a8,8,0,0,1-4.48-10.34l21.32-53a28,28,0,0,0-16.1-37,28.14,28.14,0,0,0-35.82,16,.61.61,0,0,0,0,.12L108.9,79a8,8,0,0,1-10.37,4.49L73.11,73.14A15.89,15.89,0,0,0,55.74,76.8C34.68,98.45,24,123.75,24,152a111.45,111.45,0,0,0,31.18,77.53A8,8,0,0,0,61,232H232a8,8,0,0,0,3.5-15.19ZM67.14,88l25.41,10.3a24,24,0,0,0,31.23-13.45l21-53c2.56-6.11,9.47-9.27,15.43-7a12,12,0,0,1,6.88,15.92L145.69,93.76a24,24,0,0,0,13.43,31.14L184,134.73V152c0,.33,0,.66,0,1L55.77,101.71A108.84,108.84,0,0,1,67.14,88Zm48,128a87.53,87.53,0,0,1-24.34-42,8,8,0,0,0-15.49,4,105.16,105.16,0,0,0,18.36,38H64.44A95.54,95.54,0,0,1,40,152a85.9,85.9,0,0,1,7.73-36.29l137.8,55.12c3,18,10.56,33.48,21.89,45.16Z"></path>
+                                </svg>
+
+                                <!-- Tool: engineering assignment (top-left) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute task-icon-tool" style="top: -6px; left: -4px;">
+                                    <path d="M226.76,69a8,8,0,0,0-12.84-2.88l-40.3,37.19-17.23-3.7-3.7-17.23,37.19-40.3A8,8,0,0,0,187,29.24,72,72,0,0,0,88,96,72.34,72.34,0,0,0,94,124.94L33.79,177c-.15.12-.29.26-.43.39a32,32,0,0,0,45.26,45.26c.13-.13.27-.28.39-.42L131.06,162A72,72,0,0,0,232,96,71.56,71.56,0,0,0,226.76,69ZM160,152a56.14,56.14,0,0,1-27.07-7,8,8,0,0,0-9.92,1.77L67.11,211.51a16,16,0,0,1-22.62-22.62L109.18,133a8,8,0,0,0,1.77-9.93,56,56,0,0,1,58.36-82.31l-31.2,33.81a8,8,0,0,0-1.94,7.1L141.83,108a8,8,0,0,0,6.14,6.14l26.35,5.66a8,8,0,0,0,7.1-1.94l33.81-31.2A56.06,56.06,0,0,1,160,152Z"></path>
+                                </svg>
+
+                                <!-- Wrench: maintenance / engineering task (bottom-right) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute task-icon-wrench" style="bottom: -6px; right: -4px;">
+                                    <path d="M220.28,55l-.17-.17-44.9-42.28a16,16,0,0,0-22.5.08L108.17,56.87l-1.54-1.56A25,25,0,0,0,71.27,90.58l1.46,1.48L52.69,112a16,16,0,0,0,0,22.63l12.68,12.68a16,16,0,0,0,22.59,0l19.93-19.65L120,140h0l0,0L55.31,205.37a25,25,0,1,0,35.34,35.29l88.67-89.35a16,16,0,0,0,0-22.6L143.63,92.66,156.56,80l.1.09L194,115.4a16,16,0,0,0,22.53-.09l3.71-3.71a40,40,0,0,0,0-56.57ZM76.69,136,64,123.33l20-19.88,12.69,12.86Zm2.62,93.37a9,9,0,1,1-12.65-12.71l64.67-65.37a16,16,0,0,0,0-22.57L82.63,79.31A9,9,0,0,1,95.29,66.6L168,140ZM209,100.28,205.25,104a1.21,1.21,0,0,0-.16-.16L167.69,68.5a16.05,16.05,0,0,0-22.39.12L132.37,81.29,119.43,68.23,164,24l.17.16,44.88,42.26a24,24,0,0,1-.08,33.86Z"></path>
+                                </svg>
+                            </div>
+                            <!-- Number -->
+                            <div class="text-white text-2xl font-bold mb-1 opacity-80">2</div>
+                            <!-- Label -->
+                            <div class="text-white text-sm font-bold text-center opacity-90 tracking-wide">Task Assignment</div>
+                        </div>
+
+                        <!-- Step 3: Team Collaboration (Signal → Handoff → Sync) -->
+                        <div class="flex flex-col items-center relative z-10 w-full md:w-auto md:flex-1 group">
+                            <!-- Card -->
+                            <div class="w-24 h-20 md:w-28 md:h-24 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-30 flex items-center justify-center mb-4 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-2 relative bg-[#223d14]/60" style="will-change: transform; transform: translateZ(0);">
+                                <!-- Center base: original users icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white opacity-90 team-users-base">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+
+                                <!-- Corner badge: signal (top-left) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute team-badge-core" style="top: -6px; left: -4px;">
+                                    <path d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Zm16-52a8,8,0,0,1-8,8h-4a36,36,0,0,1-36-36V80a8,8,0,0,1,16,0v4a20,20,0,0,0,20,20h4A8,8,0,0,1,208,112ZM60,120H56a8,8,0,0,1,0-16h4A20,20,0,0,0,80,84V80a8,8,0,0,1,16,0v4A36,36,0,0,1,60,120Z"></path>
+                                </svg>
+
+                                <!-- Corner badge: handoff (top-right) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute team-badge-handoff" style="top: -6px; right: -4px;">
+                                    <path d="M254.3,107.91,228.78,56.85a16,16,0,0,0-21.47-7.15L182.44,62.13,130.05,48.27a8.14,8.14,0,0,0-4.1,0L73.56,62.13,48.69,49.7a16,16,0,0,0-21.47,7.15L1.7,107.9a16,16,0,0,0,7.15,21.47l27,13.51,55.49,39.63a8.06,8.06,0,0,0,2.71,1.25l64,16a8,8,0,0,0,7.6-2.1l55.07-55.08,26.42-13.21a16,16,0,0,0,7.15-21.46Zm-54.89,33.37L165,113.72a8,8,0,0,0-10.68.61C136.51,132.27,116.66,130,104,122L147.24,80h31.81l27.21,54.41ZM41.53,64,62,74.22,36.43,125.27,16,115.06Zm116,119.13L99.42,168.61l-49.2-35.14,28-56L128,64.28l9.8,2.59-45,43.68-.08.09a16,16,0,0,0,2.72,24.81c20.56,13.13,45.37,11,64.91-5L188,152.66Zm62-57.87-25.52-51L214.47,64,240,115.06Zm-87.75,92.67a8,8,0,0,1-7.75,6.06,8.13,8.13,0,0,1-1.95-.24L80.41,213.33a7.89,7.89,0,0,1-2.71-1.25L51.35,193.26a8,8,0,0,1,9.3-13l25.11,17.94L126,208.24A8,8,0,0,1,131.82,217.94Z"></path>
+                                </svg>
+
+                                <!-- Corner badge: everyone looped in (bottom-left) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute team-badge-community" style="bottom: -6px; left: -4px;">
+                                    <path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"></path>
+                                </svg>
+
+                                <!-- Corner badge: sync (bottom-right) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute team-badge-sync" style="bottom: -6px; right: -4px;">
+                                    <path d="M192.5,171.47A88.34,88.34,0,0,0,224,101.93c-1-45.71-37.61-83.4-83.24-85.8A88,88,0,0,0,48,102L25.55,145.18c-.09.18-.18.36-.26.54a16,16,0,0,0,7.55,20.62l.25.11L56,176.94V208a16,16,0,0,0,16,16h48a8,8,0,0,0,0-16H72V171.81a8,8,0,0,0-4.67-7.28L40,152l23.07-44.34A7.9,7.9,0,0,0,64,104a72,72,0,0,1,56-70.21V49.38a24,24,0,1,0,16,0V32c1.3,0,2.6,0,3.9.1A72.26,72.26,0,0,1,203.84,80H184a8,8,0,0,0-6.15,2.88L152.34,113.5a24.06,24.06,0,1,0,12.28,10.25L187.75,96h19.79q.36,3.12.44,6.3a72.26,72.26,0,0,1-28.78,59.3,8,8,0,0,0-3.14,7.39l8,64a8,8,0,0,0,7.93,7,8.39,8.39,0,0,0,1-.06,8,8,0,0,0,6.95-8.93ZM128,80a8,8,0,1,1,8-8A8,8,0,0,1,128,80Zm16,64a8,8,0,1,1,8-8A8,8,0,0,1,144,144Z"></path>
+                                </svg>
+                            </div>
+                            <!-- Number -->
+                            <div class="text-white text-2xl font-bold mb-1 opacity-80">3</div>
+                            <!-- Label -->
+                            <div class="text-white text-sm font-bold text-center opacity-90 tracking-wide">Team Collaboration</div>
+                        </div>
+
+                        <!-- Step 4: Track Progress (Chart/Analytics) -->
+                        <div class="flex flex-col items-center relative z-10 w-full md:w-auto md:flex-1 group">
+                            <!-- Card -->
+                            <div class="w-24 h-20 md:w-28 md:h-24 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-30 flex items-center justify-center mb-4 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-2 relative bg-[#223d14]/60" style="will-change: transform; transform: translateZ(0);">
+                                <!-- Center chart icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white opacity-90">
+                                    <line x1="12" y1="20" x2="12" y2="10" class="anim-bar" style="animation-delay: 0s;"></line>
+                                    <line x1="18" y1="20" x2="18" y2="4" class="anim-bar" style="animation-delay: 0.3s;"></line>
+                                    <line x1="6" y1="20" x2="6" y2="16" class="anim-bar" style="animation-delay: 0.6s;"></line>
+                                </svg>
+
+                                <!-- Corner A (top-left): line chart growth -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute track-badge-a" style="top: -6px; left: -4px;">
+                                    <path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V156.69l50.34-50.35a8,8,0,0,1,11.32,0L128,132.69,180.69,80H160a8,8,0,0,1,0-16h40a8,8,0,0,1,8,8v40a8,8,0,0,1-16,0V91.31l-58.34,58.35a8,8,0,0,1-11.32,0L96,123.31l-56,56V200H224A8,8,0,0,1,232,208Z"></path>
+                                </svg>
+
+                                <!-- Corner B (top-right): analytics gauge -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute track-badge-b" style="top: -6px; right: -4px;">
+                                    <path d="M100,116.43a8,8,0,0,0,4-6.93v-72A8,8,0,0,0,93.34,30,104.06,104.06,0,0,0,25.73,147a8,8,0,0,0,4.52,5.81,7.86,7.86,0,0,0,3.35.74,8,8,0,0,0,4-1.07ZM88,49.62v55.26L40.12,132.51C40,131,40,129.48,40,128A88.12,88.12,0,0,1,88,49.62ZM128,24a8,8,0,0,0-8,8v91.82L41.19,169.73a8,8,0,0,0-2.87,11A104,104,0,1,0,128,24Zm0,192a88.47,88.47,0,0,1-71.49-36.68l75.52-44a8,8,0,0,0,4-6.92V40.36A88,88,0,0,1,128,216Z"></path>
+                                </svg>
+
+                                <!-- Corner C (bottom-left): trend arrow -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute track-badge-c" style="bottom: -6px; left: -4px;">
+                                    <path d="M245.66,74.34l-32-32a8,8,0,0,0-11.32,11.32L220.69,72H208c-49.33,0-61.05,28.12-71.38,52.92-9.38,22.51-16.92,40.59-49.48,42.84a40,40,0,1,0,.1,16c43.26-2.65,54.34-29.15,64.14-52.69C161.41,107,169.33,88,208,88h12.69l-18.35,18.34a8,8,0,0,0,11.32,11.32l32-32A8,8,0,0,0,245.66,74.34ZM48,200a24,24,0,1,1,24-24A24,24,0,0,1,48,200Z"></path>
+                                </svg>
+
+                                <!-- Corner D (bottom-right): metrics dots -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute track-badge-d" style="bottom: -6px; right: -4px;">
+                                    <path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0V200H224A8,8,0,0,1,232,208ZM132,160a12,12,0,1,0-12-12A12,12,0,0,0,132,160Zm-24-56A12,12,0,1,0,96,92,12,12,0,0,0,108,104ZM76,176a12,12,0,1,0-12-12A12,12,0,0,0,76,176Zm96-48a12,12,0,1,0-12-12A12,12,0,0,0,172,128Zm24-40a12,12,0,1,0-12-12A12,12,0,0,0,196,88Zm-20,76a12,12,0,1,0,12-12A12,12,0,0,0,176,164Z"></path>
+                                </svg>
+                            </div>
+                            <!-- Number -->
+                            <div class="text-white text-2xl font-bold mb-1 opacity-80">4</div>
+                            <!-- Label -->
+                            <div class="text-white text-sm font-bold text-center opacity-90 tracking-wide">Track Progress</div>
+                        </div>
+
+                        <!-- Step 5: Task Completion (Check Circle) -->
+                        <div class="flex flex-col items-center relative z-10 w-full md:w-auto md:flex-1 group">
+                            <!-- Card -->
+                            <div class="w-24 h-20 md:w-28 md:h-24 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-30 flex items-center justify-center mb-4 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-2 relative bg-[#223d14]/60" style="will-change: transform; transform: translateZ(0);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white opacity-90 anim-check">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="9 11.01 12 14.01 22 4"></polyline>
+                                </svg>
+
+                                <!-- Corner A (top-left): quality signal -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute complete-badge-a" style="top: -6px; left: -4px;">
+                                    <path d="M238.73,43.67A8,8,0,0,0,232,40H152a8,8,0,0,0-7.28,4.69L135.94,64H28a8,8,0,0,0-5.92,13.38L57.19,116,22.08,154.62A8,8,0,0,0,28,168h73.09a8,8,0,0,0,7.28-4.69L117.15,144h62.43l-34.86,76.69a8,8,0,1,0,14.56,6.62l80-176A8,8,0,0,0,238.73,43.67ZM95.94,152H46.08l27.84-30.62a8,8,0,0,0,0-10.76L46.08,80h82.59Zm90.91-24H124.42l32.73-72h62.43Z"></path>
+                                </svg>
+
+                                <!-- Corner B (top-right): calendar completion -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute complete-badge-b" style="top: -6px; right: -4px;">
+                                    <path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-38.34-85.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L116,164.69l42.34-42.35A8,8,0,0,1,169.66,122.34Z"></path>
+                                </svg>
+
+                                <!-- Corner C (bottom-left): global SLA -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute complete-badge-c" style="bottom: -6px; left: -4px;">
+                                    <path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path>
+                                </svg>
+
+                                <!-- Corner D (bottom-right): checklist done -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute complete-badge-d" style="bottom: -6px; right: -4px;">
+                                    <path d="M224,128a8,8,0,0,1-8,8H128a8,8,0,0,1,0-16h88A8,8,0,0,1,224,128ZM128,72h88a8,8,0,0,0,0-16H128a8,8,0,0,0,0,16Zm88,112H128a8,8,0,0,0,0,16h88a8,8,0,0,0,0-16ZM82.34,42.34,56,68.69,45.66,58.34A8,8,0,0,0,34.34,69.66l16,16a8,8,0,0,0,11.32,0l32-32A8,8,0,0,0,82.34,42.34Zm0,64L56,132.69,45.66,122.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Zm0,64L56,196.69,45.66,186.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Z"></path>
+                                </svg>
+                            </div>
+                            <!-- Number -->
+                            <div class="text-white text-2xl font-bold mb-1 opacity-80">5</div>
+                            <!-- Label -->
+                            <div class="text-white text-sm font-bold text-center opacity-90 tracking-wide">Task Completion</div>
+                        </div>
+
+                        <!-- Step 6: Better Reviews (Star) -->
+                        <div class="flex flex-col items-center relative z-10 w-full md:w-auto md:flex-1 group">
+                            <!-- Card -->
+                            <div class="w-24 h-20 md:w-28 md:h-24 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-30 flex items-center justify-center mb-4 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:-translate-y-2 relative bg-[#223d14]/60" style="will-change: transform; transform: translateZ(0);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white opacity-90">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="anim-clipboard-item" style="animation-delay: 0s;"></polygon>
+                                </svg>
+
+                                <!-- Corner A (top-left): reviews list -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute reviews-badge-a" style="top: -6px; left: -4px;">
+                                    <path d="M32,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H40A8,8,0,0,1,32,64Zm8,72H96a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm72,48H40a8,8,0,0,0,0,16h72a8,8,0,0,0,0-16Zm125.09-40.22-22.52,18.59,6.86,27.71a8,8,0,0,1-11.82,8.81L184,183.82l-25.61,15.07a8,8,0,0,1-11.82-8.81l6.85-27.71-22.51-18.59a8,8,0,0,1,4.47-14.14l29.84-2.31,11.43-26.5a8,8,0,0,1,14.7,0l11.43,26.5,29.84,2.31a8,8,0,0,1,4.47,14.14Zm-25.47.28-14.89-1.15a8,8,0,0,1-6.73-4.8l-6-13.92-6,13.92a8,8,0,0,1-6.73,4.8l-14.89,1.15,11.11,9.18a8,8,0,0,1,2.68,8.09l-3.5,14.12,13.27-7.81a8,8,0,0,1,8.12,0l13.27,7.81-3.5-14.12a8,8,0,0,1,2.68-8.09Z"></path>
+                                </svg>
+
+                                <!-- Corner B (top-right): star impact -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute reviews-badge-b" style="top: -6px; right: -4px;">
+                                    <path d="M239.35,70.08a13.41,13.41,0,0,0-11.77-9.28l-36.94-2.92L176.43,24.22a13.51,13.51,0,0,0-24.86,0L137.36,57.88,100.42,60.8a13.39,13.39,0,0,0-7.66,23.58l28.06,23.68-8.56,35.39a13.32,13.32,0,0,0,5.1,13.91,13.51,13.51,0,0,0,15,.69L164,139l31.65,19.06a13.54,13.54,0,0,0,15-.69,13.34,13.34,0,0,0,5.09-13.91l-8.56-35.39,28.06-23.68A13.32,13.32,0,0,0,239.35,70.08ZM193.08,99a8,8,0,0,0-2.61,8l8.28,34.21L168.13,122.8a8,8,0,0,0-8.25,0l-30.62,18.43L137.54,107a8,8,0,0,0-2.62-8L108,76.26l35.52-2.81a8,8,0,0,0,6.74-4.87L164,35.91l13.79,32.67a8,8,0,0,0,6.74,4.87l35.53,2.81Zm-105,24.18L29.66,181.66a8,8,0,0,1-11.32-11.32l58.45-58.45a8,8,0,0,1,11.32,11.32Zm10.81,49.87a8,8,0,0,1,0,11.31L45.66,237.66a8,8,0,0,1-11.32-11.32l53.27-53.26A8,8,0,0,1,98.92,173.08Zm73-1a8,8,0,0,1,0,11.32l-54.28,54.28a8,8,0,0,1-11.32-11.32l54.29-54.28A8,8,0,0,1,171.94,172.06Z"></path>
+                                </svg>
+
+                                <!-- Corner C (bottom-left): satisfaction meter -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute reviews-badge-c" style="bottom: -6px; left: -4px;">
+                                    <path d="M232,64H208V48a8,8,0,0,0-8-8H56a8,8,0,0,0-8,8V64H24A16,16,0,0,0,8,80V96a40,40,0,0,0,40,40h3.65A80.13,80.13,0,0,0,120,191.61V216H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16H136V191.58c31.94-3.23,58.44-25.64,68.08-55.58H208a40,40,0,0,0,40-40V80A16,16,0,0,0,232,64ZM48,120A24,24,0,0,1,24,96V80H48v32q0,4,.39,8Zm144-8.9c0,35.52-29,64.64-64,64.9a64,64,0,0,1-64-64V56H192ZM232,96a24,24,0,0,1-24,24h-.5a81.81,81.81,0,0,0,.5-8.9V80h24Z"></path>
+                                </svg>
+
+                                <!-- Corner D (bottom-right): monetary impact icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor" class="text-white opacity-90 absolute reviews-badge-d" style="bottom: -6px; right: -4px;">
+                                    <path d="M184,48.81V32a16,16,0,0,0-16-16H88A16,16,0,0,0,72,32V48.81A40.05,40.05,0,0,0,40,88V200a40,40,0,0,0,40,40h96a40,40,0,0,0,40-40V88A40.05,40.05,0,0,0,184,48.81ZM168,48H152V32h16Zm-48,0V32h16V48ZM104,32V48H88V32Zm96,168a24,24,0,0,1-24,24H80a24,24,0,0,1-24-24V88A24,24,0,0,1,80,64h96a24,24,0,0,1,24,24Zm-40-40a24,24,0,0,1-24,24v8a8,8,0,0,1-16,0v-8h-8a8,8,0,0,1,0-16h24a8,8,0,0,0,0-16H120a24,24,0,0,1,0-48V96a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16H120a8,8,0,0,0,0,16h16A24,24,0,0,1,160,160Z"></path>
+                                </svg>
+                            </div>
+                            <!-- Number -->
+                            <div class="text-white text-2xl font-bold mb-1 opacity-80">6</div>
+                            <!-- Label -->
+                            <div class="text-white text-sm font-bold text-center opacity-90 tracking-wide">Better Reviews</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="signup" class="site-footer">
+        <div class="footer-top">
+            <!-- CTA Section -->
+            <div class="footer-cta">
+                <h2>Get Early<br>Access</h2>
+                
+                <form id="footer-signup" class="flex flex-col gap-0 relative" action="https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse" method="POST" target="hidden_iframe" novalidate>
+                    <div class="newsletter-form">
+                        <input type="text" name="entry.FULLNAME_ENTRY_ID" class="newsletter-input" placeholder="Full Name" required>
+                        <button class="newsletter-btn" type="submit">OK</button>
+                        <div class="form-tooltip">Please enter your full name</div>
+                    </div>
+                    <div class="newsletter-form">
+                        <input type="email" name="entry.EMAIL_ENTRY_ID" class="newsletter-input" placeholder="Email" required>
+                        <div class="form-tooltip">Please enter a valid email</div>
+                    </div>
+                    <div class="newsletter-form">
+                        <input type="text" name="entry.HOTEL_ENTRY_ID" class="newsletter-input" placeholder="Hotel Name" required>
+                        <div class="form-tooltip">Please enter your hotel name</div>
+                    </div>
+                    <div class="newsletter-form">
+                        <input type="text" name="entry.ROLE_ENTRY_ID" class="newsletter-input" placeholder="Role" required>
+                        <div class="form-tooltip">Please enter your role</div>
+                    </div>
+                    <div class="newsletter-form">
+                        <input type="text" name="entry.LOCATION_ENTRY_ID" class="newsletter-input" placeholder="Location" required>
+                        <div class="form-tooltip">Please enter your location</div>
+                    </div>
+                </form>
+                <iframe name="hidden_iframe" style="display:none;"></iframe>
+            </div>
+
+            <!-- Links Section -->
+            <div class="footer-links">
+                <div class="link-column">
+                    <div class="link-column-heading">About</div>
+                    <a href="#">Our Story</a>
+                    <a href="#">Careers</a>
+                </div>
+                <div class="link-column">
+                    <div class="link-column-heading">Features</div>
+                    <a href="#">Requests</a>
+                    <a href="#">Analytics</a>
+                </div>
+                <div class="link-column">
+                    <div class="link-column-heading">Social</div>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">Instagram</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Logo -->
+        <div id="footer-canvas-container">
+            <div id="footer-loading">Loading 3D Asset...</div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="copyright">
+                &copy; 2026 LOJJ.IO &mdash; All Rights Reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 z-[100] invisible opacity-0 flex flex-col items-center justify-center p-8">
+        <button id="close-menu" class="absolute top-10 right-10 p-2 text-black">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div class="flex flex-col items-center gap-10 text-3xl font-medium tracking-tight text-[rgb(34,61,20)]">
+            <a href="#" class="hover:opacity-60 transition-opacity">About</a>
+            <a href="#" class="hover:opacity-60 transition-opacity">Features</a>
+            <a href="#" class="rotating-border-btn flex items-center justify-center gap-3 px-10 h-[64px] rounded-full transition-all duration-300 button-strong-shadow">
+                <span class="text-white font-bold text-base transition-colors">Request Demo</span>
+            </a>
+            <div class="mt-4">
+                <span class="font-romantica text-4xl opacity-20">LOJJ.IO</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mobileMenu = document.getElementById('mobile-menu');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const closeMenu = document.getElementById('close-menu');
+        const heroBox = document.getElementById('dynamic-hero-box');
+        const bgVideo = document.getElementById('bg-video');
+        const bgPlaceholder = document.getElementById('bg-placeholder');
+
+        // Video placeholder crossfade
+        function handleVideoLoad() {
+            if (bgVideo && bgPlaceholder) {
+                // Fade in video and fade out placeholder
+                bgVideo.style.opacity = '1';
+                bgPlaceholder.style.opacity = '0';
+                
+                // Remove placeholder from DOM after transition completes
+                setTimeout(() => {
+                    if (bgPlaceholder && bgPlaceholder.style.opacity === '0') {
+                        bgPlaceholder.remove();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Listen for video ready events
+        if (bgVideo) {
+            // Use canplay event for when video can start playing
+            bgVideo.addEventListener('canplay', handleVideoLoad, { once: true });
+            // Fallback to loadeddata if canplay doesn't fire
+            bgVideo.addEventListener('loadeddata', handleVideoLoad, { once: true });
+            // Handle video load errors - keep placeholder visible
+            bgVideo.addEventListener('error', () => {
+                if (bgPlaceholder) {
+                    bgPlaceholder.style.opacity = '1';
+                }
+            });
+        }
+
+        // Always start at top on load / refresh
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        // Remove any leftover hash (e.g. #signup) so browser doesn't jump to footer
+        if (window.location.hash) {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+
+        const resetScrollToTop = () => window.scrollTo(0, 0);
+        resetScrollToTop();
+        window.addEventListener('load', resetScrollToTop);
+
+        // Smooth fade-in effects on load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Hero box fade-in
+            setTimeout(() => {
+                heroBox.classList.add('visible');
+            }, 200);
+            
+            // Scroll indicator fade-in
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            if (scrollIndicator) {
+                setTimeout(() => {
+                    scrollIndicator.classList.add('visible');
+                }, 1200);
+
+                // Hide scroll indicator once "How Requests Get Done" is visible (mobile only)
+                const vizSection = document.querySelector('.visualization-section');
+                if (vizSection && 'IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting && window.innerWidth < 768) {
+                                scrollIndicator.classList.remove('visible');
+                                observer.disconnect();
+                            }
+                        });
+                    }, {
+                        threshold: 0.1
+                    });
+                    observer.observe(vizSection);
+                }
+            }
+
+        });
+
+        // Smooth scroll to signup without changing URL hash
+        const signupCta = document.querySelector('[data-scroll-signup]');
+        const signupSection = document.getElementById('signup');
+        if (signupCta && signupSection) {
+            signupCta.addEventListener('click', (e) => {
+                e.preventDefault();
+                signupSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        // Mobile Menu Listeners
+        hamburgerBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('invisible', 'opacity-0');
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        });
+
+        closeMenu.addEventListener('click', () => {
+            mobileMenu.classList.add('invisible', 'opacity-0');
+            document.body.style.overflow = 'auto';
+            document.documentElement.style.overflow = 'auto';
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('invisible', 'opacity-0');
+                document.body.style.overflow = 'auto';
+                document.documentElement.style.overflow = 'auto';
+            });
+        });
+
+        // Footer form validation with per-field tooltips
+        const footerForm = document.getElementById('footer-signup');
+        let tooltipTimeouts = [];
+
+        function clearAllTooltips() {
+            tooltipTimeouts.forEach(t => clearTimeout(t));
+            tooltipTimeouts = [];
+            footerForm.querySelectorAll('.form-tooltip').forEach(tip => {
+                tip.classList.remove('visible');
+            });
+        }
+
+        if (footerForm) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            footerForm.addEventListener('submit', function(e) {
+                clearAllTooltips();
+
+                const inputs = footerForm.querySelectorAll('.newsletter-input');
+                let hasError = false;
+                let firstError = null;
+
+                inputs.forEach(input => {
+                    const wrapper = input.closest('.newsletter-form');
+                    const tooltip = wrapper ? wrapper.querySelector('.form-tooltip') : null;
+                    if (!tooltip) return;
+
+                    let invalid = false;
+
+                    if (!input.value.trim()) {
+                        invalid = true;
+                    } else if (input.type === 'email' && !emailRegex.test(input.value.trim())) {
+                        invalid = true;
+                        tooltip.textContent = 'Please enter a valid email';
+                    }
+
+                    if (invalid) {
+                        hasError = true;
+                        if (!firstError) firstError = input;
+                        tooltip.classList.add('visible');
+                        const t = setTimeout(() => tooltip.classList.remove('visible'), 3000);
+                        tooltipTimeouts.push(t);
+                    }
+                });
+
+                if (hasError) {
+                    e.preventDefault();
+                    if (firstError) firstError.focus();
+                } else {
+                    // All valid — replace OK with success text
+                    const btn = this.querySelector('.newsletter-btn');
+                    btn.textContent = 'Submitted successfully';
+
+                    const t = setTimeout(() => {
+                        footerForm.reset();
+                        btn.textContent = 'OK';
+                    }, 3000);
+                    tooltipTimeouts.push(t);
+                }
+            });
+
+            // Hide tooltips when user starts typing in a field
+            const formInputs = Array.from(footerForm.querySelectorAll('.newsletter-input'));
+            formInputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    const wrapper = input.closest('.newsletter-form');
+                    const tooltip = wrapper ? wrapper.querySelector('.form-tooltip') : null;
+                    if (tooltip) tooltip.classList.remove('visible');
+                });
+
+                // Arrow key navigation between fields
+                input.addEventListener('keydown', (e) => {
+                    const idx = formInputs.indexOf(input);
+                    if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
+                        if (idx < formInputs.length - 1) {
+                            e.preventDefault();
+                            formInputs[idx + 1].focus();
+                        }
+                    } else if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
+                        if (idx > 0) {
+                            e.preventDefault();
+                            formInputs[idx - 1].focus();
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+
+    <!-- Three.js for 3D Footer Logo -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+        import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+
+        // --- Configuration ---
+        const config = {
+            // Material (Silver)
+            colorHex: 0xe8e8e8,
+            emissive: 0x222222,
+            roughness: 0.15,
+            metalness: 0.95,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.05,
+            iridescence: 0.15,
+            iridescenceIOR: 1.3,
+            
+            // Layout
+            textSpacing: 0.10,
+            
+            // Bevel
+            depthMultiplier: 0.2,
+            bevelMultiplier: 0.03,
+            bevelSegments: 10
+        };
+
+        // --- Init ---
+        const container = document.getElementById('footer-canvas-container');
+        if (!container) throw new Error('Footer canvas container not found');
+
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        const scene = new THREE.Scene();
+        
+        const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 1000);
+        camera.position.set(0, 0, 100);
+
+        // Alpha: true for transparent background (video shows through)
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.7;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.09;
+        controls.enableZoom = false;
+        controls.enablePan = false;
+
+        // Lock vertical rotation — only allow left/right
+        controls.minPolarAngle = Math.PI / 2;
+        controls.maxPolarAngle = Math.PI / 2;
+
+        controls.saveState();
+
+        // Reset rotation when user scrolls away
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    controls.reset();
+                }
+            });
+        });
+        observer.observe(container);
+
+        // --- Environment & Lighting ---
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+        const envScene = new THREE.Scene();
+        envScene.background = new THREE.Color(0x111111);
+        
+        // Studio reflection panels
+        const box1 = new THREE.Mesh(new THREE.BoxGeometry(50, 2, 50), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide }));
+        box1.position.y = 10;
+        envScene.add(box1);
+        const box2 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 2), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide }));
+        box2.position.set(20, 0, 20);
+        box2.lookAt(0, 0, 0);
+        envScene.add(box2);
+        const box3 = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 2), new THREE.MeshBasicMaterial({ color: 0xccccff, side: THREE.BackSide }));
+        box3.position.set(-20, 0, -10);
+        box3.lookAt(0, 0, 0);
+        envScene.add(box3);
+
+        scene.environment = pmremGenerator.fromScene(envScene).texture;
+        
+        RectAreaLightUniformsLib.init();
+        const rectLight = new THREE.RectAreaLight(0xffffff, 15, 50, 75);
+        rectLight.position.set(5, 5, 25);
+        rectLight.lookAt(5, -10, 10);
+        scene.add(rectLight);
+
+        const spotLight = new THREE.SpotLight(0xffffff, 800);
+        spotLight.position.set(-10, 20, 20);
+        spotLight.castShadow = true;
+        spotLight.angle = 1;
+        spotLight.penumbra = 2.0;
+        spotLight.shadow.radius = 20;
+        spotLight.shadow.bias = -0.0001;
+        scene.add(spotLight);
+
+        // Back Spotlight
+        const backSpotLight = new THREE.SpotLight(0xffffff, 800);
+        backSpotLight.position.set(15, 20, -10);
+        backSpotLight.castShadow = true;
+        backSpotLight.angle = 1;
+        backSpotLight.penumbra = 2.0;
+        backSpotLight.shadow.radius = 20;
+        backSpotLight.shadow.bias = -0.0001;
+        scene.add(backSpotLight);
+        
+        // Cool rim light (silver accent)
+        const rimLight = new THREE.SpotLight(0xeeeeff, 2000);
+        rimLight.position.set(-10, -30, -10);
+        rimLight.lookAt(0, 0, 0);
+        scene.add(rimLight);
+
+        // --- Material ---
+        const material = new THREE.MeshPhysicalMaterial({
+            color: config.colorHex,
+            emissive: config.emissive,
+            metalness: config.metalness,
+            roughness: config.roughness,
+            clearcoat: config.clearcoat,
+            clearcoatRoughness: config.clearcoatRoughness,
+            iridescence: config.iridescence,
+            iridescenceIOR: config.iridescenceIOR,
+        });
+
+        const logoGroup = new THREE.Group();
+        scene.add(logoGroup);
+
+        let wrapperGroup = null;
+        let originalSvgWidth = 1;
+
+        // --- Scale Logic (constrain to both width AND height) ---
+        let originalSvgHeight = 1;
+
+        function fitLogoToScreen() {
+            if (!wrapperGroup || originalSvgWidth === 0) return;
+
+            const dist = camera.position.z - 0;
+            const vFOV = THREE.MathUtils.degToRad(camera.fov);
+            const visibleHeight = 2 * Math.tan(vFOV / 2) * dist;
+            const visibleWidth = visibleHeight * camera.aspect;
+
+            const scaleByWidth = (visibleWidth * 0.80) / originalSvgWidth;
+            const scaleByHeight = (visibleHeight * 0.75) / originalSvgHeight;
+            const scaleFactor = Math.min(scaleByWidth, scaleByHeight);
+
+            wrapperGroup.scale.set(scaleFactor, -scaleFactor, scaleFactor);
+        }
+
+        // --- SVG Logo Data ---
+        const svgString = `<svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="512.000000" height="333.000000" viewBox="0 0 512.000000 333.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,333.000000) scale(0.100000,-0.100000)" fill="#111111" stroke="none"><path d="M1315 2603 c-393 -56 -739 -363 -836 -741 -138 -541 169 -1070 712 -1229 94 -27 94 -27 1334 -31 1453 -4 1393 -8 1622 105 761 375 728 1480 -54 1822 -186 81 -72 75 -1488 77 -693 1 -1273 -1 -1290 -3z m2587 -83 c183 -40 340 -131 479 -278 452 -476 278 -1259 -335 -1508 -167 -68 -104 -65 -1506 -62 -1436 4 -1305 -4 -1507 95 -455 224 -648 772 -433 1231 122 260 366 458 645 522 127 29 2525 29 2657 0z" fill="#fff"/><path d="M1789 1903 c-102 -52 -113 -82 -117 -296 -4 -202 1 -233 50 -291 110 -133 322 -88 379 81 l16 48 6 -41 c14 -88 114 -164 217 -163 112 0 189 68 213 189 l14 65 6 -53 c22 -184 228 -268 364 -149 68 60 73 81 73 365 l0 252 -165 0 -165 0 0 -70 0 -70 96 0 95 0 -3 -176 c-3 -171 -4 -176 -27 -195 -30 -25 -62 -24 -94 1 -25 20 -26 25 -29 138 l-3 117 -72 3 c-68 3 -72 2 -76 -20 -2 -13 -5 43 -6 125 l-1 147 -165 0 -165 0 -1 -35 c0 -19 -1 -50 -2 -67 -1 -33 -1 -33 89 -38 l89 -5 3 -172 c2 -171 2 -171 -24 -192 -35 -28 -69 -27 -99 4 -24 23 -25 30 -25 140 l0 115 -75 0 -75 0 0 48 c0 168 -170 271 -321 195z m156 -144 c24 -23 35 -255 16 -320 -20 -65 -106 -77 -136 -18 -16 29 -22 268 -8 318 12 48 87 59 128 20z" fill="#fff"/><path d="M3500 1917 c-45 -15 -119 -88 -126 -127 -4 -16 -9 -30 -13 -30 -3 0 -6 -81 -6 -179 0 -99 3 -177 6 -175 4 2 9 -9 12 -24 3 -15 20 -44 38 -66 105 -125 311 -92 376 61 24 59 18 374 -9 432 -44 97 -165 144 -278 108z m127 -145 c31 -20 49 -279 23 -347 -20 -53 -108 -57 -135 -5 -32 63 -18 328 19 352 14 10 78 10 93 0z" fill="#fff"/><path d="M1340 1585 l0 -325 155 0 c85 0 158 -1 163 -2 4 -2 8 30 10 70 l3 72 -91 0 c-49 0 -89 3 -89 8 1 4 1 118 0 255 l-1 247 -75 0 -75 0 0 -325z" fill="#fff"/><path d="M3200 1585 l0 -325 70 0 70 0 0 325 0 325 -70 0 -70 0 0 -325z" fill="#fff"/><path d="M3030 1330 l0 -70 75 0 75 0 0 70 0 70 -75 0 -75 0 0 -70z" fill="#fff"/></g></svg>`;
+
+        const loader = new SVGLoader();
+        const svgData = loader.parse(svgString);
+
+        const shapesGroup = new THREE.Group();
+        const allMeshes = [];
+        const shapes = [];
+        svgData.paths.forEach((path) => {
+            const pathShapes = SVGLoader.createShapes(path);
+            shapes.push(...pathShapes);
+        });
+
+        // Calculate Bounds
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        shapes.forEach(shape => {
+            const points = shape.getPoints();
+            points.forEach(p => {
+                if (p.x < minX) minX = p.x;
+                if (p.x > maxX) maxX = p.x;
+                if (p.y < minY) minY = p.y;
+                if (p.y > maxY) maxY = p.y;
+            });
+        });
+        originalSvgWidth = maxX - minX;
+        originalSvgHeight = maxY - minY;
+        const svgH = maxY - minY;
+        
+        const extrudeSettings = {
+            steps: 2,
+            depth: svgH * config.depthMultiplier,
+            bevelEnabled: true,
+            bevelThickness: svgH * config.bevelMultiplier,
+            bevelSize: svgH * config.bevelMultiplier,
+            bevelSegments: config.bevelSegments
+        };
+
+        // Create Meshes
+        shapes.forEach((shape) => {
+            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            geometry.computeBoundingBox();
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            shapesGroup.add(mesh);
+            allMeshes.push(mesh);
+        });
+
+        // Spacing Logic
+        let borderMesh = null;
+        let maxArea = 0;
+        
+        allMeshes.forEach(mesh => {
+            const box = mesh.geometry.boundingBox;
+            const w = box.max.x - box.min.x;
+            const h = box.max.y - box.min.y;
+            const area = w * h;
+            if (area > maxArea) {
+                maxArea = area;
+                borderMesh = mesh;
+            }
+        });
+        
+        const textMeshes = allMeshes.filter(m => m !== borderMesh);
+        if (textMeshes.length > 0 && config.textSpacing > 0) {
+            let tMin = Infinity;
+            let tMax = -Infinity;
+            textMeshes.forEach(m => {
+                const box = m.geometry.boundingBox;
+                if (box.min.x < tMin) tMin = box.min.x;
+                if (box.max.x > tMax) tMax = box.max.x;
+            });
+            const textCenterX = (tMin + tMax) / 2;
+            
+            textMeshes.forEach(m => {
+                const box = m.geometry.boundingBox;
+                const meshCenterX = (box.min.x + box.max.x) / 2;
+                const dist = meshCenterX - textCenterX;
+                m.position.x += dist * config.textSpacing;
+            });
+        }
+
+        // Center and Flip
+        const box = new THREE.Box3().setFromObject(shapesGroup);
+        const center = box.getCenter(new THREE.Vector3());
+        
+        shapesGroup.position.x = -center.x;
+        shapesGroup.position.y = -center.y;
+        shapesGroup.position.z = -center.z;
+
+        wrapperGroup = new THREE.Group();
+        wrapperGroup.add(shapesGroup);
+        
+        // Initial Fit
+        fitLogoToScreen();
+
+        logoGroup.add(wrapperGroup);
+        
+        // Remove loading text
+        const loadingEl = document.getElementById('footer-loading');
+        if (loadingEl) loadingEl.remove();
+
+        // --- Animation ---
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            
+            // Floating
+            logoGroup.position.y = Math.sin(time * 0.5) * 0.15;
+            
+            // Gentle continuous rotation
+            logoGroup.rotation.y = Math.sin(time * 0.3) * 0.15;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Handle Resizing
+        window.addEventListener('resize', () => {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+            
+            fitLogoToScreen();
+        });
+
+        animate();
+    </script>
+
+</body>
+</html>
