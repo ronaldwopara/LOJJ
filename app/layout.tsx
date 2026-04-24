@@ -9,8 +9,11 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "LOJJ Landing",
+  title: "LOJJ.IO",
   description: "Better reviews. Faster service. Higher revenue.",
+  icons: {
+    icon: "public/favicon.ico",
+  },
 };
 
 export default function RootLayout({
