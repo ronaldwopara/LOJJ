@@ -10,11 +10,9 @@ export default function ShaderBackground() {
         // keep this lightweight on laptops
         pixelDensity={1}
         fov={45}
-        frameloop="always"
       >
         <ShaderGradient
           animate="on"
-          axesHelper="off"
           brightness={1.2}
           cAzimuthAngle={180}
           cDistance={3.6}
