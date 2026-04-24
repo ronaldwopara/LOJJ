@@ -30,7 +30,7 @@ export default function ShaderBackground() {
           frameRate={10}
           fov={45}
           gizmoHelper="hide"
-          grain="on"
+          grain="off"
           lightType="3d"
           pixelDensity={1}
           positionX={-1.4}
