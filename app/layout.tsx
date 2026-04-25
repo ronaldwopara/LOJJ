@@ -9,7 +9,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "LOJJ.IO",
+  title: "LOJJ.io",
   description: "Better reviews. Faster service. Higher revenue.",
   icons: {
     icon: "/favicon.ico",

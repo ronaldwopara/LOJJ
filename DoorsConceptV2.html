@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lojj Hallway Prototype</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: linear-gradient(#3f5f3f, #1e2e1e);
+    color: white;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .hallway {
+    position: relative;
+    margin: 80px auto;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  /* Floor line */
+  .hallway::after {
+    content: "";
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(0,0,0,0.4);
+  }
+
+  /* FRAME */
+  .frame {
+    width: 120px;
+    height: 200px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+    position: relative;
+  }
+
+  /* DOOR */
+  .door {
+    width: 100%;
+    height: 100%;
+    background: #ddd;
+    border-radius: 6px;
+    position: relative;
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  /* Inside darkness */
+  .door::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #111;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* Light spill */
+  .door::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255,255,180,0.9) 0%, rgba(255,255,180,0.4) 40%, transparent 80%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .frame:hover .door {
+    transform: perspective(600px) rotateY(-35deg);
+  }
+
+  .frame:hover .door::before {
+    opacity: 1;
+  }
+
+  .frame:hover .door::after {
+    opacity: 0.4;
+  }
+
+  /* CART + STICKMAN */
+  .cart-wrapper {
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    transition: transform 0.5s ease;
+  }
+
+  svg {
+    overflow: visible;
+  }
+
+  /* Wheel animation */
+  .wheel {
+    transform-origin: center;
+    transition: transform 0.5s ease;
+  }
+
+  .moving .wheel {
+    transform: rotate(360deg);
+  }
+
+  /* subtle bounce */
+  .moving {
+    animation: bounce 0.5s ease;
+  }
+
+  @keyframes bounce {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0); }
+  }
+
+</style>
+</head>
+
+<body>
+
+<h1>How Requests Get Done</h1>
+
+<div class="hallway" id="hallway">
+
+  <div class="frame" data-index="0"><div class="door"></div></div>
+  <div class="frame" data-index="1"><div class="door"></div></div>
+  <div class="frame" data-index="2"><div class="door"></div></div>
+  <div class="frame" data-index="3"><div class="door"></div></div>
+  <div class="frame" data-index="4"><div class="door"></div></div>
+  <div class="frame" data-index="5"><div class="door"></div></div>
+
+  <!-- Stickman + Cart -->
+  <div class="cart-wrapper" id="cart">
+    <svg width="120" height="60">
+      
+      <!-- Stickman -->
+      <circle cx="20" cy="15" r="6" fill="black"/>
+      <line x1="20" y1="20" x2="20" y2="35" stroke="black" stroke-width="2"/>
+      <line x1="20" y1="25" x2="10" y2="30" stroke="black" stroke-width="2"/>
+      <line x1="20" y1="25" x2="30" y2="30" stroke="black" stroke-width="2"/>
+      <line x1="20" y1="35" x2="15" y2="50" stroke="black" stroke-width="2"/>
+      <line x1="20" y1="35" x2="30" y2="50" stroke="black" stroke-width="2"/>
+
+      <!-- Cart -->
+      <rect x="40" y="30" width="50" height="20" fill="black" rx="4"/>
+
+      <!-- Wheels -->
+      <circle class="wheel" cx="50" cy="55" r="5" fill="#444"/>
+      <circle class="wheel" cx="80" cy="55" r="5" fill="#444"/>
+
+    </svg>
+  </div>
+
+</div>
+
+<script>
+  const frames = document.querySelectorAll(".frame");
+  const cart = document.getElementById("cart");
+
+  frames.forEach(frame => {
+    frame.addEventListener("mouseenter", () => {
+
+      const rect = frame.getBoundingClientRect();
+      const parent = frame.parentElement.getBoundingClientRect();
+
+      const offsetX = rect.left - parent.left;
+
+      cart.classList.add("moving");
+
+      cart.style.transform = `translateX(${offsetX}px)`;
+
+      setTimeout(() => {
+        cart.classList.remove("moving");
+      }, 500);
+    });
+  });
+</script>
+
+</body>
+</html>
