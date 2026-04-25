@@ -22,45 +22,120 @@
   .hallway {
     position: relative;
     margin: 80px auto;
+    /*width: min(1100px, 110vw);*/
     width: 90%;
-    display: flex;
-    justify-content: center;
-    gap: 40px;
+    height: 420px;
+    perspective: 900px;
+    transform-style: preserve-3d;
+    isolation: isolate;
   }
 
-  /* Floor line */
+  .doors {
+    position: absolute;
+    left: 50%;
+    top: 92px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 54px;
+    align-items: flex-start;
+    z-index: 10;
+  }
+
+  /* Flat “cartoon hallway” scene (green palette) */
+  .hallway::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    background:
+      linear-gradient(180deg, rgba(30, 70, 40, 0.95), rgba(14, 34, 22, 0.95));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Baseboards 
   .hallway::after {
     content: "";
     position: absolute;
-    bottom: -20px;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: rgba(0,0,0,0.4);
+    left: 24px;
+    right: 24px;
+    bottom: 114px;
+    height: 14px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(230,240,230,0.35), rgba(15,25,18,0.35));
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.22),
+      0 10px 18px rgba(0,0,0,0.22);
+    z-index: 1;
+    pointer-events: none;
   }
+*/
+  .hallway .floor {
+    position: absolute;
+    left: -9%;
+    right: -9%;
+    bottom: 0;
+    height: 17%;
+    transform: none;
+    background: linear-gradient(180deg, rgba(18, 48, 30, 1), rgba(8, 22, 14, 1));
+    filter: saturate(0.9);
+    opacity: 1;
+    z-index: 2; /* floor covers wall beneath */
+    pointer-events: none;
+    clip-path: polygon(9% 0%, 91% 0%, 100% 100%, 0% 100%);
+  }
+
+  /* (intentionally simple floor – closer to ref #5) */
 
   /* FRAME */
   .frame {
-    width: 120px;
-    height: 200px;
-    background: #2a2a2a;
-    border-radius: 8px;
-    padding: 6px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
     position: relative;
+    width: 156px;         /* less tall + less skinny */
+    height: 236px;
+    padding: 8px;
+    border-radius: 0px;
+    background: rgba(8, 16, 12, 0.92); /* dark cavity */
+    /*box-shadow:
+      inset 0 0 0 2px rgba(255,255,255,0.08),
+      inset 0 0 18px rgba(0,0,0,0.95),
+      0 18px 28px rgba(0,0,0,0.35);*/
+    transform: none;
+    transform-style: preserve-3d;
+    z-index: 10;
   }
 
+  /* Door trim to match “frame within wall” look 
+  .frame::after {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border-radius: 0px;
+    background:
+      linear-gradient(180deg, rgba(210, 230, 210, 0.20), rgba(5, 12, 8, 0.20));
+    box-shadow:
+      inset 0 0 0 2px rgba(220, 240, 220, 0.18),
+      0 10px 18px rgba(0,0,0,0.20);
+    z-index: -1;
+    pointer-events: none;
+  }
+*/
   /* DOOR */
   .door {
     width: 100%;
     height: 100%;
-    background: #ddd;
-    border-radius: 6px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(235,235,235,0.98));
+    border-radius: 0px;
     position: relative;
     transform-origin: left;
-    transition: transform 0.4s ease;
+    transition: transform 0.45s cubic-bezier(.2,.8,.2,1);
     cursor: pointer;
     overflow: hidden;
+    z-index: 2;
+    box-shadow:
+      inset 0 0 0 2px rgba(0,0,0,0.22),
+      inset 0 -18px 24px rgba(0,0,0,0.10);
+    outline: 2px solid rgba(10,16,12,0.75); /* sharp trace */
   }
 
   /* Inside darkness */
@@ -73,34 +148,66 @@
     transition: opacity 0.3s;
   }
 
-  /* Light spill */
+  /* Door bevel + edge highlight so opening reads better */
   .door::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(255,255,180,0.9) 0%, rgba(255,255,180,0.4) 40%, transparent 80%);
-    opacity: 0;
-    transition: opacity 0.3s;
+    /*background:
+      linear-gradient(90deg,
+        rgba(255,255,255,0.22) 0%,
+        rgba(255,255,255,0.10) 12%,
+        rgba(255,255,255,0.00) 40%,
+        rgba(0,0,0,0.18) 100%);*/
+    opacity: 0.65;
+    pointer-events: none;
+  }
+
+  /* Simple handle */
+  .door .handle {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    width: 16px;
+    height: 6px;
+    border-radius: 6px;
+    transform: translateY(-50%);
+    background: rgba(10,16,12,0.75);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10);
+  }
+
+  /* Doors closed by default; open on hover */
+  .door {
+    transform: perspective(900px) rotateY(0deg);
   }
 
   .frame:hover .door {
-    transform: perspective(600px) rotateY(-35deg);
-  }
-
-  .frame:hover .door::before {
-    opacity: 1;
-  }
-
-  .frame:hover .door::after {
-    opacity: 0.4;
+    transform: perspective(900px) rotateY(-88deg);
   }
 
   /* CART + STICKMAN */
   .cart-wrapper {
     position: absolute;
-    bottom: -60px;
+    bottom: 1%; /* keep clear of doors */
     left: 0;
-    transition: transform 0.5s ease;
+    transition: transform 0.55s cubic-bezier(.2,.8,.2,1);
+    z-index: 50;
+    will-change: transform;
+    transform: translate3d(0, 0, 80px);
+  }
+
+  .cart-icon {
+    width: 165px;
+    height: 165px;
+    object-fit: contain;
+    image-rendering: auto;
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,0.35)) invert(80%);
+    opacity: 0.95;
+  }
+
+  .cart-bounce {
+    transform: translateY(0);
+    transform-origin: bottom;
   }
 
   svg {
@@ -110,7 +217,8 @@
   /* Wheel animation */
   .wheel {
     transform-origin: center;
-    transition: transform 0.5s ease;
+    transform-box: fill-box;
+    transition: transform 0.55s cubic-bezier(.2,.8,.2,1);
   }
 
   .moving .wheel {
@@ -118,8 +226,8 @@
   }
 
   /* subtle bounce */
-  .moving {
-    animation: bounce 0.5s ease;
+  .moving .cart-bounce {
+    animation: bounce 0.55s ease;
   }
 
   @keyframes bounce {
@@ -136,34 +244,22 @@
 <h1>How Requests Get Done</h1>
 
 <div class="hallway" id="hallway">
+  <div class="floor" aria-hidden="true"></div>
 
-  <div class="frame" data-index="0"><div class="door"></div></div>
-  <div class="frame" data-index="1"><div class="door"></div></div>
-  <div class="frame" data-index="2"><div class="door"></div></div>
-  <div class="frame" data-index="3"><div class="door"></div></div>
-  <div class="frame" data-index="4"><div class="door"></div></div>
-  <div class="frame" data-index="5"><div class="door"></div></div>
+  <div class="doors" aria-label="doors row">
+    <div class="frame" data-index="0"><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="1"><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="2"><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="3"><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="4"><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="5"><div class="door"><span class="handle"></span></div></div>
+  </div>
 
   <!-- Stickman + Cart -->
   <div class="cart-wrapper" id="cart">
-    <svg width="120" height="60">
-      
-      <!-- Stickman -->
-      <circle cx="20" cy="15" r="6" fill="black"/>
-      <line x1="20" y1="20" x2="20" y2="35" stroke="black" stroke-width="2"/>
-      <line x1="20" y1="25" x2="10" y2="30" stroke="black" stroke-width="2"/>
-      <line x1="20" y1="25" x2="30" y2="30" stroke="black" stroke-width="2"/>
-      <line x1="20" y1="35" x2="15" y2="50" stroke="black" stroke-width="2"/>
-      <line x1="20" y1="35" x2="30" y2="50" stroke="black" stroke-width="2"/>
-
-      <!-- Cart -->
-      <rect x="40" y="30" width="50" height="20" fill="black" rx="4"/>
-
-      <!-- Wheels -->
-      <circle class="wheel" cx="50" cy="55" r="5" fill="#444"/>
-      <circle class="wheel" cx="80" cy="55" r="5" fill="#444"/>
-
-    </svg>
+    <div class="cart-bounce">
+      <img class="cart-icon" src="./concierge-cart.png" alt="concierge pushing cart icon" />
+    </div>
   </div>
 
 </div>
@@ -171,22 +267,27 @@
 <script>
   const frames = document.querySelectorAll(".frame");
   const cart = document.getElementById("cart");
+  let stopMovingTimer = null;
 
   frames.forEach(frame => {
     frame.addEventListener("mouseenter", () => {
 
       const rect = frame.getBoundingClientRect();
-      const parent = frame.parentElement.getBoundingClientRect();
+      const parent = document.getElementById("hallway").getBoundingClientRect();
 
-      const offsetX = rect.left - parent.left;
+      // Center cart under the hovered door frame.
+      const cartRect = cart.getBoundingClientRect();
+      const offsetX = (rect.left - parent.left) + (rect.width / 2) - (cartRect.width / 2);
 
+      if (stopMovingTimer) window.clearTimeout(stopMovingTimer);
       cart.classList.add("moving");
 
-      cart.style.transform = `translateX(${offsetX}px)`;
+      cart.style.transform = `translate3d(${offsetX}px, 0, 80px)`;
 
-      setTimeout(() => {
+      stopMovingTimer = window.setTimeout(() => {
         cart.classList.remove("moving");
-      }, 500);
+        stopMovingTimer = null;
+      }, 560);
     });
   });
 </script>
