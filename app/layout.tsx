@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={playfair.variable}>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.png" sizes="any" />
         <link
           href="https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap"
           rel="stylesheet"
