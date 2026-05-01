@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lojj Hallway Prototype V3</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: "Inter", "Segoe UI", sans-serif;
+    background: #2f3c33;
+    color: #e7e4d9;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    text-align: center;
+    margin-top: 40px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  .hallway {
+    position: relative;
+    margin: 80px auto;
+    width: 98%;
+    height: 420px;
+    perspective: 900px;
+    transform-style: preserve-3d;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .doors {
+    position: absolute;
+    left: 50%;
+    top: auto;
+    /* Sit on the baseboard bottom edge (baseboard is centered on 75% line). */
+    bottom: calc(25% - 7.5px);
+    transform: translateX(-50%);
+    display: flex;
+    gap: 54px;
+    align-items: flex-start;
+    z-index: 10;
+  }
+
+  .hallway::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #4a5d4e;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hallway::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(75% - 7.5px);
+    height: 15px;
+    background: #d8d3c8;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .hallway .floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 25%;
+    transform: none;
+    background: #36453b;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .frame {
+    position: relative;
+    width: 156px;
+    height: 236px;
+    padding: 6px;
+    padding-right: 18px;
+    padding-bottom: 18px;
+    background: #d8d3c8;
+    z-index: 10;
+    box-shadow: 12px 5px 0 0 rgba(23, 31, 26, 0.22);
+    transform-style: preserve-3d;
+  }
+
+  .doorway-interior {
+    position: absolute;
+    inset: 6px;
+    background: #2c362f;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .doorway-interior::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 56%;
+    background: #49574d;
+    clip-path: polygon(0 100%, 0 62%, 52% 18%, 82% 34%, 66% 100%);
+    opacity: 0.6;
+  }
+
+  .interior-panel {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 10px 10px 9px;
+    background: rgba(216, 211, 200, 0.14);
+    border: 2px solid rgba(216, 211, 200, 0.38);
+    box-shadow: 6px 6px 0 0 rgba(21, 30, 26, 0.36);
+    opacity: 0.18;
+    transform: translateY(6px) scale(0.98);
+    transition: opacity 180ms linear, transform 180ms linear;
+    z-index: 2;
+  }
+
+  .interior-title {
+    margin: 0;
+    color: #ece8de;
+    font-size: 0.9rem;
+    line-height: 1.15;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .interior-subtitle {
+    margin: 6px 0 0;
+    color: #c4cec7;
+    font-size: 0.68rem;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    font-weight: 600;
+  }
+
+  .frame.is-revealed .interior-panel {
+    opacity: 0.78;
+    transform: translateY(0) scale(1);
+  }
+
+  .frame.is-active .interior-panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .frame.is-active .doorway-interior::after {
+    opacity: 0.82;
+  }
+
+  .door {
+    width: 100%;
+    height: 100%;
+    background: #f2efe9;
+    border: 6px solid #d8d3c8;
+    position: relative;
+    transform-origin: left;
+    transition: transform 1.75s cubic-bezier(.2,.8,.2,1);
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 2;
+    outline: 2px solid #c6c0b3;
+    box-shadow: 0px 5px 0 0 rgba(23, 31, 26, 0.22);;
+  }
+
+  .door::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-left: 3px solid rgba(76, 87, 80, 0.35);
+    pointer-events: none;
+  }
+
+  .door-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 7px;
+    background: #d8d3c8;
+    border: 2px solid #b7b1a4;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .door-num {
+    color: #445047;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .door-icon {
+    width: 13px;
+    height: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #4d5950;
+  }
+
+  .door-icon svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .door-label {
+    position: absolute;
+    left: 10px;
+    right: 28px;
+    bottom: 11px;
+    padding: 6px 7px 5px;
+    background: rgba(216, 211, 200, 0.68);
+    border: 2px solid rgba(183, 177, 164, 0.92);
+    color: #4a564d;
+    font-size: 0.62rem;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .door .handle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 10px;
+    height: 32px;
+    transform: translateY(-50%);
+    background: #575f5c;
+    z-index: 4;
+  }
+
+  .door {
+    transform: perspective(900px) rotateY(0deg);
+    will-change: transform;
+  }
+
+  body.gsap-scroll .door {
+    transition: none;
+  }
+
+  .cart-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    will-change: transform;
+    transform: translate3d(0, 0, 80px);
+  }
+
+  .cart-icon {
+    width: 165px;
+    height: 165px;
+    object-fit: contain;
+    display: block;
+    /* Sharper edges when scaling (GIF/PNG); avoids soft bilinear blur. */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* No filter here: filter + 3D hallway transforms often paints a bogus tall dark stripe that follows the layer. */
+    opacity: 0.96;
+    backface-visibility: hidden;
+  }
+
+  .facing-left .cart-icon {
+    transform: scaleX(1);
+    transform-origin: center;
+  }
+
+  .cart-icon {
+    transform: scaleX(-1);
+    transform-origin: center;
+  }
+
+  .cart-bounce {
+    transform: translateY(0);
+    transform-origin: bottom;
+  }
+
+  svg {
+    overflow: visible;
+  }
+
+  .wheel {
+    transform-origin: center;
+    transform-box: fill-box;
+    transition: transform 0.55s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .moving .wheel {
+    transform: rotate(360deg);
+  }
+
+  .moving .cart-bounce {
+    animation: bounce 0.55s ease;
+  }
+
+  @keyframes bounce {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .interior-panel {
+      transition: opacity 120ms linear;
+      transform: none;
+    }
+
+    .frame.is-revealed .interior-panel,
+    .frame.is-active .interior-panel {
+      transform: none;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<h1>How Requests Get Done</h1>
+
+<div class="hallway" id="hallway">
+  <div class="floor" aria-hidden="true"></div>
+
+  <div class="doors" aria-label="doors row">
+    <div class="frame" data-index="0"><div class="doorway-interior" aria-hidden="true"></div><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="1"><div class="doorway-interior" aria-hidden="true"></div><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="2"><div class="doorway-interior" aria-hidden="true"></div><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="3"><div class="doorway-interior" aria-hidden="true"></div><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="4"><div class="doorway-interior" aria-hidden="true"></div><div class="door"><span class="handle"></span></div></div>
+    <div class="frame" data-index="5"><div class="doorway-interior" aria-hidden="true"></div><div class="door"><span class="handle"></span></div></div>
+  </div>
+
+  <div class="cart-wrapper" id="cart">
+    <div class="cart-bounce">
+      <img class="cart-icon" src="./public/concierge-cart-idle.png" alt="concierge with cart" />
+    </div>
+  </div>
+
+</div>
+
+<div style="min-height: 3200px;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+
+<script>
+  const hallway = document.getElementById("hallway");
+  const cart = document.getElementById("cart");
+  const cartImg = cart.querySelector(".cart-icon");
+  const frames = Array.from(document.querySelectorAll(".frame"));
+
+  const DOOR_STEPS = [
+    {
+      num: "01",
+      title: "Guest Request",
+      subtitle: "Capture the ask and context",
+      label: "Guest Request",
+      icon: "request"
+    },
+    {
+      num: "02",
+      title: "Task Assignment",
+      subtitle: "Route it to the best owner",
+      label: "Task Assignment",
+      icon: "assignment"
+    },
+    {
+      num: "03",
+      title: "Team Collaboration",
+      subtitle: "Coordinate notes and handoffs",
+      label: "Collaboration",
+      icon: "collaboration"
+    },
+    {
+      num: "04",
+      title: "Track Progress",
+      subtitle: "Monitor status and blockers",
+      label: "Track Progress",
+      icon: "progress"
+    },
+    {
+      num: "05",
+      title: "Task Completion",
+      subtitle: "Confirm done with quality",
+      label: "Completion",
+      icon: "completion"
+    },
+    {
+      num: "06",
+      title: "Better Reviews",
+      subtitle: "Deliver outcomes that delight",
+      label: "Better Reviews",
+      icon: "reviews"
+    }
+  ];
+
+  function iconSvg(iconName) {
+    const icons = {
+      request: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5V3zm9 1.5V8h3.5L14 4.5zM8 11h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>',
+      assignment: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16H7V4zm2 3h6v2H9V7zm0 4h6v2H9v-2zm0 4h4v2H9v-2z"/></svg>',
+      collaboration: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7a3 3 0 1 1 0 6a3 3 0 0 1 0-6zm10 0a3 3 0 1 1 0 6a3 3 0 0 1 0-6zM3 19c0-2.5 2.1-4.5 4.7-4.5c1.8 0 3.3.7 4.3 1.9c1-1.2 2.5-1.9 4.3-1.9c2.6 0 4.7 2 4.7 4.5v1H3v-1z"/></svg>',
+      progress: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19h2V9H5v10zm6 0h2V5h-2v14zm6 0h2v-7h-2v7z"/></svg>',
+      completion: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.3 16.6L4.7 12l1.4-1.4l3.2 3.2l8.6-8.6l1.4 1.4l-10 10z"/></svg>',
+      reviews: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 5.1L20 8l-4 3.9l1 5.6L12 15l-5 2.5l1-5.6L4 8l5.6-.9L12 2z"/></svg>'
+    };
+    return icons[iconName] || icons.request;
+  }
+
+  function renderDoorContent() {
+    frames.forEach((frame, index) => {
+      const step = DOOR_STEPS[index];
+      if (!step) return;
+
+      const interior = frame.querySelector(".doorway-interior");
+      const door = frame.querySelector(".door");
+      if (!interior || !door) return;
+
+      interior.innerHTML = [
+        '<div class="interior-panel">',
+        `  <p class="interior-title">${step.title}</p>`,
+        `  <p class="interior-subtitle">${step.subtitle}</p>`,
+        "</div>"
+      ].join("");
+
+      door.setAttribute("aria-label", `Door ${step.num}: ${step.title}`);
+      door.insertAdjacentHTML(
+        "afterbegin",
+        [
+          '<div class="door-badge" aria-hidden="true">',
+          `  <span class="door-num">${step.num}</span>`,
+          `  <span class="door-icon">${iconSvg(step.icon)}</span>`,
+          "</div>",
+          `<div class="door-label" aria-hidden="true">${step.label}</div>`
+        ].join("")
+      );
+    });
+  }
+
+  renderDoorContent();
+
+  // Start slightly inside the hallway so the cart isn't clipped by overflow:hidden.
+  const INITIAL_CART_X = 43;
+
+  const CART_SRC_MOVING = "./public/concierge-cart-gif-clear.gif";
+  const CART_SRC_IDLE = "./public/concierge-cart-idle.png";
+  let lastMovingState = null;
+
+  function setCartMovingVisual(isMoving) {
+    if (lastMovingState === isMoving) return;
+    lastMovingState = isMoving;
+
+    cart.classList.toggle("moving", isMoving);
+    if (cartImg) cartImg.src = isMoving ? CART_SRC_MOVING : CART_SRC_IDLE;
+  }
+
+  setCartMovingVisual(false);
+
+  const SCROLL_IDLE_MS = 240;
+  let scrollIdleTimer = null;
+
+  function isTypicalScrollKey(e) {
+    const k = e.key;
+    if (
+      k !== "ArrowDown" &&
+      k !== "ArrowUp" &&
+      k !== "PageDown" &&
+      k !== "PageUp" &&
+      k !== "Home" &&
+      k !== "End" &&
+      k !== " " &&
+      k !== "Spacebar"
+    ) {
+      return false;
+    }
+    const el = e.target;
+    if (el && el.closest && el.closest("input, textarea, select, [contenteditable='true']")) {
+      return false;
+    }
+    return true;
+  }
+
+  function noteScrollLikeInput() {
+    setCartMovingVisual(true);
+    window.clearTimeout(scrollIdleTimer);
+    scrollIdleTimer = window.setTimeout(() => {
+      scrollIdleTimer = null;
+      setCartMovingVisual(false);
+    }, SCROLL_IDLE_MS);
+  }
+
+  let currentX = INITIAL_CART_X;
+  let targetX = INITIAL_CART_X;
+  let lastX = INITIAL_CART_X;
+  let rafId = null;
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function updateTargetFromClientX(clientX) {
+    const parent = hallway.getBoundingClientRect();
+    const cartRect = cart.getBoundingClientRect();
+
+    const desired = (clientX - parent.left) - (cartRect.width / 2);
+    targetX = clamp(desired, 0, Math.max(0, parent.width - cartRect.width));
+
+    if (!rafId) rafId = window.requestAnimationFrame(tick);
+  }
+
+  function tick() {
+    const ease = 0.005;
+    currentX += (targetX - currentX) * ease;
+
+    cart.style.transform = `translate3d(${currentX}px, 0, 80px)`;
+
+    const speed = Math.abs(currentX - lastX);
+    const remaining = Math.abs(targetX - currentX);
+
+    if (targetX > currentX + 0.5) cart.classList.remove("facing-left");
+    else if (targetX < currentX - 0.5) cart.classList.add("facing-left");
+    lastX = currentX;
+
+    setCartMovingVisual(speed > 0.2 || remaining > 0.8);
+
+    if (remaining > 0.2) rafId = window.requestAnimationFrame(tick);
+    else rafId = null;
+  }
+
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    document.body.classList.add("gsap-scroll");
+
+    const doors = gsap.utils.toArray(".frame .door");
+
+    function updateDoorVisualState() {
+      let activeIndex = -1;
+      let mostRecentRevealed = -1;
+
+      doors.forEach((door, index) => {
+        const frame = frames[index];
+        if (!frame) return;
+        const rotationY = Number(gsap.getProperty(door, "rotationY")) || 0;
+        const isRevealed = rotationY <= -8;
+        const isActive = rotationY <= -8 && rotationY > -82;
+
+        frame.classList.toggle("is-revealed", isRevealed);
+        frame.classList.toggle("is-active", isActive);
+
+        if (isRevealed) mostRecentRevealed = index;
+        if (isActive) activeIndex = index;
+      });
+
+      if (activeIndex === -1) {
+        frames.forEach((frame, index) => {
+          frame.classList.toggle("is-active", index === mostRecentRevealed && mostRecentRevealed !== -1);
+        });
+      }
+    }
+
+    gsap.set(cart, { x: INITIAL_CART_X, y: 0, z: 80, force3D: true });
+
+    gsap.set(doors, {
+      transformOrigin: "left center",
+      transformPerspective: 900,
+      rotationY: 0
+    });
+
+    function doorCenterXWithinHallway(frameEl) {
+      const hallRect = hallway.getBoundingClientRect();
+      const frameRect = frameEl.getBoundingClientRect();
+      const cartRect = cart.getBoundingClientRect();
+      const center = (frameRect.left - hallRect.left) + (frameRect.width / 2);
+      const desired = center - (cartRect.width / 2);
+      return clamp(desired, 0, Math.max(0, hallRect.width - cartRect.width));
+    }
+
+    window.addEventListener("wheel", noteScrollLikeInput, { passive: true });
+    window.addEventListener("scroll", noteScrollLikeInput, { passive: true });
+    window.addEventListener("keydown", (e) => {
+      if (isTypicalScrollKey(e)) noteScrollLikeInput();
+    });
+
+    let lastGsapCartX = INITIAL_CART_X;
+    const tl = gsap.timeline({
+      defaults: { ease: "none" },
+      scrollTrigger: {
+        trigger: hallway,
+        start: "top top",
+        end: "+=2800",
+        scrub: true,
+        pin: true,
+        invalidateOnRefresh: true,
+        onUpdate: () => {
+          const x = gsap.getProperty(cart, "x");
+          const dx = x - lastGsapCartX;
+          if (dx > 0.3) cart.classList.remove("facing-left");
+          else if (dx < -0.3) cart.classList.add("facing-left");
+          lastGsapCartX = x;
+          updateDoorVisualState();
+        }
+      }
+    });
+
+    doors.forEach((door, i) => {
+      tl.to(
+        cart,
+        { x: () => doorCenterXWithinHallway(frames[i]), duration: 1 },
+        "+=0"
+      );
+      tl.to(door, { rotationY: -88, duration: 1 }, "<");
+    });
+    updateDoorVisualState();
+  } else {
+    // Ensure the starting placement matches INITIAL_CART_X in the non-GSAP path.
+    cart.style.transform = `translate3d(${INITIAL_CART_X}px, 0, 80px)`;
+    hallway.addEventListener("mousemove", (e) => updateTargetFromClientX(e.clientX));
+    hallway.addEventListener("mouseenter", (e) => updateTargetFromClientX(e.clientX));
+    hallway.addEventListener("mouseleave", () => {
+      targetX = 0;
+      if (!rafId) rafId = window.requestAnimationFrame(tick);
+    });
+  }
+</script>
+
+</body>
+</html>
