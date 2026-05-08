@@ -16,6 +16,61 @@
             --glass-blur: 60px;
         }
 
+        .glass-surface {
+            position: relative;
+            /* Avoid isolating the stacking context; it can break backdrop sampling in some browsers */
+            isolation: auto;
+            /* Ensure every glass container itself is frosted (DevTools "backdrop-blur-sm" fix) */
+            background: var(--glass-surface-bg, rgba(255, 255, 255, 0.06));
+            backdrop-filter: blur(var(--glass-surface-blur, 8px)) saturate(var(--glass-surface-saturate, 140%));
+            -webkit-backdrop-filter: blur(var(--glass-surface-blur, 8px)) saturate(var(--glass-surface-saturate, 140%));
+        }
+
+        .glass-blur-plane {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            border-radius: inherit;
+            background: var(--glass-plane-bg, rgba(12, 29, 29, 0.12));
+            transform: translateZ(0);
+            will-change: backdrop-filter;
+            backdrop-filter:
+                blur(var(--glass-plane-blur, var(--glass-blur)))
+                saturate(var(--glass-plane-saturate, 160%))
+                contrast(var(--glass-plane-contrast, 115%));
+            -webkit-backdrop-filter:
+                blur(var(--glass-plane-blur, var(--glass-blur)))
+                saturate(var(--glass-plane-saturate, 160%))
+                contrast(var(--glass-plane-contrast, 115%));
+        }
+
+        .glass-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-plane-hero {
+            --glass-plane-bg: rgba(255, 255, 255, 0.08);
+            --glass-plane-blur: 80px;
+            --glass-plane-saturate: 160%;
+            --glass-plane-contrast: 120%;
+        }
+
+        .glass-plane-pane {
+            --glass-plane-bg: rgba(255, 255, 255, 0.11);
+            --glass-plane-blur: 72px;
+            --glass-plane-saturate: 155%;
+            --glass-plane-contrast: 112%;
+        }
+
+        .glass-plane-card {
+            --glass-plane-bg: rgba(255, 255, 255, 0.10);
+            --glass-plane-blur: 54px;
+            --glass-plane-saturate: 145%;
+            --glass-plane-contrast: 108%;
+        }
+
         body {
             font-family: 'Clash Display', sans-serif;
             color: white;
@@ -24,6 +79,55 @@
             overflow-x: hidden;
             min-height: 100vh;
             background-color: #000; /* Fallback behind ShaderGradient */
+        }
+
+        /* Friction-only “pinned” photo backdrop (clipped to section) */
+        #about.friction-photo {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            padding-top: 84px;
+            padding-bottom: 84px;
+            /* background is painted on ::before so we can mask the edges */
+        }
+
+        #about.friction-photo::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+
+            background-image:
+                radial-gradient(70% 70% at 40% 20%, rgba(10, 10, 10, 0.30), rgba(10, 10, 10, 0.6) 72%),
+                linear-gradient(to bottom, rgba(10,10,10,0.36), rgba(10,10,10,0.6)),
+                url("/backdrops/friction-lobby.png");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+
+            /* Fade (“fizzle out”) top + bottom edges */
+            -webkit-mask-image: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(0,0,0,1) 14%,
+                rgba(0,0,0,1) 86%,
+                transparent 100%
+            );
+            mask-image: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(0,0,0,1) 14%,
+                rgba(0,0,0,1) 86%,
+                transparent 100%
+            );
+        }
+
+        /* keep the section’s content above the background layers */
+        #about.friction-photo > * {
+            position: relative;
+            z-index: 1;
         }
 
         /* Hide scrollbar */
@@ -320,13 +424,48 @@
             transform: translateY(-1px);
         }
 
+        .hero-glass {
+            position: relative;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                0 12px 40px -24px rgba(0, 0, 0, 0.40);
+        }
+
+        .hero-pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+        }
+
+        .hero-pill-text {
+            font-size: 0.8rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
         .landing-section {
             padding-bottom: 0;
         }
 
         .landing-h2 {
             font-size: clamp(2rem, 4.4vw, 3.25rem);
-            font-family: 'Clash Display', sans-serif;
+            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
             font-style: italic;
             font-weight: 700;
             letter-spacing: -0.03em;
@@ -387,6 +526,7 @@
             letter-spacing: -0.02em;
             margin: 0 0 10px 0;
             text-transform: uppercase;
+            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
         }
 
         .landing-p {
@@ -604,13 +744,12 @@
         ─────────────────────────────────────────────────────────────────────── */
         #dynamic-hero-box {
             border-radius: 40px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.42);
-            backdrop-filter: blur(60px) saturate(100%);
-            -webkit-backdrop-filter: blur(60px) saturate(100%);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            /* Blur is provided by .glass-surface */
             box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, 0.36),
-                0 20px 60px -24px rgba(0, 0, 0, 0.32);
+                inset 0 1px 0 rgba(255, 255, 255, 0.26),
+                0 36px 120px -48px rgba(0, 0, 0, 0.55);
         }
 
         /* Inner content fades in independently — opacity never touches blur */
@@ -629,7 +768,7 @@
         .hero-heading {
             font-size: clamp(2.4rem, 7vw, 3.2rem);
             line-height: 1.05;
-            font-family: 'Clash Display', sans-serif;
+            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
             font-style: italic;
             font-weight: 700;
             letter-spacing: -0.03em;
@@ -637,8 +776,220 @@
 
         @media (min-width: 768px) {
             .hero-heading {
-                font-size: 4.5rem; /* ~72px */
+                font-size: 4.2rem;
                 line-height: 1.1;
+            }
+        }
+
+        /* ── Frost pane motion (image 2 behavior) ───────────────────────────── */
+        .pane-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.75rem;
+            align-items: center;
+        }
+
+        .frost-pane {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            /* Blur is provided by .glass-surface */
+            border-radius: 42px;
+            padding: 44px 44px 32px 44px;
+            min-height: 460px;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.24),
+                0 40px 140px -70px rgba(0, 0, 0, 0.75);
+            transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
+            /* Flex column so the inner content can stretch and pin
+               the segmented carousel pill to the pane bottom. */
+            display: flex;
+            flex-direction: column;
+            /*will-change: transform, opacity;*/
+        }
+
+        .pane-exit {
+            opacity: 0;
+            transform: translate3d(-120%, 0, 0);
+        }
+
+        .pane-pre-enter {
+            opacity: 0;
+            transform: translate3d(120%, 0, 0);
+            transition: none;
+        }
+
+        .pane-enter {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+
+        /* Ensure initial state is visible even before "enter" fires */
+        .frost-pane:not(.pane-exit) {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+
+        .pane-tabs-list.pane-tabs-list,
+        .pane-tabs .pane-tabs-list {
+            background: transparent;
+            padding: 0;
+            border-radius: 20px;
+        }
+
+        /* Stack pane body up top, segmented carousel anchored at bottom */
+        .frost-pane .frost-pane-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            gap: 28px;
+        }
+
+        .frost-pane .frost-pane-body {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .pane-content {
+            margin-top: 0;
+            text-align: left;
+        }
+
+        .frost-pane .feature-kicker {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .frost-pane .landing-h3 {
+            font-size: 2.2rem;
+            line-height: 1.05;
+        }
+
+        .frost-pane .landing-p {
+            font-size: 1.15rem;
+            line-height: 1.55;
+        }
+
+        /* Segmented carousel pill at the bottom of the frost pane */
+        .frost-pane .pane-segmented.pane-segmented {
+            position: relative;
+            z-index: 2;
+            pointer-events: auto;
+            display: inline-flex;
+            width: auto;
+            grid-template-columns: none;
+            align-self: center;
+            margin-top: auto;
+            padding: 6px;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 9999px;
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.18),
+                0 8px 28px -16px rgba(0, 0, 0, 0.55);
+        }
+
+        /* The friction carousel buttons inside `.pane-segmented` are styled
+           directly via Tailwind classes on the trigger element. */
+
+        .pane-visual {
+            position: relative;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visual-glow {
+            position: absolute;
+            inset: -30%;
+            background: radial-gradient(
+                60% 55% at 62% 40%,
+                rgba(255, 255, 255, 0.18) 0%,
+                rgba(255, 255, 255, 0.08) 36%,
+                rgba(255, 255, 255, 0.03) 58%,
+                transparent 80%
+            );
+            filter: blur(22px);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .visual-stack {
+            position: relative;
+            width: min(240px, 92vw);
+            height: 200px;
+        }
+
+        .visual-card {
+            position: absolute;
+            inset: auto;
+            width: 82%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 18px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            /* Blur is provided by .glass-surface */
+            box-shadow: none;
+        }
+
+        .visual-card-top { top: 0; transform: translateX(-50%) translateY(2px) rotate(-1.2deg); opacity: 0.92; }
+        .visual-card-mid { top: 60px; transform: translateX(-50%) translateY(0) rotate(1deg); opacity: 0.96; }
+        .visual-card-bottom { top: 120px; transform: translateX(-50%) translateY(-2px) rotate(-0.6deg); opacity: 1; }
+
+        .visual-kicker {
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.62);
+            margin-bottom: 6px;
+        }
+
+        .visual-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .visual-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        .visual-dot-green { background: rgba(170, 220, 170, 0.75); }
+        .visual-dot-amber { background: rgba(255, 220, 140, 0.70); }
+
+        .visual-line {
+            height: 6px;
+            flex: 1;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .visual-line-short { max-width: 62%; }
+
+        @media (min-width: 900px) {
+            .pane-grid {
+                grid-template-columns: minmax(0, 1.85fr) minmax(0, 0.65fr);
+                gap: 2.4rem;
+            }
+            .pane-visual {
+                justify-content: flex-end;
+            }
+            .visual-stack {
+                width: 240px;
+                height: 220px;
             }
         }
 
@@ -1167,6 +1518,7 @@
             text-transform: uppercase;
             letter-spacing: -0.02em;
             color: white;
+            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
         }
 
         .newsletter-form {
@@ -1276,6 +1628,7 @@
             text-transform: uppercase;
             color: white;
             letter-spacing: -0.01em;
+            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
         }
 
         .link-column a {

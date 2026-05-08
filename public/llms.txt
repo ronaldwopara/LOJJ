@@ -1,0 +1,14 @@
+# llms.txt for LOJJ
+#
+# This file provides guidance for LLM-based tools that may crawl public pages.
+# It is not a security boundary; robots.txt remains the primary crawler control.
+#
+# Learn more: https://llmstxt.org/
+
+User-agent: *
+Allow: /
+
+Preferred-Content: https://www.lojj.io/
+
+Summary: LOJJ is a hotel operations platform for reducing front desk calls with guest FAQ automation and task tracking across shifts (housekeeping and work orders included).
+

@@ -1,4 +1,5 @@
 import { TeammatesTabs } from "./TeammatesTabs";
+import { FrictionTabs } from "@/components/FrictionTabs";
 
 export default function LandingMarkup() {
   return (
@@ -52,22 +53,28 @@ export default function LandingMarkup() {
         <section className="relative w-full flex justify-center pt-28 md:pt-32">
           <div
             id="dynamic-hero-box"
-            className="visible w-[95%] max-w-7xl min-h-[520px] md:min-h-[640px] flex flex-col items-start justify-center text-left px-6 py-10 md:px-20 md:py-12 relative overflow-hidden shadow-2xl"
+            className="visible backdrop-blur-sm hero-glass glass-surface w-[92%] max-w-[920px] min-h-[420px] md:min-h-[520px] flex flex-col items-center justify-center text-center px-6 py-10 md:px-16 md:py-14 relative overflow-hidden shadow-2xl"
           >
+            <div className="backdrop-blur-sm glass-blur-plane glass-plane-hero" aria-hidden />
             <div className="hero-sheen" aria-hidden />
 
-            <div className="hero-content relative z-10 flex flex-col items-start">
+            <div className="hero-content relative z-10 flex flex-col items-center">
+              <div className="hero-pill mb-4 md:mb-6 backdrop-blur-sm">
+                <span className="hero-pill-dot" aria-hidden />
+                <span className="hero-pill-text">WAITLIST OPEN</span>
+              </div>
+
               <div className="max-w-3xl">
                 <h1 className="hero-heading font-bold text-white mb-5 md:mb-7 tracking-tight max-w-3xl">
-                  Your best, every time
+                  Your best, every time.
                 </h1>
                 <p className="text-white/90 text-base md:text-xl font-semibold leading-relaxed max-w-2xl">
-                  A hospitality platform built to help every shift deliver the same great guest
-                  experience.
+                  Reduce repetitive guest questions and front desk phone calls with self‑service
+                  guest FAQs, plus clear task tracking across shifts.
                 </p>
               </div>
 
-              <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <a
                   href="#waitlist"
                   data-scroll-waitlist
@@ -79,7 +86,7 @@ export default function LandingMarkup() {
                 </a>
                 <a
                   href="#features"
-                  className="hero-secondary-btn inline-flex items-center justify-center px-10 md:px-12 h-[64px] md:h-[68px] rounded-full text-white font-bold text-base md:text-lg"
+                  className="hero-secondary-btn backdrop-blur-sm inline-flex items-center justify-center px-10 md:px-12 h-[64px] md:h-[68px] rounded-full text-white font-bold text-base md:text-lg"
                 >
                   See features
                 </a>
@@ -88,7 +95,10 @@ export default function LandingMarkup() {
           </div>
         </section>
 
-        <section id="about" className="landing-section w-full flex justify-center mt-20 md:mt-28">
+        <section
+          id="about"
+          className="landing-section friction-photo w-full flex justify-center mt-20 md:mt-28"
+        >
           <div className="w-[95%] max-w-7xl">
             <div className="section-heading-stack">
               <span className="section-ghost-h2" aria-hidden>
@@ -96,27 +106,13 @@ export default function LandingMarkup() {
               </span>
               <h2 className="landing-h2">The friction</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-6 md:gap-8 mt-8">
-              <div className="landing-card">
-                <h3 className="landing-h3">New staff</h3>
-                <p className="landing-p">
-                  High turnover leaves your team without answers. Guests wait while junior staff
-                  scramble.
-                </p>
-              </div>
-              <div className="landing-card">
-                <h3 className="landing-h3">Tired managers</h3>
-                <p className="landing-p">
-                  You get interrupted for routine fixes. You’re firefighting, so leadership slips.
-                </p>
-              </div>
-              <div className="landing-card">
-                <h3 className="landing-h3">Lost handoffs</h3>
-                <p className="landing-p">
-                  Guest requests pile up, notes get missed between shifts, and it’s unclear what’s
-                  already been handled.
-                </p>
-              </div>
+            <p className="landing-sub">
+              If your guests keep calling the front desk for the same answers, or you can’t see what
+              staff are doing, it turns into missed handoffs and slower service. LOJJ helps hotels
+              centralize guest information and turn requests into trackable tasks.
+            </p>
+            <div className="mt-8">
+              <FrictionTabs />
             </div>
           </div>
         </section>
@@ -155,66 +151,6 @@ export default function LandingMarkup() {
                 smoother, guests get steadier service, and that shows up in better reviews and more
                 revenue.
               </p>
-            </div>
-          </div>
-        </section>
-
-        <section
-          id="faq"
-          className="landing-section w-full flex justify-center mt-20 md:mt-28"
-          aria-labelledby="faq-heading"
-        >
-          <div className="w-[95%] max-w-7xl">
-            <div className="section-heading-stack">
-              <span className="section-ghost-h2" aria-hidden>
-                FAQ
-              </span>
-              <h2 id="faq-heading" className="landing-h2">
-                Front desk FAQ automation, without the chaos
-              </h2>
-            </div>
-            <p className="landing-sub">
-              If you’re searching for ways to reduce front desk phone calls, handle repetitive guest
-              questions, and track what staff are doing across shifts—this is what LOJJ is built for.
-            </p>
-
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6 mt-8">
-              <details className="landing-card">
-                <summary className="landing-h3">How do I reduce front desk phone calls?</summary>
-                <p className="landing-p mt-3">
-                  Give guests self‑service information (FAQs, policies, hours, parking, Wi‑Fi) and a
-                  simple way to submit requests. LOJJ acts as a digital concierge so common questions
-                  get answered without a call.
-                </p>
-              </details>
-
-              <details className="landing-card">
-                <summary className="landing-h3">What if my front desk is understaffed?</summary>
-                <p className="landing-p mt-3">
-                  When staffing is tight, consistency matters more. LOJJ reduces interruptions by
-                  automating hotel guest FAQs and routing requests into clear tasks—so fewer issues
-                  bounce back to managers.
-                </p>
-              </details>
-
-              <details className="landing-card">
-                <summary className="landing-h3">How can I track hotel staff tasks?</summary>
-                <p className="landing-p mt-3">
-                  LOJJ is a hotel task management system that keeps requests visible, assigned, and
-                  updated. You can see what’s in progress, what’s done, and what’s blocked—without
-                  chasing radio calls.
-                </p>
-              </details>
-
-              <details className="landing-card">
-                <summary className="landing-h3">
-                  Can guests access info via QR codes or self‑service pages?
-                </summary>
-                <p className="landing-p mt-3">
-                  Yes. Many hotels use QR code guest information pages so guests can find answers
-                  quickly. LOJJ helps you structure and maintain that information so it stays current.
-                </p>
-              </details>
             </div>
           </div>
         </section>
@@ -330,6 +266,7 @@ export default function LandingMarkup() {
                     <div className="link-column-heading">About</div>
                     <a href="#about">Overview</a>
                     <a href="#waitlist">Early access</a>
+                    <a href="/faq">FAQ</a>
                 </div>
                 <div className="link-column">
                     <div className="link-column-heading">Features</div>

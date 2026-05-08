@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
+import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -8,16 +8,22 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.lojj.io";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "LOJJ | Digital concierge + task tracking for hotels",
+    default: "LOJJ | Front desk concierge + task tracking for hotels",
     template: "%s | LOJJ",
   },
   description:
-    "AI hotel operations platform for guest FAQs, calls, task tracking, housekeeping, and work orders—in one place.",
+    "Reduce front desk calls with guest FAQ automation and clear task tracking for hotel teams. One platform for requests, housekeeping, and work orders.",
   verification: {
     google: "ZMr7VRuKNlesOU6iEI1eTLLoEoNU8jW2dKOWL2YsuMY",
   },
@@ -37,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "LOJJ",
     title: "LOJJ — AI operations platform for hotels",
     description:
-      "AI hotel operations platform for guest FAQs, calls, task tracking, housekeeping, and work orders—in one place.",
+      "Reduce front desk calls with guest FAQ automation and clear task tracking for hotel teams. One platform for requests, housekeeping, and work orders.",
     images: [
       {
         url: "/concierge-cart.png",
@@ -51,7 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "LOJJ — AI operations platform for hotels",
     description:
-      "Guest FAQs, calls, task tracking, housekeeping, and work orders—in one place.",
+      "Reduce front desk calls with guest FAQ automation and task tracking for hotel teams.",
     images: ["/concierge-cart.png"],
   },
   robots: {
@@ -73,7 +79,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={playfair.variable}>
+    <html lang="en" className={`${playfair.variable} ${montserrat.variable}`}>
       <head>
         <link rel="icon" href="/favicon.png" sizes="any" />
         <link
