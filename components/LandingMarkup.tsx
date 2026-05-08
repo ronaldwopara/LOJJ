@@ -171,7 +171,13 @@ export default function LandingMarkup() {
               </p>
             </div>
             <div className="waitlist-card">
-              <form id="waitlist-form" className="waitlist-form" noValidate>
+              <form
+                id="waitlist-form"
+                className="waitlist-form"
+                method="post"
+                action="/api/waitlist"
+                noValidate
+              >
                 <div className="waitlist-grid">
                   <label className="waitlist-field">
                     <span className="sr-only">Full name</span>
@@ -228,7 +234,13 @@ export default function LandingMarkup() {
                         <div className="footer-cta">
                 <h2>Get Early<br />Access</h2>
                 
-                <form id="footer-signup" className="flex flex-col gap-0 relative" noValidate>
+                <form
+                  id="footer-signup"
+                  className="flex flex-col gap-0 relative"
+                  method="post"
+                  action="/api/waitlist"
+                  noValidate
+                >
                     <div className="newsletter-form">
                         <input type="text" name="fullName" className="newsletter-input" placeholder="Full Name" required />
                         <button className="newsletter-btn" type="submit">OK</button>

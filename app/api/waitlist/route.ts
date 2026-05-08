@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 
 type WaitlistEntry = {
   fullName: string;
@@ -18,7 +16,25 @@ function isValidEmail(email: string) {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json().catch(() => null)) as Partial<WaitlistEntry> | null;
+    const contentType = req.headers.get("content-type") ?? "";
+    let body: Partial<WaitlistEntry> | null = null;
+
+    if (contentType.includes("application/json")) {
+      body = (await req.json().catch(() => null)) as Partial<WaitlistEntry> | null;
+    } else {
+      const fd = await req.formData().catch(() => null);
+      if (fd) {
+        body = {
+          fullName: String(fd.get("fullName") ?? ""),
+          email: String(fd.get("email") ?? ""),
+          hotel: String(fd.get("hotel") ?? ""),
+          role: String(fd.get("role") ?? ""),
+          location: String(fd.get("location") ?? ""),
+          source: String(fd.get("source") ?? ""),
+        };
+      }
+    }
+
     if (!body) return NextResponse.json({ ok: false, error: "Invalid request." }, { status: 400 });
 
     const fullName = String(body.fullName ?? "").trim();
@@ -43,27 +59,30 @@ export async function POST(req: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    const dataDir = path.join(process.cwd(), "data");
-    const filePath = path.join(dataDir, "waitlist.json");
-    await fs.mkdir(dataDir, { recursive: true });
-
-    let current: WaitlistEntry[] = [];
-    try {
-      const raw = await fs.readFile(filePath, "utf8");
-      const parsed = JSON.parse(raw) as unknown;
-      if (Array.isArray(parsed)) current = parsed as WaitlistEntry[];
-    } catch {
-      // ignore missing/invalid file and recreate
+    const sheetsUrl = process.env.WAITLIST_SHEETS_WEBAPP_URL;
+    const sheetsSecret = process.env.WAITLIST_SHEETS_SECRET;
+    if (!sheetsUrl || !sheetsSecret) {
+      return NextResponse.json(
+        { ok: false, error: "Waitlist is not configured (missing Sheets env vars)." },
+        { status: 500 },
+      );
     }
 
-    const already = current.some((e) => String((e as WaitlistEntry).email ?? "").toLowerCase() === email);
-    if (!already) {
-      current.unshift(entry);
-      await fs.writeFile(filePath, JSON.stringify(current, null, 2) + "\n", "utf8");
+    const url = new URL(sheetsUrl);
+    url.searchParams.set("secret", sheetsSecret);
+
+    const forwardRes = await fetch(url.toString(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entry),
+    });
+
+    if (!forwardRes.ok) {
+      return NextResponse.json({ ok: false, error: "Could not save your entry. Please try again." }, { status: 502 });
     }
 
     return NextResponse.json(
-      { ok: true, message: already ? "You’re already on the waitlist." : "Thanks — you're on the waitlist." },
+      { ok: true, message: "Thanks — you're on the waitlist." },
       { status: 200 },
     );
   } catch {
