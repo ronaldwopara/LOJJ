@@ -4,8 +4,9 @@ import { ShaderGradient, ShaderGradientCanvas } from "@shadergradient/react";
 
 export default function ShaderBackground() {
   return (
-    <div className="fixed inset-0 -z-50">
+    <div className="shader-bg-layer fixed inset-0 -z-50">
       <ShaderGradientCanvas
+        preserveDrawingBuffer
         style={{ width: "100%", height: "100%" }}
         // keep this lightweight on laptops
         pixelDensity={1}

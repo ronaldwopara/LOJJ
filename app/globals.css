@@ -12,8 +12,8 @@
             --brand-green: rgb(34, 61, 20);
             --off-white: #cccec9;
             --nav-border: rgba(255, 255, 255, 0.9);
-            --glass-bg: rgba(255, 255, 255, 0.4);
-            --glass-blur: 24px;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-blur: 60px;
         }
 
         body {
@@ -48,17 +48,172 @@
             letter-spacing: -0.01em;
         }
 
-        /* Glassmorphic Pills */
-        .nav-pill {
-            background: rgba(34, 61, 20, 0.3);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            height: 56px; 
-            box-shadow: 
-                0 10px 40px -10px rgba(34, 61, 20, 0.12),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.3);
-            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        /* Workaround for canvas/backdrop compositing in some browsers */
+        .shader-bg-layer canvas {
+            background-image: linear-gradient(transparent, transparent);
+        }
+
+        /* Top navigation */
+        #main-nav.lojj-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border-bottom: 1px solid transparent;
+            padding-bottom: 0;
+            transition:
+                background-color 160ms linear,
+                border-color 160ms linear,
+                padding-bottom 160ms linear;
+        }
+
+        /* Real blur plane as a sibling (better compositing than ::before over WebGL) */
+        .nav-blur-plane {
+            /* Make this its own viewport-fixed layer to avoid nav/layout stacking quirks */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 96px;
+            pointer-events: none;
+            opacity: 0;
+            background: rgba(10, 23, 24, 0.10);
+            transform: translateZ(0);
+            will-change: backdrop-filter;
+            backdrop-filter: blur(0px) saturate(100%) contrast(100%);
+            -webkit-backdrop-filter: blur(0px) saturate(100%) contrast(100%);
+            transition:
+                opacity 160ms linear,
+                background-color 160ms linear,
+                backdrop-filter 160ms linear,
+                -webkit-backdrop-filter 160ms linear;
+        }
+
+        #main-nav.lojj-nav[data-scrolled="true"] {
+            background: transparent;
+            border-bottom-color: rgba(237, 237, 237, 0.14);
+            padding-bottom: 0px;
+        }
+
+        #main-nav.lojj-nav[data-scrolled="true"] .nav-blur-plane {
+            opacity: 1;
+            /* Diagnostic: make blur maximally visible to distinguish "working but subtle" vs "not sampling" */
+            background: rgba(12, 29, 29, 0.16);
+            backdrop-filter: blur(80px) saturate(180%) contrast(120%);
+            -webkit-backdrop-filter: blur(80px) saturate(180%) contrast(120%);
+        }
+
+        /* Disable the old pseudo-element plane to avoid double sampling */
+        #main-nav.lojj-nav::before {
+            content: none;
+        }
+
+        .lojj-nav-inner {
+            width: min(100%, 80rem);
+            margin-left: auto;
+            margin-right: auto;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            box-sizing: border-box;
+            transform: translateY(16px);
+            animation: navSlideIn 0.8s ease-out 0.2s forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lojj-left-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 2rem;
+            height: 56px;
+            padding: 0 1.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(237, 237, 237, 0.58);
+            background: rgba(120, 140, 115, 0.40);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px) saturate(130%);
+            -webkit-backdrop-filter: blur(16px) saturate(130%);
+        }
+
+        .lojj-logo {
+            display: inline-flex;
+            align-items: center;
+            color: #ededed;
+            letter-spacing: -0.01em;
+            font-size: 1.75rem;
+            font-weight: 600;
+            line-height: 1;
+            text-decoration: none;
+        }
+
+        .lojj-left-link {
+            color: #ededed;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: 'Clash Display', sans-serif;
+            line-height: 1;
+            transition: opacity 180ms ease;
+        }
+
+        .lojj-left-link:hover {
+            opacity: 0.9;
+        }
+
+        .lojj-nav-actions {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .lojj-pill {
+            height: 40px;
+            padding: 0 1.5rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            font-family: 'Clash Display', sans-serif;
+            text-decoration: none;
+            transition: opacity 180ms ease;
+        }
+
+        .lojj-pill:hover {
+            opacity: 0.9;
+        }
+
+        .lojj-pill-outline {
+            color: #ededed;
+            border: 0.8px solid rgba(237, 237, 237, 0.5);
+            background: transparent;
+        }
+
+        .lojj-pill-solid {
+            color: #011010;
+            background: #ededed;
+            border: 0.8px solid #ededed;
+        }
+
+        .lojj-menu-btn {
+            background: transparent;
+            border: none;
+            color: #ededed;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem;
+            cursor: pointer;
         }
 
         /* Smoothing */
@@ -114,80 +269,13 @@
             }
         }
 
-        /* Symmetrical Toggle Logic */
         @media (min-width: 768px) {
-            .pill-switch-container {
-                position: relative;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                width: 340px; 
-                padding: 4px;
-                box-sizing: border-box;
-            }
-
-            .active-slider {
-                position: absolute;
-                height: calc(100% - 8px);
-                top: 4px;
-                left: 4px;
-                width: calc(50% - 4px);
-                background-color: var(--brand-green);
-                border-radius: 9999px;
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                z-index: 1;
-                transform: translateX(100%);
-            }
-
-            .watch-demo-trigger:hover ~ .active-slider {
-                transform: translateX(0%);
-            }
-
-            .nav-link {
-                position: relative;
-                z-index: 10;
-                width: 100%;
-                height: 100%;
+            .lojj-nav-actions {
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: color 0.3s ease, font-weight 0.2s ease;
-                font-weight: 400;
             }
 
-            .watch-demo-trigger:hover { 
-                color: white; 
-                font-weight: 700; 
-            }
-            .watch-demo-trigger:hover ~ .waitlist-trigger { 
-                color: white; 
-                font-weight: 400; 
-            }
-            
-            .waitlist-trigger { 
-                color: white; 
-                font-weight: 700; 
-            }
-            .watch-demo-trigger { 
-                color: white; 
-                font-weight: 400; 
-            }
-        }
-
-        /* Mobile specific styles */
-        @media (max-width: 767px) {
-            .pill-switch-container {
-                display: flex;
-                align-items: center;
-                width: auto;
-                gap: 8px;
-                padding: 4px;
-            }
-            .active-slider {
+            .lojj-menu-btn {
                 display: none;
-            }
-            .waitlist-trigger-mobile {
-                background-color: var(--brand-green);
-                color: white;
             }
         }
 
@@ -199,27 +287,340 @@
             overflow: hidden;
         }
 
-        /* Smooth fade-in animations */
-        #main-nav {
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        .landing-main {
+            width: 100%;
         }
 
-        /* Hero Box Styling - Modified for global video background */
+        .hero-sheen {
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(
+                70% 55% at 68% 34%,
+                rgba(255, 255, 255, 0.16) 0%,
+                rgba(255, 255, 255, 0.10) 36%,
+                rgba(255, 255, 255, 0.05) 58%,
+                transparent 82%
+            );
+            transform: translate3d(10%, -10%, 0);
+            filter: blur(18px);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-secondary-btn {
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transition: opacity 200ms ease, transform 200ms ease;
+        }
+        .hero-secondary-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .landing-section {
+            padding-bottom: 0;
+        }
+
+        .landing-h2 {
+            font-size: clamp(2rem, 4.4vw, 3.25rem);
+            font-family: 'Clash Display', sans-serif;
+            font-style: italic;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            text-transform: none;
+            margin: 0;
+        }
+
+        .section-heading-stack {
+            position: relative;
+            display: inline-block;
+            isolation: isolate;
+            padding-top: 20px;
+            margin-bottom: 6px;
+        }
+
+        .section-ghost-h2 {
+            position: absolute;
+            left: 0;
+            top: 0;
+            transform: translateY(-54%);
+            font-family: 'Clash Display', sans-serif;
+            font-style: normal;
+            font-weight: 800;
+            font-size: clamp(2.6rem, 7vw, 5.25rem);
+            letter-spacing: -0.04em;
+            line-height: 1;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+            user-select: none;
+            z-index: -1;
+            white-space: nowrap;
+        }
+
+        .landing-sub {
+            margin-top: 14px;
+            max-width: 62ch;
+            color: rgba(255, 255, 255, 0.78);
+            font-weight: 600;
+            line-height: 1.55;
+        }
+
+        .landing-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.38);
+            backdrop-filter: blur(60px) saturate(100%);
+            -webkit-backdrop-filter: blur(60px) saturate(100%);
+            border-radius: 22px;
+            padding: 22px 20px;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                0 12px 40px -16px rgba(0, 0, 0, 0.30);
+        }
+
+        .landing-h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+        }
+
+        .landing-p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.82);
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .feature-kicker {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-list {
+            margin: 12px 0 0 0;
+            padding-left: 18px;
+            color: rgba(255, 255, 255, 0.84);
+            line-height: 1.7;
+            font-weight: 650;
+        }
+
+        .teammates-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .teammates-text {
+            width: 100%;
+        }
+
+        .teammates-phone-wrap {
+            display: flex;
+            justify-content: center;
+        }
+
+        .phone-frame {
+            position: relative;
+            width: min(300px, 78vw);
+            aspect-ratio: 1 / 2;
+            background: #000;
+            border: 12px solid #1c1c1c;
+            border-radius: 48px;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.55);
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: #1c1c1c;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 3;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 220ms ease;
+        }
+
+        @media (min-width: 900px) {
+            .teammates-grid {
+                grid-template-columns: 1.05fr 0.95fr;
+                gap: 2.8rem;
+            }
+
+            .teammates-phone-wrap {
+                justify-content: flex-end;
+            }
+        }
+
+        .win-card {
+            text-align: center;
+            padding: 32px 26px;
+            max-width: 860px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .win-card .feature-kicker {
+            margin-bottom: 4px;
+        }
+
+        .win-subhead {
+            margin-top: 10px;
+            margin-bottom: 12px;
+            text-transform: none;
+            font-size: clamp(1.45rem, 2.6vw, 1.9rem);
+        }
+
+        .win-copy {
+            max-width: 66ch;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .waitlist-heading {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .waitlist-heading .landing-sub {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .waitlist-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.38);
+            border-radius: 28px;
+            padding: 26px 18px;
+            backdrop-filter: blur(60px) saturate(100%);
+            -webkit-backdrop-filter: blur(60px) saturate(100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                0 12px 40px -16px rgba(0, 0, 0, 0.30);
+        }
+
+        @media (min-width: 900px) {
+            .waitlist-card {
+                max-width: 900px;
+                margin-left: auto;
+                margin-right: auto;
+                padding: 32px 28px;
+            }
+        }
+
+        .waitlist-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .waitlist-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 520px) {
+            .waitlist-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .waitlist-field-full {
+            grid-column: 1 / -1;
+        }
+
+        .waitlist-input {
+            width: 100%;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            padding: 12px 12px;
+            outline: none;
+            font-weight: 650;
+            transition: border-color 180ms ease, background-color 180ms ease;
+        }
+
+        .waitlist-input::placeholder {
+            color: rgba(255, 255, 255, 0.55);
+            font-weight: 650;
+        }
+
+        .waitlist-input:focus {
+            border-color: rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.10);
+        }
+
+        .waitlist-submit {
+            height: 56px;
+            width: 100%;
+            border-radius: 9999px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .waitlist-status {
+            min-height: 20px;
+            color: rgba(255, 255, 255, 0.78);
+            font-weight: 650;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+
+        /* ── Hero glass ──────────────────────────────────────────────────────────
+           The outer box stays opacity:1 always so backdrop-filter is never
+           weakened. Entrance animation lives on .hero-content (no blur there).
+        ─────────────────────────────────────────────────────────────────────── */
         #dynamic-hero-box {
             border-radius: 40px;
-            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            transform: translateY(30px);
-            /* Glassmorphism instead of solid/video */
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            backdrop-filter: blur(60px) saturate(100%);
+            -webkit-backdrop-filter: blur(60px) saturate(100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.36),
+                0 20px 60px -24px rgba(0, 0, 0, 0.32);
         }
-        
-        #dynamic-hero-box.visible {
+
+        /* Inner content fades in independently — opacity never touches blur */
+        .hero-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-out 0.15s, transform 0.9s cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+        }
+
+        #dynamic-hero-box.visible .hero-content {
             opacity: 1;
             transform: translateY(0);
         }
@@ -228,6 +629,10 @@
         .hero-heading {
             font-size: clamp(2.4rem, 7vw, 3.2rem);
             line-height: 1.05;
+            font-family: 'Clash Display', sans-serif;
+            font-style: italic;
+            font-weight: 700;
+            letter-spacing: -0.03em;
         }
 
         @media (min-width: 768px) {
@@ -237,10 +642,20 @@
             }
         }
 
+        /* Opacity-only entrance: transform here would create a containing block for
+           position:fixed (ScrollTrigger pin) inside the hallway and cause scroll jitter. */
         .visualization-section {
             opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 1.4s forwards;
+            animation: viz-section-enter 1s cubic-bezier(0.4, 0, 0.2, 1) 1.4s forwards;
+        }
+
+        @keyframes viz-section-enter {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes fadeIn {
@@ -252,13 +667,8 @@
             }
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
+        @keyframes navSlideIn {
             to {
-                opacity: 1;
                 transform: translateY(0);
             }
         }

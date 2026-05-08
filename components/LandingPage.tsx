@@ -49,17 +49,28 @@ export default function LandingPage() {
       }
     }
 
-    const signupCta = document.querySelector("[data-scroll-signup]");
-    const signupSection = document.getElementById("signup");
-    const onSignupClick = (e: Event) => {
+    const waitlistCta = document.querySelector("[data-scroll-waitlist]");
+    const waitlistSection = document.getElementById("waitlist");
+    const onWaitlistClick = (e: Event) => {
       e.preventDefault();
-      signupSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+      waitlistSection?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
-    signupCta?.addEventListener("click", onSignupClick);
+    waitlistCta?.addEventListener("click", onWaitlistClick);
 
     const mobileMenu = document.getElementById("mobile-menu");
     const hamburgerBtn = document.getElementById("hamburger-btn");
     const closeMenu = document.getElementById("close-menu");
+    const mainNav = document.getElementById("main-nav");
+
+    const updateNavScrollState = () => {
+      const hasScrolled = window.scrollY > 2;
+      if (mainNav) {
+        mainNav.setAttribute("data-scrolled", hasScrolled ? "true" : "false");
+      }
+    };
+    updateNavScrollState();
+    window.requestAnimationFrame(updateNavScrollState);
+    window.addEventListener("scroll", updateNavScrollState, { passive: true });
 
     const openMenu = () => {
       mobileMenu?.classList.remove("invisible", "opacity-0");
@@ -78,6 +89,7 @@ export default function LandingPage() {
     menuLinks.forEach((link) => link.addEventListener("click", closeMenuFn));
 
     const footerForm = document.getElementById("footer-signup") as HTMLFormElement | null;
+    const waitlistForm = document.getElementById("waitlist-form") as HTMLFormElement | null;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const tooltipTimeouts: number[] = [];
 
@@ -89,7 +101,36 @@ export default function LandingPage() {
       });
     };
 
-    const onSubmit = (e: Event) => {
+    async function submitToWaitlist(form: HTMLFormElement) {
+      const fd = new FormData(form);
+      const payload = {
+        fullName: String(fd.get("fullName") ?? "").trim(),
+        email: String(fd.get("email") ?? "").trim(),
+        hotel: String(fd.get("hotel") ?? "").trim(),
+        role: String(fd.get("role") ?? "").trim(),
+        location: String(fd.get("location") ?? "").trim(),
+        source: form.id,
+      };
+
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const json = (await res.json().catch(() => null)) as
+        | { ok: true; message?: string }
+        | { ok: false; error?: string }
+        | null;
+
+      if (!res.ok || !json || !json.ok) {
+        const msg = json && "error" in json && json.error ? json.error : "Something went wrong.";
+        throw new Error(msg);
+      }
+      return json.message ?? "Thanks — you're on the waitlist.";
+    }
+
+    const onSubmit = async (e: Event) => {
       if (!footerForm) return;
       clearAllTooltips();
       const inputs = footerForm.querySelectorAll(".newsletter-input");
@@ -123,17 +164,65 @@ export default function LandingPage() {
         e.preventDefault();
         if (firstError) firstError.focus();
       } else {
-        const btn = footerForm.querySelector(".newsletter-btn");
-        if (btn) btn.textContent = "Submitted successfully";
-        const t = window.setTimeout(() => {
-          footerForm.reset();
-          if (btn) btn.textContent = "OK";
-        }, 3000);
-        tooltipTimeouts.push(t);
+        e.preventDefault();
+        const btn = footerForm.querySelector(".newsletter-btn") as HTMLButtonElement | null;
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = "Sending...";
+        }
+        try {
+          await submitToWaitlist(footerForm);
+          if (btn) btn.textContent = "Submitted";
+          const t = window.setTimeout(() => {
+            footerForm.reset();
+            if (btn) {
+              btn.textContent = "OK";
+              btn.disabled = false;
+            }
+          }, 2400);
+          tooltipTimeouts.push(t);
+        } catch {
+          if (btn) {
+            btn.textContent = "Try again";
+            btn.disabled = false;
+          }
+        }
       }
     };
 
     footerForm?.addEventListener("submit", onSubmit);
+
+    const waitlistStatus = waitlistForm?.querySelector(".waitlist-status") as HTMLDivElement | null;
+    const waitlistSubmitBtn = waitlistForm?.querySelector("button[type='submit']") as
+      | HTMLButtonElement
+      | null;
+
+    const onWaitlistSubmit = async (e: Event) => {
+      if (!waitlistForm) return;
+      e.preventDefault();
+      waitlistStatus && (waitlistStatus.textContent = "");
+      if (waitlistSubmitBtn) {
+        waitlistSubmitBtn.disabled = true;
+        waitlistSubmitBtn.textContent = "Joining...";
+      }
+      try {
+        const message = await submitToWaitlist(waitlistForm);
+        if (waitlistStatus) waitlistStatus.textContent = message;
+        waitlistForm.reset();
+      } catch (err) {
+        if (waitlistStatus) {
+          waitlistStatus.textContent =
+            err instanceof Error ? err.message : "Couldn’t submit. Please try again.";
+        }
+      } finally {
+        if (waitlistSubmitBtn) {
+          waitlistSubmitBtn.disabled = false;
+          waitlistSubmitBtn.textContent = "Join waitlist";
+        }
+      }
+    };
+
+    waitlistForm?.addEventListener("submit", onWaitlistSubmit);
 
     const formInputs = footerForm
       ? (Array.from(footerForm.querySelectorAll(".newsletter-input")) as HTMLInputElement[])
@@ -169,14 +258,16 @@ export default function LandingPage() {
 
     return () => {
       window.removeEventListener("load", scrollTop);
+      window.removeEventListener("scroll", updateNavScrollState);
       window.clearTimeout(heroTimer);
       if (scrollIndTimer) window.clearTimeout(scrollIndTimer);
       vizObserver?.disconnect();
-      signupCta?.removeEventListener("click", onSignupClick);
+      waitlistCta?.removeEventListener("click", onWaitlistClick);
       hamburgerBtn?.removeEventListener("click", openMenu);
       closeMenu?.removeEventListener("click", closeMenuFn);
       menuLinks.forEach((link) => link.removeEventListener("click", closeMenuFn));
       footerForm?.removeEventListener("submit", onSubmit);
+      waitlistForm?.removeEventListener("submit", onWaitlistSubmit);
       formInputs.forEach((input) => {
         input.removeEventListener("input", onInput);
         input.removeEventListener("keydown", onKeydown);
