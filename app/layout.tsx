@@ -13,7 +13,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.lojj.io";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "LOJJ — AI operations platform for hotels",
+    default: "LOJJ | Digital concierge + task tracking for hotels",
     template: "%s | LOJJ",
   },
   description:
