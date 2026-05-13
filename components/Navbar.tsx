@@ -68,7 +68,7 @@ export default function Navbar() {
               </button>
             </a>
             <a href="mailto:info@lojj.io">
-              <button className="inline-flex cursor-pointer items-center justify-center rounded-full py-2 font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 bg-snow text-black hover:bg-white h-10 px-6 text-base">
+              <button className="inline-flex cursor-pointer items-center justify-center rounded-full py-2 font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 bg-snow text-white hover:bg-white h-10 px-6 text-base">
                 Contact
               </button>
             </a>

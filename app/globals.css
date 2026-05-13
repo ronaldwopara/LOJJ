@@ -2866,16 +2866,42 @@
 
         /* ── Hero scroll canvas ──────────────────────────────────────────────── */
         .hero-scroll-runway {
-            height: 400vh;
+            position: relative;
             width: 100%;
         }
 
-        .hero-sticky-frame {
-            position: sticky;
-            top: 0;
-            height: 100vh;
+        /* In-flow height so scroll distance matches frame scrub (parent is not height:auto from sticky) */
+        .hero-scroll-spacer {
+            height: 400vh;
+            pointer-events: none;
+        }
+
+        /* JS-driven pin: absolute → fixed while scrubbing → absolute at runway end (immune to overflow-x quirks) */
+        .hero-pin-layer {
             width: 100%;
+            height: 100vh;
             overflow: hidden;
+        }
+
+        .hero-pin-layer--before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .hero-pin-layer--pinned {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .hero-pin-layer--after {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
         }
 
         .hero-canvas {
