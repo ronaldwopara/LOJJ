@@ -118,7 +118,21 @@ function GuestDesktopPanel() {
     guestMessages,
     guestSuggestions,
     guestPickSuggestion,
+    guestJumpShowOps,
+    guestJumpShowReviews,
+    guestJumpShowManager,
   } = useDemoSimulation();
+
+  const visibleJumps = useMemo(
+    () =>
+      GUEST_DEMO_JUMP_LINKS.filter((item) => {
+        if (item.href === "#ops-lead") return guestJumpShowOps;
+        if (item.href === "#review-specialist") return guestJumpShowReviews;
+        if (item.href === "#ai-manager") return guestJumpShowManager;
+        return false;
+      }),
+    [guestJumpShowManager, guestJumpShowOps, guestJumpShowReviews],
+  );
 
   return (
     <div className="demo-guest-desktop">
@@ -138,16 +152,18 @@ function GuestDesktopPanel() {
           ))
         )}
       </div>
-      <div className="demo-guest-jump" role="navigation" aria-label="Related solution demos">
-        <span className="demo-guest-jump-label">Related on this page</span>
-        <div className="demo-guest-jump-row">
-          {GUEST_DEMO_JUMP_LINKS.map((item) => (
-            <a key={item.href} href={item.href} className="demo-chip demo-link-chip">
-              {item.label}
-            </a>
-          ))}
+      {visibleJumps.length > 0 ? (
+        <div className="demo-guest-jump" role="navigation" aria-label="Related solution demos">
+          <span className="demo-guest-jump-label">Related on this page</span>
+          <div className="demo-guest-jump-row">
+            {visibleJumps.map((item) => (
+              <a key={item.href} href={item.href} className="demo-chip demo-link-chip">
+                {item.label}
+              </a>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
       {guestSuggestions.length > 0 ? (
         <div className="demo-action-list" role="group" aria-label="Guest prompts (desktop)">
           {guestSuggestions.map((s) => (
@@ -228,76 +244,180 @@ function ReviewsDemoSynced() {
     reviewGuestScreen,
     reviewSetActiveGuest,
     resetReviewDemo,
+    requestStaffReviewForGuest,
+    reviewSentDemos,
   } = useDemoSimulation();
+
+  const [demoTab, setDemoTab] = useState<"board" | "posted">("board");
 
   const active = useMemo(
     () => reviewGuests.find((g) => g.id === reviewActiveGuestId) ?? reviewGuests[0],
     [reviewGuests, reviewActiveGuestId],
   );
 
+  const postedReviews = useMemo(
+    () => reviewSentDemos.filter((e) => e.kind === "guest_submitted"),
+    [reviewSentDemos],
+  );
+
+  const demoUrlPath = demoTab === "board" ? "/board" : "/posted";
+
   return (
     <>
-      <p className="demo-reviews-sync-note">
-        <strong>Review Specialist preview:</strong> when a guest declines more help in Guest Expert, a review
-        prompt is mirrored here. The phone in this section shows the <strong>guest</strong> inbox and Post review
-        flow (demo).
-      </p>
-      <div className="demo-queue" role="listbox" aria-label="Review candidates">
-        {reviewGuests.map((guest) => (
+      <div className="demo-browser-shell" role="presentation">
+        <div className="demo-browser-tabstrip" role="tablist" aria-label="Review demo views">
           <button
-            key={guest.id}
             type="button"
-            className={`demo-row ${guest.id === active?.id ? "demo-row-active" : ""} ${
-              reviewInviteSentForId === guest.id ? "demo-row-synced" : ""
-            }`}
-            onClick={() => reviewSetActiveGuest(guest.id)}
-            role="option"
-            aria-selected={guest.id === active?.id}
+            role="tab"
+            aria-selected={demoTab === "board"}
+            className={`demo-browser-tab ${demoTab === "board" ? "demo-browser-tab-active" : ""}`}
+            onClick={() => setDemoTab("board")}
           >
-            <div className="demo-row-top">
-              <span>{guest.name}</span>
-              <span>{guest.score}%</span>
-            </div>
-            <div className="demo-row-bottom">
-              <span>{guest.signal}</span>
-              <span>
-                {reviewGuestReviewSubmitted && guest.id === "g1"
-                  ? "Posted (demo)"
-                  : reviewInviteSentForId === guest.id
-                    ? "Prompt live"
-                    : "Eligible now"}
-              </span>
-            </div>
+            <span className="demo-browser-tab-favicon" aria-hidden>
+              ◆
+            </span>
+            <span className="demo-browser-tab-title">Outreach board</span>
           </button>
-        ))}
-      </div>
-      {active ? (
-        <div className="demo-selection" aria-live="polite">
-          {reviewInviteSentForId === active.id ? (
-            reviewGuestReviewSubmitted ? (
-              <>
-                <strong>{active.name}</strong> completed the guest Post review flow — 5★ pre-filled draft was
-                submitted (demo). Staff board updated.
-              </>
-            ) : reviewGuestScreen === "compose" ? (
-              <>
-                Guest is on the <strong>Post review</strong> screen on the phone — pre-filled 5-star draft ready
-                (demo).
-              </>
-            ) : (
-              <>
-                Review prompt delivered to <strong>{active.name}</strong>&apos;s guest phone. Open Post review on
-                the phone to continue the scripted flow.
-              </>
-            )
-          ) : (
-            <>
-              <strong>{active.name}</strong> appears when Guest Expert routes a review moment. Run the guest chat
-              and tap <strong>No, thanks</strong> after a topic to populate this row.
-            </>
-          )}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={demoTab === "posted"}
+            className={`demo-browser-tab ${demoTab === "posted" ? "demo-browser-tab-active" : ""}`}
+            onClick={() => setDemoTab("posted")}
+          >
+            <span className="demo-browser-tab-favicon" aria-hidden>
+              ★
+            </span>
+            <span className="demo-browser-tab-title">Posted reviews</span>
+          </button>
+          <span className="demo-browser-tab-plus" aria-hidden title="New tab (demo)">
+            +
+          </span>
         </div>
-      ) : null}
+        <div className="demo-browser-toolbar">
+          <div className="demo-browser-nav" aria-hidden>
+            <span className="demo-browser-nav-btn">‹</span>
+            <span className="demo-browser-nav-btn demo-browser-nav-btn-disabled">›</span>
+            <span className="demo-browser-nav-btn">↻</span>
+          </div>
+          <div className="demo-browser-urlbar">
+            <span className="demo-browser-url-icon" aria-hidden>
+              ⎘
+            </span>
+            <span className="demo-browser-url-text">
+              yourhotel.lojj.io/demo/reviews{demoUrlPath}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {demoTab === "board" ? (
+        <>
+          <p className="demo-reviews-sync-note">
+            <strong>Review Specialist preview:</strong> request a review for any guest below — it opens a
+            personalized message on the guest phone. Guest Expert&apos;s &quot;No, thanks&quot; flow still mirrors
+            here for Maya.
+          </p>
+          <div className="demo-review-staff-actions" role="group" aria-label="Send review request (staff demo)">
+            {reviewGuests.map((guest) => (
+              <button
+                key={guest.id}
+                type="button"
+                className="demo-chip"
+                onClick={() => requestStaffReviewForGuest(guest.id)}
+              >
+                Request review — {guest.name}
+              </button>
+            ))}
+          </div>
+          <div className="demo-queue" role="listbox" aria-label="Review candidates">
+            {reviewGuests.map((guest) => (
+              <button
+                key={guest.id}
+                type="button"
+                className={`demo-row ${guest.id === active?.id ? "demo-row-active" : ""} ${
+                  reviewInviteSentForId === guest.id ? "demo-row-synced" : ""
+                }`}
+                onClick={() => reviewSetActiveGuest(guest.id)}
+                role="option"
+                aria-selected={guest.id === active?.id}
+              >
+                <div className="demo-row-top">
+                  <span>{guest.name}</span>
+                  <span>{guest.score}%</span>
+                </div>
+                <div className="demo-row-bottom">
+                  <span>{guest.signal}</span>
+                  <span>
+                    {reviewGuestReviewSubmitted && reviewInviteSentForId === guest.id
+                      ? "Posted (demo)"
+                      : reviewInviteSentForId === guest.id
+                        ? "Prompt live"
+                        : "Eligible now"}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+          {active ? (
+            <div className="demo-selection" aria-live="polite">
+              {reviewInviteSentForId === active.id ? (
+                reviewGuestReviewSubmitted ? (
+                  <>
+                    <strong>{active.name}</strong> finished the Post review flow on the guest phone (demo).
+                  </>
+                ) : reviewGuestScreen === "compose" ? (
+                  <>
+                    Guest is on <strong>Post review</strong> on the phone — pre-filled 5★ draft for{" "}
+                    <strong>{active.name}</strong>.
+                  </>
+                ) : reviewGuestScreen === "staff_request" && reviewInviteSentForId === active.id ? (
+                  <>
+                    Personalized request is open on the guest phone for <strong>{active.name}</strong>. Use{" "}
+                    <strong>Post review</strong> there to continue.
+                  </>
+                ) : (
+                  <>
+                    Review prompt on the guest phone for <strong>{active.name}</strong>. Open Post review on the
+                    phone to continue.
+                  </>
+                )
+              ) : (
+                <>
+                  <strong>{active.name}</strong> — select a row or use Request review above. Guest Expert can also
+                  populate Maya via the scripted chat.
+                </>
+              )}
+            </div>
+          ) : null}
+        </>
+      ) : (
+        <div className="demo-review-sent-panel">
+          <p className="demo-review-sent-intro">
+            Reviews actually submitted from the guest phone in this demo session (5★ flow). Outbound staff
+            requests are not listed here.
+          </p>
+          <div className="demo-review-sent-scroll" role="feed" aria-label="Posted demo reviews">
+            {postedReviews.length === 0 ? (
+              <p className="demo-review-sent-empty">
+                No posted reviews yet — complete Post review on the guest phone for any guest.
+              </p>
+            ) : (
+              postedReviews.map((entry) => (
+                <div key={entry.id} className="demo-review-sent-card">
+                  <div className="demo-review-sent-card-top">
+                    <span className="demo-review-sent-name">{entry.guestName}</span>
+                    <span className="demo-review-sent-time">{entry.time}</span>
+                  </div>
+                  <span className="demo-review-sent-kind">Posted · 5★ (demo)</span>
+                  <p className="demo-review-sent-preview">{entry.preview}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="demo-action-list" role="group" aria-label="Review demo">
         <button type="button" className="demo-chip" onClick={() => resetReviewDemo()}>
           Reset review demo
@@ -346,8 +466,13 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
     }
   };
 
+  const flipLayout = solution.id === "ops" || solution.id === "manager";
+
   return (
-    <article id={solution.anchor} className="solution-panel glass-panel-clear">
+    <article
+      id={solution.anchor}
+      className={`solution-panel glass-panel-clear${flipLayout ? " solution-panel--demo-flip" : ""}`}
+    >
       <div className="solution-grid">
         <div className="solution-copy">
           <div className="feature-kicker">{solution.kicker}</div>

@@ -26,6 +26,17 @@ export type DemoSuggestion = {
   label: string;
 };
 
+export type ReviewGuestScreen = "idle" | "inbox" | "compose" | "staff_request";
+
+export type ReviewSentDemoEntry = {
+  id: string;
+  guestId: string;
+  guestName: string;
+  time: string;
+  preview: string;
+  kind: "staff_request" | "guest_submitted";
+};
+
 const nowTime = () =>
   new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
@@ -36,6 +47,10 @@ const OPS_BASE: DemoQueueItem[] =
 
 const REVIEW_GUESTS_BASE: DemoReviewGuest[] =
   SOLUTIONS.find((s) => s.id === "reviews")?.demo.guests?.slice() ?? [];
+
+function firstName(displayName: string) {
+  return displayName.split(/\s+/)[0] ?? displayName;
+}
 
 const GUEST_INTRO =
   "Hello! I'm Mage, your hotel assistant. I can help with room service, amenities, local recommendations, or any questions about your stay. What can I do for you? Do you require any further assistance? (Yes / No)";
@@ -68,7 +83,7 @@ const LATE_CHECKOUT_TASK: DemoQueueItem = {
 
 type GuestPhase = "idle" | "after_hi" | "after_topic" | "after_followup_no";
 
-export type ReviewGuestScreen = "idle" | "inbox" | "compose";
+type ReviewComposeReturn = "inbox" | "staff_request";
 
 type DemoSimulationValue = {
   guestMessages: DemoChatMessage[];
@@ -77,6 +92,10 @@ type DemoSimulationValue = {
   guestAppend: (role: DemoChatMessage["role"], body: string) => void;
   guestPickSuggestion: (id: string) => void;
   resetGuestDemo: () => void;
+
+  guestJumpShowOps: boolean;
+  guestJumpShowReviews: boolean;
+  guestJumpShowManager: boolean;
 
   opsExtraQueue: DemoQueueItem[];
   resetOpsExtras: () => void;
@@ -90,9 +109,15 @@ type DemoSimulationValue = {
 
   reviewGuestScreen: ReviewGuestScreen;
   reviewGuestMessages: DemoChatMessage[];
+  reviewStaffRequestGuestId: string | null;
+  reviewComposeGuestId: string;
+  reviewComposeReturn: ReviewComposeReturn;
+  reviewSentDemos: ReviewSentDemoEntry[];
   reviewGuestOpenCompose: () => void;
-  reviewGuestBackToInbox: () => void;
+  reviewGuestBackFromCompose: () => void;
   reviewGuestSubmitReview: () => void;
+  requestStaffReviewForGuest: (guestId: string) => void;
+  reviewStaffClosePhone: () => void;
 
   resetAllDemos: () => void;
 };
@@ -105,16 +130,22 @@ function clearReviewGuestPhoneState(setters: {
   setReviewGuestScreen: (v: ReviewGuestScreen) => void;
   setReviewGuestMessages: (v: DemoChatMessage[]) => void;
   setReviewGuestReviewSubmitted: (v: boolean) => void;
+  setReviewStaffRequestGuestId: (v: string | null) => void;
+  setReviewComposeGuestId: (v: string) => void;
 }) {
   setters.setReviewGuestScreen("idle");
   setters.setReviewGuestMessages([]);
   setters.setReviewGuestReviewSubmitted(false);
+  setters.setReviewStaffRequestGuestId(null);
+  setters.setReviewComposeGuestId("g1");
 }
 
 export function DemoSimulationProvider({ children }: { children: ReactNode }) {
   const [guestMessages, setGuestMessages] = useState<DemoChatMessage[]>([]);
   const [guestPhase, setGuestPhase] = useState<GuestPhase>("idle");
   const [guestTopicPendingFollowup, setGuestTopicPendingFollowup] = useState(false);
+  const [guestManagerJumpUnlocked, setGuestManagerJumpUnlocked] = useState(false);
+  const [guestTriggeredReviewFlow, setGuestTriggeredReviewFlow] = useState(false);
 
   const [opsExtraQueue, setOpsExtraQueue] = useState<DemoQueueItem[]>([]);
 
@@ -125,6 +156,10 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
 
   const [reviewGuestScreen, setReviewGuestScreen] = useState<ReviewGuestScreen>("idle");
   const [reviewGuestMessages, setReviewGuestMessages] = useState<DemoChatMessage[]>([]);
+  const [reviewStaffRequestGuestId, setReviewStaffRequestGuestId] = useState<string | null>(null);
+  const [reviewComposeGuestId, setReviewComposeGuestId] = useState("g1");
+  const [reviewComposeReturn, setReviewComposeReturn] = useState<ReviewComposeReturn>("inbox");
+  const [reviewSentDemos, setReviewSentDemos] = useState<ReviewSentDemoEntry[]>([]);
 
   const guestAppend = useCallback((role: DemoChatMessage["role"], body: string) => {
     setGuestMessages((prev) => [...prev, { id: uid(), role, body, time: nowTime() }]);
@@ -134,12 +169,17 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
     setGuestMessages([]);
     setGuestPhase("idle");
     setGuestTopicPendingFollowup(false);
+    setGuestManagerJumpUnlocked(false);
+    setGuestTriggeredReviewFlow(false);
     setOpsExtraQueue((extras) => extras.filter((t) => t.id !== LATE_CHECKOUT_TASK.id));
     clearReviewGuestPhoneState({
       setReviewGuestScreen,
       setReviewGuestMessages,
       setReviewGuestReviewSubmitted,
+      setReviewStaffRequestGuestId,
+      setReviewComposeGuestId,
     });
+    setReviewComposeReturn("inbox");
     setReviewInviteSentForId(null);
     setReviewGuests(REVIEW_GUESTS_BASE);
     setReviewActiveGuestId(REVIEW_GUESTS_BASE[0]?.id ?? "g1");
@@ -154,10 +194,14 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
       setReviewGuestScreen,
       setReviewGuestMessages,
       setReviewGuestReviewSubmitted,
+      setReviewStaffRequestGuestId,
+      setReviewComposeGuestId,
     });
+    setReviewComposeReturn("inbox");
     setReviewGuests(REVIEW_GUESTS_BASE);
     setReviewActiveGuestId(REVIEW_GUESTS_BASE[0]?.id ?? "g1");
     setReviewInviteSentForId(null);
+    setReviewSentDemos([]);
   }, []);
 
   const resetAllDemos = useCallback(() => {
@@ -167,6 +211,7 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
   }, [resetGuestDemo, resetOpsExtras, resetReviewDemo]);
 
   const syncReviewFromGuestDecline = useCallback(() => {
+    setReviewStaffRequestGuestId(null);
     setReviewGuestMessages([
       {
         id: uid(),
@@ -177,7 +222,9 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
     ]);
     setReviewGuestScreen("inbox");
     setReviewInviteSentForId("g1");
+    setGuestTriggeredReviewFlow(true);
     setReviewActiveGuestId("g1");
+    setReviewGuestReviewSubmitted(false);
     setReviewGuests((prev) =>
       prev.map((g) =>
         g.id === "g1"
@@ -200,6 +247,7 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
       }
 
       if (guestPhase === "after_hi" && (id === "wifi" || id === "late" || id === "park")) {
+        setGuestManagerJumpUnlocked(true);
         const userText =
           id === "wifi"
             ? "I can't find the wi-fi password."
@@ -277,24 +325,88 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
     [guestPickSuggestion, resetGuestDemo],
   );
 
-  const reviewGuestOpenCompose = useCallback(() => {
-    setReviewGuestScreen("compose");
-  }, []);
-
-  const reviewGuestBackToInbox = useCallback(() => {
-    setReviewGuestScreen("inbox");
-  }, []);
-
-  const reviewGuestSubmitReview = useCallback(() => {
-    setReviewGuestReviewSubmitted(true);
+  const requestStaffReviewForGuest = useCallback((guestId: string) => {
+    const guest = REVIEW_GUESTS_BASE.find((g) => g.id === guestId);
+    if (!guest) return;
+    const fn = firstName(guest.name);
+    const body = `Hi ${fn}, thanks for staying with Riverside. Your visit made a real difference for our team — when you have a moment, we'd love a short public review. Tap Post review below when you're ready (demo only).`;
+    setReviewStaffRequestGuestId(guestId);
+    setReviewGuestMessages([
+      {
+        id: uid(),
+        role: "assistant",
+        body,
+        time: nowTime(),
+      },
+    ]);
+    setReviewGuestScreen("staff_request");
+    setReviewGuestReviewSubmitted(false);
+    setReviewInviteSentForId(guestId);
+    setReviewActiveGuestId(guestId);
     setReviewGuests((prev) =>
       prev.map((g) =>
-        g.id === "g1"
+        g.id === guestId ? { ...g, signal: "Staff review request · on guest phone" } : g,
+      ),
+    );
+    setReviewSentDemos((prev) => [
+      {
+        id: uid(),
+        guestId,
+        guestName: guest.name,
+        time: nowTime(),
+        preview: body.slice(0, 120),
+        kind: "staff_request",
+      },
+      ...prev,
+    ]);
+  }, []);
+
+  const reviewStaffClosePhone = useCallback(() => {
+    setReviewGuestScreen("idle");
+    setReviewStaffRequestGuestId(null);
+    setReviewGuestMessages([]);
+    setReviewGuestReviewSubmitted(false);
+    setReviewComposeGuestId("g1");
+  }, []);
+
+  const reviewGuestOpenCompose = useCallback(() => {
+    const gid =
+      reviewGuestScreen === "staff_request" && reviewStaffRequestGuestId
+        ? reviewStaffRequestGuestId
+        : reviewInviteSentForId || "g1";
+    setReviewComposeGuestId(gid);
+    setReviewComposeReturn(reviewGuestScreen === "staff_request" ? "staff_request" : "inbox");
+    setReviewGuestScreen("compose");
+  }, [reviewGuestScreen, reviewInviteSentForId, reviewStaffRequestGuestId]);
+
+  const reviewGuestBackFromCompose = useCallback(() => {
+    setReviewGuestScreen(reviewComposeReturn);
+  }, [reviewComposeReturn]);
+
+  const reviewGuestSubmitReview = useCallback(() => {
+    const gid = reviewComposeGuestId;
+    setReviewGuestReviewSubmitted(true);
+    const guest = REVIEW_GUESTS_BASE.find((g) => g.id === gid);
+    const label = guest?.name ?? "Guest";
+    setReviewGuests((prev) =>
+      prev.map((g) =>
+        g.id === gid
           ? { ...g, signal: "5★ review posted · guest submitted (demo)" }
           : g,
       ),
     );
-  }, []);
+    setReviewSentDemos((prev) => [
+      {
+        id: uid(),
+        guestId: gid,
+        guestName: label,
+        time: nowTime(),
+        preview: `${label} submitted a 5★ review draft (demo).`,
+        kind: "guest_submitted",
+      },
+      ...prev,
+    ]);
+  }, [reviewComposeGuestId]);
 
   const reviewSetActiveGuest = useCallback((id: string) => {
     setReviewActiveGuestId(id);
@@ -308,6 +420,9 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
       guestAppend,
       guestPickSuggestion: guestPickSuggestionWrapped,
       resetGuestDemo,
+      guestJumpShowOps: opsExtraQueue.length > 0,
+      guestJumpShowReviews: guestTriggeredReviewFlow,
+      guestJumpShowManager: guestManagerJumpUnlocked,
       opsExtraQueue,
       resetOpsExtras,
       reviewGuests,
@@ -318,24 +433,35 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
       resetReviewDemo,
       reviewGuestScreen,
       reviewGuestMessages,
+      reviewStaffRequestGuestId,
+      reviewComposeGuestId,
+      reviewComposeReturn,
+      reviewSentDemos,
       reviewGuestOpenCompose,
-      reviewGuestBackToInbox,
+      reviewGuestBackFromCompose,
       reviewGuestSubmitReview,
+      requestStaffReviewForGuest,
+      reviewStaffClosePhone,
       resetAllDemos,
     }),
     [
       guestAppend,
+      guestManagerJumpUnlocked,
       guestMessages,
       guestPhase,
       guestPickSuggestionWrapped,
       guestSuggestions,
+      guestTriggeredReviewFlow,
       opsExtraQueue,
+      requestStaffReviewForGuest,
       resetAllDemos,
       resetGuestDemo,
       resetOpsExtras,
       resetReviewDemo,
       reviewActiveGuestId,
-      reviewGuestBackToInbox,
+      reviewComposeGuestId,
+      reviewComposeReturn,
+      reviewGuestBackFromCompose,
       reviewGuestMessages,
       reviewGuestOpenCompose,
       reviewGuestReviewSubmitted,
@@ -343,7 +469,10 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
       reviewGuestSubmitReview,
       reviewGuests,
       reviewInviteSentForId,
+      reviewSentDemos,
       reviewSetActiveGuest,
+      reviewStaffClosePhone,
+      reviewStaffRequestGuestId,
     ],
   );
 
