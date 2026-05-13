@@ -49,8 +49,14 @@ const GUEST_LATE_REPLY =
 const GUEST_PARK_REPLY =
   "Overnight parking is in Garage B, levels 2 to 4. Show your room key at entry for guest validation. Do you require any further assistance? (Yes / No)";
 
-const GUEST_CLOSING_YES = "Wonderful — if anything else comes up, just ask. Enjoy your stay!";
-const GUEST_CLOSING_NO = "All set. Have a great stay!";
+const GUEST_YES_ACK =
+  "Happy to help! What else can I look up for you?";
+
+const GUEST_AFTER_NO_THANKS =
+  "You're so welcome. If you have a moment, we'd love a quick review — it really helps the team. I've queued a message on your review phone (guest view) and mirrored the request here for Review Specialist (demo).";
+
+const REVIEW_GUEST_INBOUND =
+  "Thanks again for staying with us! Tap Post review below to open a pre-filled 5-star draft you can submit (demo only).";
 
 const LATE_CHECKOUT_TASK: DemoQueueItem = {
   id: "demo-late-checkout",
@@ -60,14 +66,9 @@ const LATE_CHECKOUT_TASK: DemoQueueItem = {
   eta: "Pending",
 };
 
-type GuestPhase =
-  | "idle"
-  | "after_hi"
-  | "after_topic"
-  | "after_followup_yes"
-  | "after_followup_no";
+type GuestPhase = "idle" | "after_hi" | "after_topic" | "after_followup_no";
 
-type ReviewPhase = "idle" | "after_intro" | "after_send";
+export type ReviewGuestScreen = "idle" | "inbox" | "compose";
 
 type DemoSimulationValue = {
   guestMessages: DemoChatMessage[];
@@ -80,15 +81,18 @@ type DemoSimulationValue = {
   opsExtraQueue: DemoQueueItem[];
   resetOpsExtras: () => void;
 
-  reviewMessages: DemoChatMessage[];
-  reviewSuggestions: DemoSuggestion[];
-  reviewPhase: ReviewPhase;
   reviewGuests: DemoReviewGuest[];
   reviewActiveGuestId: string;
   reviewInviteSentForId: string | null;
-  reviewPickSuggestion: (id: string) => void;
+  reviewGuestReviewSubmitted: boolean;
   reviewSetActiveGuest: (id: string) => void;
   resetReviewDemo: () => void;
+
+  reviewGuestScreen: ReviewGuestScreen;
+  reviewGuestMessages: DemoChatMessage[];
+  reviewGuestOpenCompose: () => void;
+  reviewGuestBackToInbox: () => void;
+  reviewGuestSubmitReview: () => void;
 
   resetAllDemos: () => void;
 };
@@ -97,6 +101,16 @@ const DemoSimulationContext = createContext<DemoSimulationValue | null>(null);
 
 const initialGuestSuggestions: DemoSuggestion[] = [{ id: "hi", label: "Hi" }];
 
+function clearReviewGuestPhoneState(setters: {
+  setReviewGuestScreen: (v: ReviewGuestScreen) => void;
+  setReviewGuestMessages: (v: DemoChatMessage[]) => void;
+  setReviewGuestReviewSubmitted: (v: boolean) => void;
+}) {
+  setters.setReviewGuestScreen("idle");
+  setters.setReviewGuestMessages([]);
+  setters.setReviewGuestReviewSubmitted(false);
+}
+
 export function DemoSimulationProvider({ children }: { children: ReactNode }) {
   const [guestMessages, setGuestMessages] = useState<DemoChatMessage[]>([]);
   const [guestPhase, setGuestPhase] = useState<GuestPhase>("idle");
@@ -104,11 +118,13 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
 
   const [opsExtraQueue, setOpsExtraQueue] = useState<DemoQueueItem[]>([]);
 
-  const [reviewMessages, setReviewMessages] = useState<DemoChatMessage[]>([]);
-  const [reviewPhase, setReviewPhase] = useState<ReviewPhase>("idle");
   const [reviewGuests, setReviewGuests] = useState<DemoReviewGuest[]>(REVIEW_GUESTS_BASE);
   const [reviewActiveGuestId, setReviewActiveGuestId] = useState(REVIEW_GUESTS_BASE[0]?.id ?? "g1");
   const [reviewInviteSentForId, setReviewInviteSentForId] = useState<string | null>(null);
+  const [reviewGuestReviewSubmitted, setReviewGuestReviewSubmitted] = useState(false);
+
+  const [reviewGuestScreen, setReviewGuestScreen] = useState<ReviewGuestScreen>("idle");
+  const [reviewGuestMessages, setReviewGuestMessages] = useState<DemoChatMessage[]>([]);
 
   const guestAppend = useCallback((role: DemoChatMessage["role"], body: string) => {
     setGuestMessages((prev) => [...prev, { id: uid(), role, body, time: nowTime() }]);
@@ -119,6 +135,14 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
     setGuestPhase("idle");
     setGuestTopicPendingFollowup(false);
     setOpsExtraQueue((extras) => extras.filter((t) => t.id !== LATE_CHECKOUT_TASK.id));
+    clearReviewGuestPhoneState({
+      setReviewGuestScreen,
+      setReviewGuestMessages,
+      setReviewGuestReviewSubmitted,
+    });
+    setReviewInviteSentForId(null);
+    setReviewGuests(REVIEW_GUESTS_BASE);
+    setReviewActiveGuestId(REVIEW_GUESTS_BASE[0]?.id ?? "g1");
   }, []);
 
   const resetOpsExtras = useCallback(() => {
@@ -126,8 +150,11 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetReviewDemo = useCallback(() => {
-    setReviewMessages([]);
-    setReviewPhase("idle");
+    clearReviewGuestPhoneState({
+      setReviewGuestScreen,
+      setReviewGuestMessages,
+      setReviewGuestReviewSubmitted,
+    });
     setReviewGuests(REVIEW_GUESTS_BASE);
     setReviewActiveGuestId(REVIEW_GUESTS_BASE[0]?.id ?? "g1");
     setReviewInviteSentForId(null);
@@ -139,8 +166,25 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
     resetReviewDemo();
   }, [resetGuestDemo, resetOpsExtras, resetReviewDemo]);
 
-  const reviewAppend = useCallback((role: DemoChatMessage["role"], body: string) => {
-    setReviewMessages((prev) => [...prev, { id: uid(), role, body, time: nowTime() }]);
+  const syncReviewFromGuestDecline = useCallback(() => {
+    setReviewGuestMessages([
+      {
+        id: uid(),
+        role: "assistant",
+        body: REVIEW_GUEST_INBOUND,
+        time: nowTime(),
+      },
+    ]);
+    setReviewGuestScreen("inbox");
+    setReviewInviteSentForId("g1");
+    setReviewActiveGuestId("g1");
+    setReviewGuests((prev) =>
+      prev.map((g) =>
+        g.id === "g1"
+          ? { ...g, signal: "Review prompt in guest chat · awaiting post" }
+          : g,
+      ),
+    );
   }, []);
 
   const guestPickSuggestion = useCallback(
@@ -177,72 +221,28 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (guestTopicPendingFollowup && (id === "yes" || id === "no")) {
-        guestAppend("user", id === "yes" ? "Yes" : "No");
+      if (guestTopicPendingFollowup && id === "yes") {
+        guestAppend("user", "Yes");
         window.setTimeout(() => {
-          guestAppend("assistant", id === "yes" ? GUEST_CLOSING_YES : GUEST_CLOSING_NO);
-          setGuestPhase(id === "yes" ? "after_followup_yes" : "after_followup_no");
+          guestAppend("assistant", GUEST_YES_ACK);
+          setGuestPhase("after_hi");
           setGuestTopicPendingFollowup(false);
         }, 320);
         return;
       }
-    },
-    [guestAppend, guestPhase, guestTopicPendingFollowup],
-  );
 
-  const reviewPickSuggestion = useCallback(
-    (id: string) => {
-      if (id === "start") {
-        setReviewMessages([]);
-        setReviewInviteSentForId(null);
-        setReviewPhase("after_intro");
-        setReviewMessages([
-          {
-            id: uid(),
-            role: "assistant",
-            body: "Maya R. just finished a high-sentiment chat on Guest Expert. Ready to send a review invite with Google and Tripadvisor links?",
-            time: nowTime(),
-          },
-        ]);
-        return;
-      }
-      if (reviewPhase === "after_intro" && id === "send") {
-        reviewAppend("user", "Send review invite");
+      if (guestTopicPendingFollowup && id === "no") {
+        guestAppend("user", "No, thanks for your help!");
         window.setTimeout(() => {
-          reviewAppend(
-            "assistant",
-            "Queued — Maya will receive SMS and email with both links. Tracking opens in Review Specialist.",
-          );
-          setReviewPhase("after_send");
-          setReviewInviteSentForId("g1");
-          setReviewActiveGuestId("g1");
-          setReviewGuests((prev) =>
-            prev.map((g) => (g.id === "g1" ? { ...g, signal: "Review invite sent · tracking opens" } : g)),
-          );
-        }, 400);
-        return;
-      }
-      if (reviewPhase === "after_intro" && id === "snooze") {
-        reviewAppend("user", "Snooze 24 hours");
-        window.setTimeout(() => {
-          reviewAppend("assistant", "Snoozed. I'll surface Maya again tomorrow unless another signal arrives.");
-          setReviewPhase("after_send");
-        }, 380);
-        return;
-      }
-      if (reviewPhase === "after_intro" && id === "summary") {
-        reviewAppend("user", "Show summary");
-        window.setTimeout(() => {
-          reviewAppend(
-            "assistant",
-            "Summary: resolved checkout request, thanked staff twice, sentiment score 92. Recommend invite when convenient.",
-          );
-          setReviewPhase("after_intro");
+          guestAppend("assistant", GUEST_AFTER_NO_THANKS);
+          setGuestPhase("after_followup_no");
+          setGuestTopicPendingFollowup(false);
+          syncReviewFromGuestDecline();
         }, 380);
         return;
       }
     },
-    [reviewAppend, reviewPhase],
+    [guestAppend, guestPhase, guestTopicPendingFollowup, syncReviewFromGuestDecline],
   );
 
   const guestSuggestions = useMemo(() => {
@@ -260,7 +260,7 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
         { id: "no", label: "No" },
       ];
     }
-    if (guestPhase === "after_followup_yes" || guestPhase === "after_followup_no") {
+    if (guestPhase === "after_followup_no") {
       return [{ id: "restart", label: "Restart conversation" }];
     }
     return [];
@@ -277,33 +277,24 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
     [guestPickSuggestion, resetGuestDemo],
   );
 
-  const reviewSuggestions = useMemo(() => {
-    if (reviewPhase === "idle") {
-      return [{ id: "start", label: "Preview outreach" }];
-    }
-    if (reviewPhase === "after_intro") {
-      return [
-        { id: "send", label: "Send review invite" },
-        { id: "snooze", label: "Snooze 24 hours" },
-        { id: "summary", label: "Show summary" },
-      ];
-    }
-    if (reviewPhase === "after_send") {
-      return [{ id: "restart", label: "Reset review demo" }];
-    }
-    return [];
-  }, [reviewPhase]);
+  const reviewGuestOpenCompose = useCallback(() => {
+    setReviewGuestScreen("compose");
+  }, []);
 
-  const reviewPickWrapped = useCallback(
-    (id: string) => {
-      if (id === "restart") {
-        resetReviewDemo();
-        return;
-      }
-      reviewPickSuggestion(id);
-    },
-    [resetReviewDemo, reviewPickSuggestion],
-  );
+  const reviewGuestBackToInbox = useCallback(() => {
+    setReviewGuestScreen("inbox");
+  }, []);
+
+  const reviewGuestSubmitReview = useCallback(() => {
+    setReviewGuestReviewSubmitted(true);
+    setReviewGuests((prev) =>
+      prev.map((g) =>
+        g.id === "g1"
+          ? { ...g, signal: "5★ review posted · guest submitted (demo)" }
+          : g,
+      ),
+    );
+  }, []);
 
   const reviewSetActiveGuest = useCallback((id: string) => {
     setReviewActiveGuestId(id);
@@ -319,15 +310,17 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
       resetGuestDemo,
       opsExtraQueue,
       resetOpsExtras,
-      reviewMessages,
-      reviewSuggestions,
-      reviewPhase,
       reviewGuests,
       reviewActiveGuestId,
       reviewInviteSentForId,
-      reviewPickSuggestion: reviewPickWrapped,
+      reviewGuestReviewSubmitted,
       reviewSetActiveGuest,
       resetReviewDemo,
+      reviewGuestScreen,
+      reviewGuestMessages,
+      reviewGuestOpenCompose,
+      reviewGuestBackToInbox,
+      reviewGuestSubmitReview,
       resetAllDemos,
     }),
     [
@@ -342,13 +335,15 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
       resetOpsExtras,
       resetReviewDemo,
       reviewActiveGuestId,
+      reviewGuestBackToInbox,
+      reviewGuestMessages,
+      reviewGuestOpenCompose,
+      reviewGuestReviewSubmitted,
+      reviewGuestScreen,
+      reviewGuestSubmitReview,
       reviewGuests,
       reviewInviteSentForId,
-      reviewMessages,
-      reviewPhase,
-      reviewPickWrapped,
       reviewSetActiveGuest,
-      reviewSuggestions,
     ],
   );
 

@@ -140,11 +140,12 @@ export const SOLUTIONS: SolutionDefinition[] = [
       "Sends review requests with direct links when sentiment is high.",
       "Keeps outreach tasteful, timely, and measurable.",
     ],
-    panelNote: "Triggered by Guest Expert when a conversation ends on a positive note.",
+    panelNote: "Mirrors here when Guest Expert sends a review prompt after the guest declines more help (demo).",
     phoneImage: "/teammates/review-specialist.png",
     demo: {
       title: "Review outreach demo",
-      subtitle: "Phone + board stay in sync — send the scripted invite and watch Maya’s row update.",
+      subtitle:
+        "Guest phone: inbox + Post review (5★ draft). Board mirrors when Guest Expert sends the prompt after \"No, thanks\".",
       guests: [
         { id: "g1", name: "Maya R.", signal: "Resolved checkout request", score: 92 },
         { id: "g2", name: "Daniel K.", signal: "Praised concierge speed", score: 88 },

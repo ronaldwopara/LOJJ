@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PhoneMockup from "@/components/PhoneMockup";
 import { DEMO_OPS_BASE_QUEUE, useDemoSimulation } from "@/components/solutions/DemoSimulationContext";
 import MagePhoneChat from "@/components/solutions/MagePhoneChat";
+import ReviewGuestPhone from "@/components/solutions/ReviewGuestPhone";
 import type { DemoQueueItem, DemoTopic, SolutionDefinition } from "@/lib/solutions";
 
 type SolutionWindowProps = {
@@ -106,6 +107,12 @@ function DemoWindowChrome({
   );
 }
 
+const GUEST_DEMO_JUMP_LINKS = [
+  { href: "#ops-lead", label: "View task board (Ops Lead)" },
+  { href: "#review-specialist", label: "View Review Specialist" },
+  { href: "#ai-manager", label: "View AI Manager" },
+] as const;
+
 function GuestDesktopPanel() {
   const {
     guestMessages,
@@ -130,6 +137,16 @@ function GuestDesktopPanel() {
             </div>
           ))
         )}
+      </div>
+      <div className="demo-guest-jump" role="navigation" aria-label="Related solution demos">
+        <span className="demo-guest-jump-label">Related on this page</span>
+        <div className="demo-guest-jump-row">
+          {GUEST_DEMO_JUMP_LINKS.map((item) => (
+            <a key={item.href} href={item.href} className="demo-chip demo-link-chip">
+              {item.label}
+            </a>
+          ))}
+        </div>
       </div>
       {guestSuggestions.length > 0 ? (
         <div className="demo-action-list" role="group" aria-label="Guest prompts (desktop)">
@@ -207,9 +224,10 @@ function ReviewsDemoSynced() {
     reviewGuests,
     reviewActiveGuestId,
     reviewInviteSentForId,
-    reviewPickSuggestion,
-    reviewSuggestions,
+    reviewGuestReviewSubmitted,
+    reviewGuestScreen,
     reviewSetActiveGuest,
+    resetReviewDemo,
   } = useDemoSimulation();
 
   const active = useMemo(
@@ -220,8 +238,9 @@ function ReviewsDemoSynced() {
   return (
     <>
       <p className="demo-reviews-sync-note">
-        <strong>Review Specialist preview:</strong> sending an invite from the phone demo updates this board
-        and highlights Maya&apos;s row when the scripted flow completes.
+        <strong>Review Specialist preview:</strong> when a guest declines more help in Guest Expert, a review
+        prompt is mirrored here. The phone in this section shows the <strong>guest</strong> inbox and Post review
+        flow (demo).
       </p>
       <div className="demo-queue" role="listbox" aria-label="Review candidates">
         {reviewGuests.map((guest) => (
@@ -241,7 +260,13 @@ function ReviewsDemoSynced() {
             </div>
             <div className="demo-row-bottom">
               <span>{guest.signal}</span>
-              <span>{reviewInviteSentForId === guest.id ? "Invite queued" : "Eligible now"}</span>
+              <span>
+                {reviewGuestReviewSubmitted && guest.id === "g1"
+                  ? "Posted (demo)"
+                  : reviewInviteSentForId === guest.id
+                    ? "Prompt live"
+                    : "Eligible now"}
+              </span>
             </div>
           </button>
         ))}
@@ -249,27 +274,35 @@ function ReviewsDemoSynced() {
       {active ? (
         <div className="demo-selection" aria-live="polite">
           {reviewInviteSentForId === active.id ? (
-            <>
-              Review request queued for <strong>{active.name}</strong> with Google and Tripadvisor links (demo
-              only).
-            </>
+            reviewGuestReviewSubmitted ? (
+              <>
+                <strong>{active.name}</strong> completed the guest Post review flow — 5★ pre-filled draft was
+                submitted (demo). Staff board updated.
+              </>
+            ) : reviewGuestScreen === "compose" ? (
+              <>
+                Guest is on the <strong>Post review</strong> screen on the phone — pre-filled 5-star draft ready
+                (demo).
+              </>
+            ) : (
+              <>
+                Review prompt delivered to <strong>{active.name}</strong>&apos;s guest phone. Open Post review on
+                the phone to continue the scripted flow.
+              </>
+            )
           ) : (
             <>
-              <strong>{active.name}</strong> is surfaced here when Review Specialist receives a positive Guest
-              Expert signal. Use the phone to run the outreach script.
+              <strong>{active.name}</strong> appears when Guest Expert routes a review moment. Run the guest chat
+              and tap <strong>No, thanks</strong> after a topic to populate this row.
             </>
           )}
         </div>
       ) : null}
-      {reviewSuggestions.length > 0 ? (
-        <div className="demo-action-list" role="group" aria-label="Review actions (desktop)">
-          {reviewSuggestions.map((s) => (
-            <button key={s.id} type="button" className="demo-chip" onClick={() => reviewPickSuggestion(s.id)}>
-              {s.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
+      <div className="demo-action-list" role="group" aria-label="Review demo">
+        <button type="button" className="demo-chip" onClick={() => resetReviewDemo()}>
+          Reset review demo
+        </button>
+      </div>
     </>
   );
 }
@@ -338,15 +371,8 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
             </PhoneMockup>
           ) : null}
           {solution.id === "reviews" ? (
-            <PhoneMockup alt="Mage review outreach (interactive demo)">
-              <MagePhoneChat
-                variant="reviews"
-                title="Mage"
-                badge="Reviews"
-                messages={demo.reviewMessages}
-                suggestions={demo.reviewSuggestions}
-                onPickSuggestion={demo.reviewPickSuggestion}
-              />
+            <PhoneMockup alt="Guest review request (interactive demo)">
+              <ReviewGuestPhone />
             </PhoneMockup>
           ) : null}
           {solution.id === "manager" && solution.phoneImage ? (
