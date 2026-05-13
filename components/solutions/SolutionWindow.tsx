@@ -107,13 +107,98 @@ function DemoWindowChrome({
   );
 }
 
+type BrowserTabDef = { id: string; label: string; favicon: string };
+
+function DemoBrowserShell({
+  tabs,
+  activeTab,
+  onChangeTab,
+  url,
+  infoTooltip,
+  ariaLabel,
+}: {
+  tabs: BrowserTabDef[];
+  activeTab: string;
+  onChangeTab: (id: string) => void;
+  url: string;
+  infoTooltip?: string;
+  ariaLabel?: string;
+}) {
+  const infoId = useId();
+  return (
+    <div className="demo-browser-shell" role="presentation">
+      <div
+        className="demo-browser-tabstrip"
+        role="tablist"
+        aria-label={ariaLabel ?? "Demo views"}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            className={`demo-browser-tab ${activeTab === tab.id ? "demo-browser-tab-active" : ""}`}
+            onClick={() => onChangeTab(tab.id)}
+          >
+            <span className="demo-browser-tab-favicon" aria-hidden>
+              {tab.favicon}
+            </span>
+            <span className="demo-browser-tab-title">{tab.label}</span>
+          </button>
+        ))}
+        <span className="demo-browser-tab-plus" aria-hidden title="New tab (demo)">
+          +
+        </span>
+      </div>
+      <div className="demo-browser-toolbar">
+        <div className="demo-browser-nav" aria-hidden>
+          <span className="demo-browser-nav-btn">‹</span>
+          <span className="demo-browser-nav-btn demo-browser-nav-btn-disabled">›</span>
+          <span className="demo-browser-nav-btn">↻</span>
+        </div>
+        <div className="demo-browser-urlbar">
+          <span className="demo-browser-url-icon" aria-hidden>
+            ⎘
+          </span>
+          <span className="demo-browser-url-text">{url}</span>
+          {infoTooltip ? (
+            <span className="demo-browser-url-info">
+              <button
+                type="button"
+                className="demo-browser-url-info-btn"
+                aria-label="How this demo works"
+                aria-describedby={infoId}
+              >
+                <span aria-hidden>ⓘ</span>
+              </button>
+              <span
+                id={infoId}
+                role="tooltip"
+                className="demo-browser-url-info-pop"
+              >
+                {infoTooltip}
+              </span>
+            </span>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const GUEST_DEMO_JUMP_LINKS = [
   { href: "#ops-lead", label: "View task board (Ops Lead)" },
   { href: "#review-specialist", label: "View Review Specialist" },
   { href: "#ai-manager", label: "View AI Manager" },
 ] as const;
 
-function GuestDesktopPanel() {
+const GUEST_BROWSER_TABS: BrowserTabDef[] = [
+  { id: "chat", label: "Live chat", favicon: "◆" },
+  { id: "related", label: "Related demos", favicon: "★" },
+];
+
+function GuestDesktopPanel({ subtitleTooltip }: { subtitleTooltip?: string }) {
   const {
     guestMessages,
     guestSuggestions,
@@ -122,6 +207,8 @@ function GuestDesktopPanel() {
     guestJumpShowReviews,
     guestJumpShowManager,
   } = useDemoSimulation();
+
+  const [demoTab, setDemoTab] = useState<"chat" | "related">("chat");
 
   const visibleJumps = useMemo(
     () =>
@@ -134,46 +221,72 @@ function GuestDesktopPanel() {
     [guestJumpShowManager, guestJumpShowOps, guestJumpShowReviews],
   );
 
+  const demoUrlPath = demoTab === "chat" ? "/chat" : "/related";
+
   return (
-    <div className="demo-guest-desktop">
-      <p className="demo-guest-desktop-lead">
-        This pane mirrors the phone transcript. Use either surface — both advance the same fixed storyline.
-      </p>
-      <div className="demo-guest-desktop-thread" aria-live="polite">
-        {guestMessages.length === 0 ? (
-          <p className="demo-guest-desktop-empty">Waiting for the first message from the phone…</p>
-        ) : (
-          guestMessages.map((m) => (
-            <div key={m.id} className={`demo-guest-line demo-guest-line--${m.role}`}>
-              <span className="demo-guest-role">{m.role === "user" ? "Guest" : "Mage"}</span>
-              <p>{m.body}</p>
-              <span className="demo-guest-time">{m.time}</span>
-            </div>
-          ))
-        )}
-      </div>
-      {visibleJumps.length > 0 ? (
-        <div className="demo-guest-jump" role="navigation" aria-label="Related solution demos">
-          <span className="demo-guest-jump-label">Related on this page</span>
-          <div className="demo-guest-jump-row">
-            {visibleJumps.map((item) => (
-              <a key={item.href} href={item.href} className="demo-chip demo-link-chip">
-                {item.label}
-              </a>
-            ))}
+    <>
+      <DemoBrowserShell
+        tabs={GUEST_BROWSER_TABS}
+        activeTab={demoTab}
+        onChangeTab={(id) => setDemoTab(id as "chat" | "related")}
+        url={`yourhotel.lojj.io/demo/guest${demoUrlPath}`}
+        infoTooltip={subtitleTooltip}
+        ariaLabel="Guest chat demo views"
+      />
+
+      {demoTab === "chat" ? (
+        <div className="demo-guest-desktop">
+          <p className="demo-guest-desktop-lead">
+            This pane mirrors the phone transcript. Use either surface — both advance the same fixed storyline.
+          </p>
+          <div className="demo-guest-desktop-thread" aria-live="polite">
+            {guestMessages.length === 0 ? (
+              <p className="demo-guest-desktop-empty">Waiting for the first message from the phone…</p>
+            ) : (
+              guestMessages.map((m) => (
+                <div key={m.id} className={`demo-guest-line demo-guest-line--${m.role}`}>
+                  <span className="demo-guest-role">{m.role === "user" ? "Guest" : "Mage"}</span>
+                  <p>{m.body}</p>
+                  <span className="demo-guest-time">{m.time}</span>
+                </div>
+              ))
+            )}
           </div>
+          {guestSuggestions.length > 0 ? (
+            <div className="demo-action-list" role="group" aria-label="Guest prompts (desktop)">
+              {guestSuggestions.map((s) => (
+                <button key={s.id} type="button" className="demo-chip" onClick={() => guestPickSuggestion(s.id)}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
-      ) : null}
-      {guestSuggestions.length > 0 ? (
-        <div className="demo-action-list" role="group" aria-label="Guest prompts (desktop)">
-          {guestSuggestions.map((s) => (
-            <button key={s.id} type="button" className="demo-chip" onClick={() => guestPickSuggestion(s.id)}>
-              {s.label}
-            </button>
-          ))}
+      ) : (
+        <div className="demo-guest-desktop">
+          <p className="demo-guest-desktop-lead">
+            Cross-links to related demos appear here as the conversation unlocks them.
+          </p>
+          {visibleJumps.length > 0 ? (
+            <div className="demo-guest-jump" role="navigation" aria-label="Related solution demos">
+              <span className="demo-guest-jump-label">Related on this page</span>
+              <div className="demo-guest-jump-row">
+                {visibleJumps.map((item) => (
+                  <a key={item.href} href={item.href} className="demo-chip demo-link-chip">
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="demo-guest-desktop-empty">
+              No related demos unlocked yet — try the late checkout, review, or escalation flows on the phone to surface
+              links here.
+            </p>
+          )}
         </div>
-      ) : null}
-    </div>
+      )}
+    </>
   );
 }
 
@@ -235,7 +348,12 @@ function OpsDemoSynced() {
   );
 }
 
-function ReviewsDemoSynced() {
+const REVIEWS_BROWSER_TABS: BrowserTabDef[] = [
+  { id: "board", label: "Outreach board", favicon: "◆" },
+  { id: "posted", label: "Posted reviews", favicon: "★" },
+];
+
+function ReviewsDemoSynced({ subtitleTooltip }: { subtitleTooltip?: string }) {
   const {
     reviewGuests,
     reviewActiveGuestId,
@@ -264,52 +382,14 @@ function ReviewsDemoSynced() {
 
   return (
     <>
-      <div className="demo-browser-shell" role="presentation">
-        <div className="demo-browser-tabstrip" role="tablist" aria-label="Review demo views">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={demoTab === "board"}
-            className={`demo-browser-tab ${demoTab === "board" ? "demo-browser-tab-active" : ""}`}
-            onClick={() => setDemoTab("board")}
-          >
-            <span className="demo-browser-tab-favicon" aria-hidden>
-              ◆
-            </span>
-            <span className="demo-browser-tab-title">Outreach board</span>
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={demoTab === "posted"}
-            className={`demo-browser-tab ${demoTab === "posted" ? "demo-browser-tab-active" : ""}`}
-            onClick={() => setDemoTab("posted")}
-          >
-            <span className="demo-browser-tab-favicon" aria-hidden>
-              ★
-            </span>
-            <span className="demo-browser-tab-title">Posted reviews</span>
-          </button>
-          <span className="demo-browser-tab-plus" aria-hidden title="New tab (demo)">
-            +
-          </span>
-        </div>
-        <div className="demo-browser-toolbar">
-          <div className="demo-browser-nav" aria-hidden>
-            <span className="demo-browser-nav-btn">‹</span>
-            <span className="demo-browser-nav-btn demo-browser-nav-btn-disabled">›</span>
-            <span className="demo-browser-nav-btn">↻</span>
-          </div>
-          <div className="demo-browser-urlbar">
-            <span className="demo-browser-url-icon" aria-hidden>
-              ⎘
-            </span>
-            <span className="demo-browser-url-text">
-              yourhotel.lojj.io/demo/reviews{demoUrlPath}
-            </span>
-          </div>
-        </div>
-      </div>
+      <DemoBrowserShell
+        tabs={REVIEWS_BROWSER_TABS}
+        activeTab={demoTab}
+        onChangeTab={(id) => setDemoTab(id as "board" | "posted")}
+        url={`yourhotel.lojj.io/demo/reviews${demoUrlPath}`}
+        infoTooltip={subtitleTooltip}
+        ariaLabel="Review demo views"
+      />
 
       {demoTab === "board" ? (
         <>
@@ -468,6 +548,7 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
   };
 
   const flipLayout = solution.id === "ops" || solution.id === "manager";
+  const usesBrowserShell = solution.id === "guest" || solution.id === "reviews";
 
   return (
     <article
@@ -522,7 +603,13 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
             <span className="window-live-pill">Interactive</span>
           </div>
           <div className="solution-window-body">
-            {solution.demo.subtitle || solution.demo.subtitleTooltip ? (
+            {usesBrowserShell ? (
+              solution.demo.subtitle ? (
+                <div className="demo-subtitle-row">
+                  <p className="demo-subtitle">{solution.demo.subtitle}</p>
+                </div>
+              ) : null
+            ) : solution.demo.subtitle || solution.demo.subtitleTooltip ? (
               <div
                 className={`demo-subtitle-row${solution.demo.subtitle ? "" : " demo-subtitle-row--hint-only"}`}
               >
@@ -546,9 +633,13 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
                 ) : null}
               </div>
             ) : null}
-            {solution.id === "guest" ? <GuestDesktopPanel /> : null}
+            {solution.id === "guest" ? (
+              <GuestDesktopPanel subtitleTooltip={solution.demo.subtitleTooltip} />
+            ) : null}
             {solution.id === "ops" ? <OpsDemoSynced /> : null}
-            {solution.id === "reviews" ? <ReviewsDemoSynced /> : null}
+            {solution.id === "reviews" ? (
+              <ReviewsDemoSynced subtitleTooltip={solution.demo.subtitleTooltip} />
+            ) : null}
             {solution.id === "manager" ? <ManagerDemo topics={solution.demo.topics} /> : null}
           </div>
         </DemoWindowChrome>
