@@ -4,11 +4,15 @@ import { ShaderGradient, ShaderGradientCanvas } from "@shadergradient/react";
 
 export default function ShaderBackground() {
   return (
-    <div className="shader-bg-layer fixed inset-0 -z-50">
+    <div className="shader-bg-layer pointer-events-none absolute inset-0 -z-10">
       <ShaderGradientCanvas
         preserveDrawingBuffer
         style={{ width: "100%", height: "100%" }}
-        // keep this lightweight on laptops
+        // Mount the canvas once on page load and keep it mounted.
+        // Without this, ShaderGradientCanvas uses an internal
+        // IntersectionObserver and unmounts/remounts the WebGL
+        // canvas every time the footer scrolls in/out of view.
+        lazyLoad={false}
         pixelDensity={1}
         fov={45}
       >

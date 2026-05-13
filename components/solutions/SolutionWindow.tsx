@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import PhoneMockup from "@/components/PhoneMockup";
 import { DEMO_OPS_BASE_QUEUE, useDemoSimulation } from "@/components/solutions/DemoSimulationContext";
 import MagePhoneChat from "@/components/solutions/MagePhoneChat";
@@ -450,6 +450,7 @@ function ManagerDemo({ topics = [] }: { topics?: DemoTopic[] }) {
 }
 
 export default function SolutionWindow({ solution }: SolutionWindowProps) {
+  const demoSubtitleHintId = useId();
   const demo = useDemoSimulation();
 
   const copyLink = () => {
@@ -521,7 +522,30 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
             <span className="window-live-pill">Interactive</span>
           </div>
           <div className="solution-window-body">
-            <p className="demo-subtitle">{solution.demo.subtitle}</p>
+            {solution.demo.subtitle || solution.demo.subtitleTooltip ? (
+              <div
+                className={`demo-subtitle-row${solution.demo.subtitle ? "" : " demo-subtitle-row--hint-only"}`}
+              >
+                {solution.demo.subtitle ? (
+                  <p className="demo-subtitle">{solution.demo.subtitle}</p>
+                ) : null}
+                {solution.demo.subtitleTooltip ? (
+                  <span className="demo-subtitle-hint">
+                    <button
+                      type="button"
+                      className="demo-subtitle-hint-btn"
+                      aria-label="How this demo works"
+                      aria-describedby={demoSubtitleHintId}
+                    >
+                      <span aria-hidden>ⓘ</span>
+                    </button>
+                    <span id={demoSubtitleHintId} role="tooltip" className="demo-subtitle-hint-pop">
+                      {solution.demo.subtitleTooltip}
+                    </span>
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
             {solution.id === "guest" ? <GuestDesktopPanel /> : null}
             {solution.id === "ops" ? <OpsDemoSynced /> : null}
             {solution.id === "reviews" ? <ReviewsDemoSynced /> : null}

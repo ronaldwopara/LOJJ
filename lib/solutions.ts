@@ -40,6 +40,8 @@ export type SolutionDefinition = {
   demo: {
     title: string;
     subtitle: string;
+    /** Shown in an info-tooltip next to the subtitle row (optional). */
+    subtitleTooltip?: string;
     actions?: DemoAction[];
     queue?: DemoQueueItem[];
     guests?: DemoReviewGuest[];
@@ -144,7 +146,8 @@ export const SOLUTIONS: SolutionDefinition[] = [
     phoneImage: "/teammates/review-specialist.png",
     demo: {
       title: "Review outreach demo",
-      subtitle:
+      subtitle: "",
+      subtitleTooltip:
         "Guest phone: inbox + Post review (5★ draft). Board mirrors when Guest Expert sends the prompt after \"No, thanks\".",
       guests: [
         { id: "g1", name: "Maya R.", signal: "Resolved checkout request", score: 92 },

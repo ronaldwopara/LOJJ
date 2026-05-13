@@ -1,4 +1,5 @@
 import HeroWaitlistDialog from "@/components/HeroWaitlistDialog";
+import ShaderBackground from "@/components/ShaderBackground";
 import SolutionsShowcase from "@/components/solutions/SolutionsShowcase";
 
 export default function LandingMarkup() {
@@ -88,6 +89,8 @@ export default function LandingMarkup() {
       </main>
 
         <footer id="waitlist" className="site-footer">
+        <ShaderBackground />
+        <div className="footer-inner">
         <div className="footer-top">
                         <div className="footer-cta">
                 <h2>Get Early<br />Access</h2>
@@ -148,6 +151,7 @@ export default function LandingMarkup() {
             <div className="copyright">
                 &copy; 2026 LOJJ.IO &mdash; All Rights Reserved
             </div>
+        </div>
         </div>
     </footer>
 

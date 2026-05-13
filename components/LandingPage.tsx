@@ -4,8 +4,6 @@ import { useEffect } from "react";
 import { submitWaitlistForm } from "@/lib/waitlistSubmit";
 
 import LandingMarkup from "./LandingMarkup";
-import ShaderBackground from "./ShaderBackground";
-
 export default function LandingPage() {
   useEffect(() => {
     if ("scrollRestoration" in history) {
@@ -176,7 +174,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center relative">
-      <ShaderBackground />
       <LandingMarkup />
     </div>
   );
