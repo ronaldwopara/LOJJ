@@ -35,6 +35,7 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
         "focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
         "disabled:pointer-events-none disabled:opacity-50",
         "data-[state=active]:border-white/35 data-[state=active]:bg-[rgba(34,61,20,0.75)] data-[state=active]:text-white data-[state=active]:shadow-md",
+        className,
       )}
       {...props}
     />

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 
 const SCROLL_THRESHOLD = 50;
@@ -47,9 +48,9 @@ export default function Navbar() {
       >
         <div className="flex w-full items-center justify-between px-10 py-6 md:px-16">
           <div className="flex items-center gap-6">
-            <a href="/" className="lojj-logo font-romantica">
+            <Link href="/" className="lojj-logo font-romantica">
               lojj.io
-            </a>
+            </Link>
             <div className="lojj-left-pill hidden md:inline-flex">
               <a href="#about" className="lojj-left-link">
                 About

@@ -133,6 +133,7 @@ export function TeammatesTabs() {
         <div className="teammates-phone-wrap" aria-hidden>
           <div className="phone-frame">
             <div className="phone-notch" />
+            {/* eslint-disable-next-line @next/next/no-img-element -- teammate tab preview; dynamic src */}
             <img
               src={activeTeammate.image}
               alt={`${activeTeammate.heading} mobile interface`}

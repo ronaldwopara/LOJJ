@@ -14,7 +14,10 @@ export default function PhoneMockup({ image, alt, children }: PhoneMockupProps) 
             {children}
           </div>
         ) : (
-          <img src={image} alt={alt} className="phone-screen" />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element -- UI mockup; `image` is a dynamic path */}
+            <img src={image} alt={alt} className="phone-screen" />
+          </>
         )}
       </div>
     </div>
