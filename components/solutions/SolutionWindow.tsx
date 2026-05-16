@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import ResizableDemoWindow from "@/components/solutions/ResizableDemoWindow";
 import PhoneMockup from "@/components/PhoneMockup";
 import { DEMO_OPS_BASE_QUEUE, useDemoSimulation, type ReviewSentDemoEntry } from "@/components/solutions/DemoSimulationContext";
 import MagePhoneChat from "@/components/solutions/MagePhoneChat";
@@ -19,13 +20,17 @@ const priorityClass: Record<DemoQueueItem["priority"], string> = {
 
 type CtxMenuState = { x: number; y: number } | null;
 
+const DEFAULT_DEMO_ASPECT_RATIO = 16 / 9;
+
 function DemoWindowChrome({
+  aspectRatio = DEFAULT_DEMO_ASPECT_RATIO,
   anchor,
   ariaLabel,
   children,
   onCopyLink,
   onResetScenario,
 }: {
+  aspectRatio?: number;
   anchor: string;
   ariaLabel: string;
   children: React.ReactNode;
@@ -68,7 +73,9 @@ function DemoWindowChrome({
       aria-label={ariaLabel}
       onContextMenu={onContextMenu}
     >
-      {children}
+      <ResizableDemoWindow aspectRatio={aspectRatio} className="solution-window-aspect-root flex w-full min-h-0 flex-col overflow-hidden">
+        {children}
+      </ResizableDemoWindow>
       {menu ? (
         <div
           className="demo-ctx-menu"
@@ -595,20 +602,19 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
     }
   };
 
-  const flipLayout = solution.id === "ops" || solution.id === "manager";
+  const hasPhone =
+    solution.id === "guest" ||
+    solution.id === "reviews" ||
+    (solution.id === "manager" && Boolean(solution.phoneImage));
   const usesBrowserShell = solution.id === "guest" || solution.id === "reviews";
-  const heroDemoLayout = solution.id === "guest" || solution.id === "reviews";
 
   return (
     <article
       id={solution.anchor}
-      className={`solution-panel glass-panel-clear${flipLayout ? " solution-panel--demo-flip" : ""}${
-        heroDemoLayout ? " solution-panel--hero-demo" : ""
-      }`}
+      className="solution-panel glass-panel-clear"
     >
-      <div className="solution-grid">
-        <div className="solution-copy">
-          <div className="feature-kicker">{solution.kicker}</div>
+      <div className="solution-panel-stack">
+        <div className="solution-panel-explanatory">
           <h3 className="landing-h3">{solution.heading}</h3>
           <p className="landing-p">{solution.lede}</p>
           <ul className="solution-bullets">
@@ -616,79 +622,95 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
               <li key={bullet}>{bullet}</li>
             ))}
           </ul>
-          {heroDemoLayout && solution.demo.subtitle ? (
+          {(solution.id === "guest" || solution.id === "reviews") && solution.demo.subtitle ? (
             <p className="solution-demo-lead">{solution.demo.subtitle}</p>
           ) : null}
           <p className="solution-note">{solution.panelNote}</p>
-          {solution.id === "guest" ? (
-            <PhoneMockup alt="Mage guest chat">
-              <MagePhoneChat
-                variant="guest"
-                title="Mage"
-                messages={demo.guestMessages}
-                suggestions={demo.guestSuggestions}
-                onPickSuggestion={demo.guestPickSuggestion}
-              />
-            </PhoneMockup>
-          ) : null}
-          {solution.id === "reviews" ? (
-            <PhoneMockup alt="Guest review request">
-              <ReviewGuestPhone />
-            </PhoneMockup>
-          ) : null}
-          {solution.id === "manager" && solution.phoneImage ? (
-            <PhoneMockup image={solution.phoneImage} alt={`${solution.heading} mobile interface`} />
-          ) : null}
         </div>
 
-        <DemoWindowChrome
-          anchor={solution.anchor}
-          ariaLabel={`${solution.heading} interactive preview`}
-          onCopyLink={copyLink}
-          onResetScenario={resetScenario}
+        <div className="solution-panel-rule" aria-hidden />
+
+        <div
+          className={`solution-demo-row${hasPhone ? " solution-demo-row--split" : " solution-demo-row--full"}`}
         >
-          <div className="solution-window-bar">
-            <span className="window-dots" aria-hidden>
-              <span className="window-dot" />
-              <span className="window-dot" />
-              <span className="window-dot" />
-            </span>
-            <span className="window-title">{solution.demo.title}</span>
-            <span className="window-live-pill">Interactive</span>
-          </div>
-          <div className={`solution-window-body${usesBrowserShell ? " solution-window-body--browser-first" : ""}`}>
-            {!usesBrowserShell && (solution.demo.subtitle || solution.demo.subtitleTooltip) ? (
-              <div
-                className={`demo-subtitle-row${solution.demo.subtitle ? "" : " demo-subtitle-row--hint-only"}`}
-              >
-                {solution.demo.subtitle ? <p className="demo-subtitle">{solution.demo.subtitle}</p> : null}
-                {solution.demo.subtitleTooltip ? (
-                  <span className="demo-subtitle-hint">
-                    <button
-                      type="button"
-                      className="demo-subtitle-hint-btn"
-                      aria-label="How this works"
-                      aria-describedby={demoSubtitleHintId}
-                    >
-                      <span aria-hidden>ⓘ</span>
-                    </button>
-                    <span id={demoSubtitleHintId} role="tooltip" className="demo-subtitle-hint-pop">
-                      {solution.demo.subtitleTooltip}
-                    </span>
-                  </span>
+          {hasPhone ? (
+            <>
+              <div className="solution-phone-col">
+                {solution.id === "guest" ? (
+                  <PhoneMockup alt="Mage guest chat">
+                    <MagePhoneChat
+                      variant="guest"
+                      title="Mage"
+                      messages={demo.guestMessages}
+                      suggestions={demo.guestSuggestions}
+                      onPickSuggestion={demo.guestPickSuggestion}
+                    />
+                  </PhoneMockup>
+                ) : null}
+                {solution.id === "reviews" ? (
+                  <PhoneMockup alt="Guest review request">
+                    <ReviewGuestPhone />
+                  </PhoneMockup>
+                ) : null}
+                {solution.id === "manager" && solution.phoneImage ? (
+                  <PhoneMockup image={solution.phoneImage} alt={`${solution.heading} mobile interface`} />
                 ) : null}
               </div>
-            ) : null}
-            {solution.id === "guest" ? (
-              <GuestDesktopPanel subtitleTooltip={solution.demo.subtitleTooltip} />
-            ) : null}
-            {solution.id === "ops" ? <OpsDemoSynced /> : null}
-            {solution.id === "reviews" ? (
-              <ReviewsDemoSynced subtitleTooltip={solution.demo.subtitleTooltip} />
-            ) : null}
-            {solution.id === "manager" ? <ManagerDemo topics={solution.demo.topics} /> : null}
+              <div className="solution-demo-gutter" aria-hidden />
+            </>
+          ) : null}
+
+          <div className="solution-demo-col">
+            <DemoWindowChrome
+              aspectRatio={solution.demo.aspectRatio ?? DEFAULT_DEMO_ASPECT_RATIO}
+              anchor={solution.anchor}
+              ariaLabel={`${solution.heading} interactive preview`}
+              onCopyLink={copyLink}
+              onResetScenario={resetScenario}
+            >
+              <div className="solution-window-bar">
+                <span className="window-dots" aria-hidden>
+                  <span className="window-dot" />
+                  <span className="window-dot" />
+                  <span className="window-dot" />
+                </span>
+                <span className="window-title">{solution.demo.title}</span>
+              </div>
+              <div className={`solution-window-body${usesBrowserShell ? " solution-window-body--browser-first" : ""}`}>
+                {!usesBrowserShell && (solution.demo.subtitle || solution.demo.subtitleTooltip) ? (
+                  <div
+                    className={`demo-subtitle-row${solution.demo.subtitle ? "" : " demo-subtitle-row--hint-only"}`}
+                  >
+                    {solution.demo.subtitle ? <p className="demo-subtitle">{solution.demo.subtitle}</p> : null}
+                    {solution.demo.subtitleTooltip ? (
+                      <span className="demo-subtitle-hint">
+                        <button
+                          type="button"
+                          className="demo-subtitle-hint-btn"
+                          aria-label="How this works"
+                          aria-describedby={demoSubtitleHintId}
+                        >
+                          <span aria-hidden>ⓘ</span>
+                        </button>
+                        <span id={demoSubtitleHintId} role="tooltip" className="demo-subtitle-hint-pop">
+                          {solution.demo.subtitleTooltip}
+                        </span>
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
+                {solution.id === "guest" ? (
+                  <GuestDesktopPanel subtitleTooltip={solution.demo.subtitleTooltip} />
+                ) : null}
+                {solution.id === "ops" ? <OpsDemoSynced /> : null}
+                {solution.id === "reviews" ? (
+                  <ReviewsDemoSynced subtitleTooltip={solution.demo.subtitleTooltip} />
+                ) : null}
+                {solution.id === "manager" ? <ManagerDemo topics={solution.demo.topics} /> : null}
+              </div>
+            </DemoWindowChrome>
           </div>
-        </DemoWindowChrome>
+        </div>
       </div>
     </article>
   );

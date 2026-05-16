@@ -31,7 +31,6 @@ export type DemoTopic = {
 export type SolutionDefinition = {
   id: SolutionKind;
   anchor: string;
-  kicker: string;
   heading: string;
   lede: string;
   bullets: string[];
@@ -40,6 +39,8 @@ export type SolutionDefinition = {
   demo: {
     title: string;
     subtitle: string;
+    /** Width ÷ height for the interactive desktop preview (default 16 / 9). */
+    aspectRatio?: number;
     /** Shown in an info-tooltip next to the subtitle row (optional). */
     subtitleTooltip?: string;
     actions?: DemoAction[];
@@ -53,7 +54,6 @@ export const SOLUTIONS: SolutionDefinition[] = [
   {
     id: "guest",
     anchor: "guest-expert",
-    kicker: "Solution 1",
     heading: "Guest Expert",
     lede: "Answer routine guest questions instantly so your front desk can stay present.",
     bullets: [
@@ -64,6 +64,7 @@ export const SOLUTIONS: SolutionDefinition[] = [
     panelNote: "When a stay goes well, Guest Expert flags that moment for Review Specialist.",
     phoneImage: "/teammates/ai-manager.png",
     demo: {
+      aspectRatio: 16 / 9,
       title: "Guest chat",
       subtitle:
         "Use the Mage phone or this pane — the same storyline runs in both places. Late checkout adds a live row in Ops Lead below.",
@@ -97,7 +98,6 @@ export const SOLUTIONS: SolutionDefinition[] = [
   {
     id: "ops",
     anchor: "ops-lead",
-    kicker: "Solution 2",
     heading: "Ops Lead",
     lede: "Turn every guest request into a clear, assigned task with live status.",
     bullets: [
@@ -137,7 +137,6 @@ export const SOLUTIONS: SolutionDefinition[] = [
   {
     id: "reviews",
     anchor: "review-specialist",
-    kicker: "Solution 3",
     heading: "Review Specialist",
     lede: "Invite happy guests to review at the right moment without bothering everyone.",
     bullets: [
@@ -164,7 +163,6 @@ export const SOLUTIONS: SolutionDefinition[] = [
   {
     id: "manager",
     anchor: "ai-manager",
-    kicker: "Solution 4",
     heading: "AI Manager",
     lede: "Give new staff instant guidance so managers are interrupted less often.",
     bullets: [
