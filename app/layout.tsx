@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Playfair_Display } from "next/font/google";
+import UmamiAnalytics from "@/components/UmamiAnalytics";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -94,7 +95,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <UmamiAnalytics />
+        {children}
+      </body>
     </html>
   );
 }
