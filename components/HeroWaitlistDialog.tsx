@@ -26,135 +26,127 @@ export default function HeroWaitlistDialog() {
   const [submitting, setSubmitting] = useState(false);
 
   return (
-    <section className="relative w-full flex items-center justify-center pt-28 md:pt-32 pb-16 md:pb-24">
-        <div
-          id="temp-hero-placeholder"
-          className="w-[92%] max-w-[920px] min-h-[min(52vh,520px)] rounded-lg border border-white/20 bg-white/5 flex flex-col items-center justify-center gap-8 px-6 py-10"
-          aria-label="Hero"
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        setStatus("");
+      }}
+    >
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="hero-waitlist-trigger rotating-border-btn inline-flex items-center justify-center gap-3 px-11 sm:px-14 h-[58px] sm:h-[66px] rounded-full transition-all duration-300 group button-strong-shadow pointer-events-auto cursor-pointer"
         >
-          <Dialog
-            open={open}
-            onOpenChange={(next) => {
-              setOpen(next);
-              setStatus("");
-            }}
-          >
-            <DialogTrigger asChild>
-              <button
-                type="button"
-                className="rotating-border-btn inline-flex items-center justify-center gap-3 px-10 md:px-12 h-[64px] md:h-[68px] rounded-full transition-all duration-300 group button-strong-shadow"
-              >
-                <span className="text-white font-bold text-base md:text-lg transition-colors">
-                  Join the waitlist
-                </span>
-              </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <form
-                id="hero-waitlist-form"
-                method="post"
-                action="/api/waitlist"
-                noValidate
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.currentTarget;
-                  setStatus("");
-                  const fd = new FormData(form);
-                  const fullName = String(fd.get("fullName") ?? "").trim();
-                  const email = String(fd.get("email") ?? "").trim();
-                  const hotel = String(fd.get("hotel") ?? "").trim();
-                  const role = String(fd.get("role") ?? "").trim();
-                  const location = String(fd.get("location") ?? "").trim();
-                  if (!fullName || !email || !hotel || !role || !location) {
-                    setStatus("Please fill in every field.");
-                    return;
-                  }
-                  if (!emailRegex.test(email)) {
-                    setStatus("Please enter a valid email.");
-                    return;
-                  }
-                  setSubmitting(true);
-                  try {
-                    const message = await submitWaitlistForm(form);
-                    setStatus(message);
-                    form.reset();
-                    window.setTimeout(() => {
-                      setOpen(false);
-                      setStatus("");
-                    }, 1600);
-                  } catch (err) {
-                    setStatus(err instanceof Error ? err.message : "Couldn’t submit. Please try again.");
-                  } finally {
-                    setSubmitting(false);
-                  }
-                }}
-              >
-                <DialogHeader>
-                  <DialogTitle>Join the waitlist</DialogTitle>
-                  <DialogDescription>
-                    Same details as the footer form — we&apos;ll reach out when spots open.
-                  </DialogDescription>
-                </DialogHeader>
-                <FieldGroup>
-                  <Field>
-                    <Label htmlFor="hero-fullName">Full name</Label>
-                    <Input
-                      id="hero-fullName"
-                      name="fullName"
-                      autoComplete="name"
-                      placeholder="Full Name"
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <Label htmlFor="hero-email">Email</Label>
-                    <Input
-                      id="hero-email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      placeholder="Email"
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <Label htmlFor="hero-hotel">Hotel</Label>
-                    <Input
-                      id="hero-hotel"
-                      name="hotel"
-                      autoComplete="organization"
-                      placeholder="Hotel Name"
-                      required
-                    />
-                  </Field>
-                  <Field>
-                    <Label htmlFor="hero-role">Role</Label>
-                    <Input id="hero-role" name="role" placeholder="Role" required />
-                  </Field>
-                  <Field>
-                    <Label htmlFor="hero-location">Location</Label>
-                    <Input id="hero-location" name="location" placeholder="Location" required />
-                  </Field>
-                </FieldGroup>
-                {status ? (
-                  <p className="text-sm text-white/80" aria-live="polite">
-                    {status}
-                  </p>
-                ) : null}
-                <DialogFooter className="mt-6 sm:mt-8">
-                  <DialogClose asChild>
-                    <Button type="button" variant="outline" disabled={submitting}>
-                      Cancel
-                    </Button>
-                  </DialogClose>
-                  <Button type="submit" disabled={submitting}>
-                    {submitting ? "Joining…" : "Join waitlist"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </section>
+          <span className="text-white font-bold text-base sm:text-lg tracking-tight transition-colors">
+            Join the waitlist
+          </span>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md border-white/15 bg-[rgb(18,28,22)]">
+        <form
+          id="hero-waitlist-form"
+          method="post"
+          action="/api/waitlist"
+          noValidate
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            setStatus("");
+            const fd = new FormData(form);
+            const fullName = String(fd.get("fullName") ?? "").trim();
+            const email = String(fd.get("email") ?? "").trim();
+            const hotel = String(fd.get("hotel") ?? "").trim();
+            const role = String(fd.get("role") ?? "").trim();
+            const location = String(fd.get("location") ?? "").trim();
+            if (!fullName || !email || !hotel || !role || !location) {
+              setStatus("Please fill in every field.");
+              return;
+            }
+            if (!emailRegex.test(email)) {
+              setStatus("Please enter a valid email.");
+              return;
+            }
+            setSubmitting(true);
+            try {
+              const message = await submitWaitlistForm(form);
+              setStatus(message);
+              form.reset();
+              window.setTimeout(() => {
+                setOpen(false);
+                setStatus("");
+              }, 1600);
+            } catch (err) {
+              setStatus(err instanceof Error ? err.message : "Couldn’t submit. Please try again.");
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>Join the waitlist</DialogTitle>
+            <DialogDescription>
+              Same details as the footer form — we&apos;ll reach out when spots open.
+            </DialogDescription>
+          </DialogHeader>
+          <FieldGroup>
+            <Field>
+              <Label htmlFor="hero-fullName">Full name</Label>
+              <Input
+                id="hero-fullName"
+                name="fullName"
+                autoComplete="name"
+                placeholder="Full Name"
+                required
+              />
+            </Field>
+            <Field>
+              <Label htmlFor="hero-email">Email</Label>
+              <Input
+                id="hero-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="Email"
+                required
+              />
+            </Field>
+            <Field>
+              <Label htmlFor="hero-hotel">Hotel</Label>
+              <Input
+                id="hero-hotel"
+                name="hotel"
+                autoComplete="organization"
+                placeholder="Hotel Name"
+                required
+              />
+            </Field>
+            <Field>
+              <Label htmlFor="hero-role">Role</Label>
+              <Input id="hero-role" name="role" placeholder="Role" required />
+            </Field>
+            <Field>
+              <Label htmlFor="hero-location">Location</Label>
+              <Input id="hero-location" name="location" placeholder="Location" required />
+            </Field>
+          </FieldGroup>
+          {status ? (
+            <p className="text-sm text-white/80" aria-live="polite">
+              {status}
+            </p>
+          ) : null}
+          <DialogFooter className="mt-6 sm:mt-8">
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={submitting}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Joining…" : "Join waitlist"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

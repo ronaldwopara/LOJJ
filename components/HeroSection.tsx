@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import HeroWaitlistDialog from "./HeroWaitlistDialog";
 import ScrollCanvas from "./ScrollCanvas";
 
 type PinPhase = "before" | "pinned" | "after";
@@ -94,7 +95,12 @@ export default function HeroSection({ ready, onLoadProgress }: HeroSectionProps)
             onLoadProgress={onLoadProgress}
           />
         </div>
-        <p className="hero-tagline">Your best, every time.</p>
+        <div className="hero-tagline-stack">
+          <p className="hero-tagline-text">Your best, every time.</p>
+          <div className="hero-tagline-cta">
+            <HeroWaitlistDialog />
+          </div>
+        </div>
       </div>
     </section>
   );
