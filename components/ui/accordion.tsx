@@ -40,8 +40,8 @@ function AccordionTrigger({
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
-        className={cn(
-          "group flex flex-1 items-center justify-between gap-4 py-4 text-left text-base font-bold tracking-tight text-white/95",
+          className={cn(
+            "group flex flex-1 items-center justify-between gap-4 py-4 text-left text-base font-normal tracking-tight text-white/95",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
           className,
         )}

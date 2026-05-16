@@ -19,9 +19,6 @@ export default function LandingMarkup({ doorsOpen, onLoadProgress }: LandingMark
         <section id="about" className="landing-section w-full flex justify-center">
           <div className="w-[95%] max-w-7xl">
             <div className="section-heading-stack">
-              <span className="section-ghost-h2" aria-hidden>
-                THE FLOW
-              </span>
               <h2 className="landing-h2">How it works</h2>
             </div>
             <p className="landing-sub">

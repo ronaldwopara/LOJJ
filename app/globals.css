@@ -22,6 +22,7 @@
             --nav-border: rgba(255, 255, 255, 0.9);
             --glass-bg: rgba(255, 255, 255, 0.6);
             --glass-blur: 60px;
+            --font-season-mix: "Season Mix", "Season Mix TRIAL", ui-serif, Georgia, serif;
         }
 
         .glass-surface {
@@ -81,6 +82,7 @@
 
         body {
             font-family: 'Clash Display', sans-serif;
+            font-weight: 400;
             color: white;
             margin: 0;
             padding: 0;
@@ -272,7 +274,7 @@
             color: #ededed;
             text-decoration: none;
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 400;
             font-family: 'Clash Display', sans-serif;
             line-height: 1;
             transition: opacity 180ms ease;
@@ -296,7 +298,7 @@
             align-items: center;
             justify-content: center;
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 400;
             font-family: 'Clash Display', sans-serif;
             text-decoration: none;
             transition: opacity 180ms ease;
@@ -474,46 +476,33 @@
 
         .landing-h2 {
             font-size: clamp(2rem, 4.4vw, 3.25rem);
-            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
-            font-style: italic;
-            font-weight: 700;
+            font-family: var(--font-season-mix);
+            font-style: normal;
+            font-weight: 600;
             letter-spacing: -0.03em;
             text-transform: none;
             margin: 0;
         }
 
         .section-heading-stack {
-            position: relative;
-            display: inline-block;
-            isolation: isolate;
-            padding-top: 20px;
             margin-bottom: 6px;
         }
 
-        .section-ghost-h2 {
-            position: absolute;
-            left: 0;
-            top: 0;
-            transform: translateY(-54%);
-            font-family: 'Clash Display', sans-serif;
-            font-style: normal;
-            font-weight: 800;
-            font-size: clamp(2.6rem, 7vw, 5.25rem);
-            letter-spacing: -0.04em;
-            line-height: 1;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.08);
-            pointer-events: none;
-            user-select: none;
-            z-index: -1;
-            white-space: nowrap;
+        /* FAQ / Radix accordion: questions use Season Mix; answers stay Clash Display, regular weight. */
+        [data-slot="accordion-trigger"] {
+            font-family: var(--font-season-mix);
+            font-weight: 600;
+        }
+
+        [data-slot="accordion-content"] > div {
+            font-weight: 400;
         }
 
         .landing-sub {
             margin-top: 14px;
             max-width: 62ch;
             color: rgba(255, 255, 255, 0.78);
-            font-weight: 600;
+            font-weight: 400;
             line-height: 1.55;
         }
 
@@ -531,23 +520,24 @@
 
         .landing-h3 {
             font-size: 1.35rem;
-            font-weight: 800;
+            font-weight: 600;
             letter-spacing: -0.02em;
             margin: 0 0 10px 0;
             text-transform: uppercase;
-            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
+            font-family: var(--font-season-mix);
         }
 
         .landing-p {
             margin: 0;
             color: rgba(255, 255, 255, 0.82);
             line-height: 1.6;
-            font-weight: 600;
+            font-weight: 400;
         }
 
         .feature-kicker {
             color: rgba(255, 255, 255, 0.7);
-            font-weight: 800;
+            font-family: var(--font-season-mix);
+            font-weight: 600;
             letter-spacing: 0.16em;
             text-transform: uppercase;
             font-size: 0.85rem;
@@ -559,7 +549,7 @@
             padding-left: 18px;
             color: rgba(255, 255, 255, 0.84);
             line-height: 1.7;
-            font-weight: 650;
+            font-weight: 400;
         }
 
         .teammates-grid {
@@ -1415,7 +1405,8 @@
         .demo-posted-modal-title {
             margin: 0 0 6px;
             font-size: 1.05rem;
-            font-weight: 800;
+            font-family: var(--font-season-mix);
+            font-weight: 600;
             color: rgba(255, 255, 255, 0.94);
         }
 
@@ -1431,6 +1422,7 @@
             line-height: 1.52;
             color: rgba(255, 255, 255, 0.9);
             font-size: 0.88rem;
+            font-weight: 400;
         }
 
         .demo-review-sent-panel {
@@ -1603,13 +1595,13 @@
             color: white;
             padding: 12px 12px;
             outline: none;
-            font-weight: 650;
+            font-weight: 500;
             transition: border-color 180ms ease, background-color 180ms ease;
         }
 
         .waitlist-input::placeholder {
             color: rgba(255, 255, 255, 0.55);
-            font-weight: 650;
+            font-weight: 500;
         }
 
         .waitlist-input:focus {
@@ -1628,7 +1620,7 @@
         .waitlist-status {
             min-height: 20px;
             color: rgba(255, 255, 255, 0.78);
-            font-weight: 650;
+            font-weight: 500;
         }
 
         .sr-only {
@@ -1674,9 +1666,9 @@
         .hero-heading {
             font-size: clamp(2.4rem, 7vw, 3.2rem);
             line-height: 1.05;
-            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
-            font-style: italic;
-            font-weight: 700;
+            font-family: var(--font-season-mix);
+            font-style: normal;
+            font-weight: 600;
             letter-spacing: -0.03em;
         }
 
@@ -1775,6 +1767,7 @@
         .frost-pane .landing-p {
             font-size: 1.15rem;
             line-height: 1.55;
+            font-weight: 400;
         }
 
         /* Segmented carousel pill at the bottom of the frost pane */
@@ -2438,12 +2431,12 @@
         .footer-cta h2 {
             font-size: 2.5rem;
             line-height: 1.05;
-            font-weight: 800;
+            font-weight: 600;
             margin: 0 0 30px 0;
             text-transform: uppercase;
             letter-spacing: -0.02em;
             color: white;
-            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
+            font-family: var(--font-season-mix);
         }
 
         .newsletter-form {
@@ -2460,7 +2453,7 @@
             padding: 12px 0;
             font-size: 0.9rem;
             font-family: 'Clash Display', sans-serif;
-            font-weight: 500;
+            font-weight: 400;
             text-transform: uppercase;
             background: transparent;
             color: white;
@@ -2478,7 +2471,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            font-weight: 700;
+            font-weight: 500;
             cursor: pointer;
             text-transform: uppercase;
             color: white;
@@ -2548,12 +2541,12 @@
 
         .link-column-heading {
             font-size: 1.6rem;
-            font-weight: 700;
+            font-weight: 600;
             margin: 0;
             text-transform: uppercase;
             color: white;
             letter-spacing: -0.01em;
-            font-family: var(--font-montserrat), 'Montserrat', 'Clash Display', sans-serif;
+            font-family: var(--font-season-mix);
         }
 
         .link-column a {
@@ -2561,7 +2554,7 @@
             color: rgba(255, 255, 255, 0.6);
             font-size: 0.9rem;
             line-height: 1.4;
-            font-weight: 500;
+            font-weight: 400;
             transition: opacity 0.3s ease;
         }
 
@@ -2576,7 +2569,7 @@
             align-items: center;
             margin-top: 20px;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 400;
             color: rgba(255, 255, 255, 0.35);
             letter-spacing: 0.05em;
         }
@@ -2695,12 +2688,13 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
             font-size: 0.72rem;
-            font-weight: 800;
+            font-family: var(--font-season-mix);
+            font-weight: 600;
         }
 
         .window-live-pill {
             font-size: 0.68rem;
-            font-weight: 800;
+            font-weight: 500;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.72);
@@ -2735,6 +2729,7 @@
             margin: 0;
             flex: 1;
             min-width: 0;
+            font-weight: 400;
         }
 
         .demo-subtitle-hint {
@@ -2924,6 +2919,7 @@
             color: rgba(255, 255, 255, 0.72);
             font-size: 0.9rem;
             line-height: 1.5;
+            font-weight: 400;
         }
 
         .solution-demo-lead {
@@ -2932,6 +2928,16 @@
             line-height: 1.55;
             color: rgba(255, 255, 255, 0.78);
             max-width: 52ch;
+            font-weight: 400;
+        }
+
+        /* Phone mockups sit flush to the inner seam: copy on the left → top-right; flipped copy on the right → top-left */
+        .solution-panel--hero-demo .teammates-phone-wrap {
+            justify-content: flex-end;
+        }
+
+        .solution-panel--demo-flip .solution-copy .teammates-phone-wrap {
+            justify-content: flex-start;
         }
 
         .solution-window-body--browser-first {
@@ -2952,19 +2958,19 @@
             flex-direction: column;
             gap: 6px;
             color: rgba(255, 255, 255, 0.86);
-            font-weight: 620;
+            font-weight: 400;
         }
 
         @media (min-width: 1020px) {
             .solution-grid {
                 grid-template-columns: minmax(0, 1.02fr) minmax(0, 1.2fr);
                 gap: 26px;
+                align-items: start;
             }
 
             .solution-panel--hero-demo .solution-grid {
                 grid-template-columns: minmax(260px, 0.88fr) minmax(0, 1.35fr);
                 gap: clamp(22px, 3.2vw, 42px);
-                align-items: center;
             }
 
             .solution-panel--hero-demo .solution-window {
@@ -3052,7 +3058,7 @@
         .hero-tagline-text {
             margin: 0;
             max-width: min(96vw, 42rem);
-            font-family: "Season Mix", "Season Mix TRIAL", ui-serif, Georgia, serif;
+            font-family: var(--font-season-mix);
             font-weight: 400;
             font-size: clamp(2.85rem, 12vw, 6.75rem);
             line-height: 1.05;

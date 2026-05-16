@@ -175,9 +175,6 @@ export default function FaqPage() {
     <main className="min-h-screen w-full flex justify-center pt-28 pb-24">
       <div className="w-[95%] max-w-4xl">
         <div className="section-heading-stack">
-          <span className="section-ghost-h2" aria-hidden>
-            FAQ
-          </span>
           <h1 className="landing-h2">Frequently Asked Questions</h1>
         </div>
 
