@@ -242,11 +242,11 @@ export default function ReviewBeamDemo() {
             toRef={lojjRef}
             curvature={guest.curvature}
             delay={guest.delay}
-            duration={4}
-            pathColor="#ffffff"
-            pathOpacity={0.45}
-            gradientStartColor="#22c55e"
-            gradientStopColor="#2563eb"
+            duration={7}
+            pathColor="#c8e6c0"
+            pathOpacity={0.55}
+            gradientStartColor="#bbf7d0"
+            gradientStopColor="#22c55e"
             startXOffset={8}
             endXOffset={-8}
           />
@@ -261,11 +261,11 @@ export default function ReviewBeamDemo() {
             reverse
             curvature={platform.curvature}
             delay={platform.delay}
-            duration={4.5}
-            pathColor="#ffffff"
-            pathOpacity={0.45}
-            gradientStartColor="#2563eb"
-            gradientStopColor="#7c3aed"
+            duration={7.5}
+            pathColor="#c8e6c0"
+            pathOpacity={0.55}
+            gradientStartColor="#86efac"
+            gradientStopColor="#16a34a"
             startXOffset={8}
             endXOffset={-8}
           />
