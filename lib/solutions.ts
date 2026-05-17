@@ -36,6 +36,8 @@ export type SolutionDefinition = {
   id: SolutionKind;
   anchor: string;
   heading: string;
+  /** Optional intro line before the summary tagline (Guest Expert hero copy). */
+  lead?: string;
   summary: string;
   phoneImage?: string;
   demo: {
@@ -54,6 +56,8 @@ export const SOLUTIONS: SolutionDefinition[] = [
     id: "guest",
     anchor: "guest-expert",
     heading: "Guest Expert",
+    lead:
+      "From guest FAQ automation to routed requests and shift-wide task tracking, LOJJ's all-in-one platform streamlines front desk operations, reduces manager interruptions, and keeps service consistent across every stay.",
     summary:
       "Talk to every guest, track every task, and answer every question—perfectly, every time.",
     phoneImage: "/teammates/ai-manager.png",

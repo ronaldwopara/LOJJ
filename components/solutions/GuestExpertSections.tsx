@@ -39,6 +39,9 @@ export default function GuestExpertSections({ solution }: GuestExpertSectionsPro
               </Highlighter>{" "}
               to LOJJ
             </h2>
+            {solution.lead ? (
+              <p className="landing-p solution-summary guest-say-hi-lead">{solution.lead}</p>
+            ) : null}
             <p className="landing-p solution-summary">{solution.summary}</p>
           </div>
         </div>

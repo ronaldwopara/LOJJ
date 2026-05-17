@@ -55,13 +55,13 @@ function firstName(displayName: string) {
 }
 
 const GUEST_INTRO =
-  "Hello! I'm LOJJ, your hotel assistant. I can help with room service, amenities, local recommendations, or any questions about your stay. What can I do for you? Do you require any further assistance? (Yes / No)";
+  "Hello! I'm LOJJ, your hotel assistant. I can help with room service, amenities, local recommendations, or any questions about your stay. What can I do for you?";
 
 const GUEST_WIFI_REPLY =
   "The WiFi network is 'HotelGuest' and the password is on the card in your room. Let me know if you have any trouble connecting! Do you require any further assistance? (Yes / No)";
 
 const GUEST_LATE_REPLY =
-  "You can request 1:00 PM checkout based on availability. I've created a front-desk follow-up so the team can confirm shortly. Do you require any further assistance? (Yes / No)";
+  "Request accepted, based on availability you'll likely receive your late checkout by 1:00 PM. I've created a front-desk follow-up so the team can confirm shortly. Do you require any further assistance? (Yes / No)";
 
 const GUEST_PARK_REPLY =
   "Overnight parking is in Garage B, levels 2 to 4. Show your room key at entry for guest validation. Do you require any further assistance? (Yes / No)";
