@@ -13,7 +13,7 @@ type GuestExpertSectionsProps = {
 
 export default function GuestExpertSections({ solution }: GuestExpertSectionsProps) {
   const demo = useDemoSimulation();
-  const phoneMessages = demo.guestMessages.filter((m) => m.role !== "staff");
+  const phoneMessages = demo.guestMessages;
 
   const copyLink = () => {
     const url = `${window.location.origin}${window.location.pathname}#${solution.anchor}`;

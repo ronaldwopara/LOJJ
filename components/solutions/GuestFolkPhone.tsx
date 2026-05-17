@@ -36,12 +36,17 @@ function FolkMessageList({ messages }: { messages: DemoChatMessage[] }) {
       ) : (
         messages.map((m, i) => {
           const isUser = m.role === "user";
-          const isLastIn = !isUser && i === messages.length - 1;
+          const isStaff = m.role === "staff";
+          const isLastAssistant =
+            m.role === "assistant" && messages[i + 1]?.role !== "assistant";
           return (
-            <div key={m.id} className={`folk-row folk-row--${isUser ? "out" : "in"}`}>
-              <div className={`folk-bubble folk-bubble--${isUser ? "out" : "in"}`}>
+            <div
+              key={m.id}
+              className={`folk-row folk-row--${isUser ? "out" : "in"}${isStaff ? " folk-row--staff" : ""}`}
+            >
+              <div className={`folk-bubble folk-bubble--${isUser ? "out" : isStaff ? "staff" : "in"}`}>
                 <span>{m.body}</span>
-                {isLastIn ? <Icon2 className="folk-bubble-tail" width={18} height={19} /> : null}
+                {isLastAssistant ? <Icon2 className="folk-bubble-tail" width={18} height={19} /> : null}
               </div>
             </div>
           );

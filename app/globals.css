@@ -5971,6 +5971,17 @@
             color: #fff;
         }
 
+        .folk-bubble--staff {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.32);
+            box-shadow: 0 1px 2px rgba(16, 185, 129, 0.12);
+        }
+
+        .folk-row--staff .folk-bubble-tail {
+            display: none;
+        }
+
         .folk-bubble-tail {
             position: absolute;
             bottom: -7px;
@@ -6078,6 +6089,11 @@
             .guest-inbox-split {
                 flex-direction: row;
                 align-items: stretch;
+            }
+
+            .guest-inbox-main {
+                flex: 1 1 0;
+                min-height: 0;
             }
         }
 
@@ -6271,12 +6287,183 @@
         }
 
         .guest-inbox-main {
-            flex: 1;
+            flex: 1 1 0;
             min-width: 0;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             background: #fff;
             overflow: hidden;
+        }
+
+        .guest-inbox-main-body {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .guest-inbox-jumpin-row {
+            align-self: flex-start;
+            margin-top: 6px;
+            padding-top: 4px;
+        }
+
+        .solution-window--guest-inbox .guest-inbox-jumpin-btn {
+            appearance: none;
+            -webkit-appearance: none;
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0;
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: 1.5px solid var(--brand-green-hex);
+            background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+            color: var(--brand-green-hex);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1;
+            text-transform: none;
+            cursor: pointer;
+            box-shadow:
+                0 1px 2px rgba(34, 61, 20, 0.08),
+                0 4px 14px rgba(34, 61, 20, 0.12);
+            transition:
+                transform 140ms ease,
+                box-shadow 140ms ease,
+                background 140ms ease,
+                border-color 140ms ease;
+        }
+
+        .solution-window--guest-inbox .guest-inbox-jumpin-btn:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(180deg, #ecfdf5 0%, #bbf7d0 100%);
+            border-color: #1a3310;
+            box-shadow:
+                0 2px 4px rgba(34, 61, 20, 0.1),
+                0 8px 20px rgba(34, 61, 20, 0.14);
+        }
+
+        .solution-window--guest-inbox .guest-inbox-jumpin-btn:focus-visible {
+            outline: 2px solid rgba(34, 61, 20, 0.45);
+            outline-offset: 2px;
+        }
+
+        .guest-inbox-jumpin-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            background: rgba(34, 61, 20, 0.1);
+            font-size: 0.95rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .guest-inbox-jumpin {
+            flex-shrink: 0;
+            padding: 12px 18px 16px;
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+            background: #f9fafb;
+        }
+
+        .guest-inbox-jumpin--compose {
+            background: #fff;
+        }
+
+        .guest-inbox-jumpin--sticky {
+            position: sticky;
+            bottom: 0;
+            z-index: 4;
+            flex-shrink: 0;
+            box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .guest-inbox-main-body--with-jumpin .guest-inbox-chat-scroll {
+            padding-bottom: 8px;
+        }
+
+        .guest-inbox-staff-compose {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .guest-inbox-staff-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .guest-inbox-staff-input {
+            width: 100%;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 72px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            background: #fff;
+            color: #111827;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            font-family: inherit;
+        }
+
+        .guest-inbox-staff-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .guest-inbox-staff-input:focus {
+            outline: none;
+            border-color: rgba(34, 61, 20, 0.35);
+            box-shadow: 0 0 0 3px rgba(34, 61, 20, 0.08);
+        }
+
+        .guest-inbox-staff-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .guest-inbox-staff-send {
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: none;
+            background: var(--brand-green);
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .guest-inbox-staff-send:hover {
+            filter: brightness(1.06);
+        }
+
+        .guest-inbox-staff-cancel {
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 0.82rem;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 6px 4px;
+        }
+
+        .guest-inbox-staff-cancel:hover {
+            color: #374151;
         }
 
         .guest-inbox-main-head {
@@ -6297,13 +6484,16 @@
         }
 
         .guest-inbox-chat-scroll {
-            flex: 1;
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-x: hidden;
             overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
             padding: 16px 18px 20px;
             display: flex;
             flex-direction: column;
             gap: 14px;
-            min-height: 0;
         }
 
         .guest-inbox-empty {

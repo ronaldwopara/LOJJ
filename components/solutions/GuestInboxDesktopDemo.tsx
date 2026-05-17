@@ -116,9 +116,13 @@ function roleLabel(role: DemoChatMessage["role"]) {
   return "LOJJ";
 }
 
-function ChatBubbles({ messages }: { messages: DemoChatMessage[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
+function ChatBubbles({
+  messages,
+  scrollRef,
+}: {
+  messages: DemoChatMessage[];
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+}) {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -152,11 +156,14 @@ function ChatBubbles({ messages }: { messages: DemoChatMessage[] }) {
 }
 
 export default function GuestInboxDesktopDemo() {
-  const { guestMessages } = useDemoSimulation();
+  const { guestMessages, guestAppend } = useDemoSimulation();
   const splitRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
   const [selectedId, setSelectedId] = useState<string>("live");
   const [previewCount, setPreviewCount] = useState(0);
   const [sidebarWidthPx, setSidebarWidthPx] = useState<number | null>(null);
+  const [staffComposeOpen, setStaffComposeOpen] = useState(false);
+  const [staffDraft, setStaffDraft] = useState("");
 
   const liveMessages = guestMessages;
   const usingLive = liveMessages.length > 0;
@@ -198,8 +205,26 @@ export default function GuestInboxDesktopDemo() {
       : "Tap Hello on the phone to start";
 
   const selectedStatic = STATIC_THREADS.find((t) => t.id === selectedId);
+
   const chatMessages =
     selectedId === "live" ? displayLive : (selectedStatic?.staticMessages ?? []);
+
+  const lastMessage = chatMessages[chatMessages.length - 1];
+  const canJumpIn =
+    selectedId === "live" && Boolean(lastMessage && lastMessage.role !== "staff");
+
+  useEffect(() => {
+    setStaffComposeOpen(false);
+    setStaffDraft("");
+  }, [selectedId]);
+
+  const sendStaffReply = () => {
+    const text = staffDraft.trim();
+    if (!text) return;
+    guestAppend("staff", text);
+    setStaffComposeOpen(false);
+    setStaffDraft("");
+  };
 
   const onSplitterPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -254,7 +279,7 @@ export default function GuestInboxDesktopDemo() {
             <span className="guest-inbox-thread-avatar guest-inbox-thread-avatar--live">You</span>
             <span className="guest-inbox-thread-body">
               <span className="guest-inbox-thread-top">
-                <span className="guest-inbox-thread-name">Room 412 · Live</span>
+                <span className="guest-inbox-thread-name">Room 412</span>
                 <span className="guest-inbox-thread-time">{usingLive ? "Now" : "Live"}</span>
               </span>
               <span className="guest-inbox-thread-preview">{livePreview}</span>
@@ -309,22 +334,68 @@ export default function GuestInboxDesktopDemo() {
         <header className="guest-inbox-main-head">
           <div>
             <h4 className="guest-inbox-main-title">
-              {selectedId === "live" ? "Room 412 · Live session" : selectedStatic?.name}
+              {selectedId === "live" ? "Room 412" : selectedStatic?.name}
             </h4>
             <p className="guest-inbox-main-sub">
-              {selectedId === "live"
-                ? usingLive
-                  ? "Mirrors your phone conversation in real time"
-                  : "Live chat — start with a reply on the phone"
-                : "Archived guest thread"}
+              {selectedId === "live" ? "Current guest" : "Archived guest thread"}
             </p>
           </div>
         </header>
-        {chatMessages.length === 0 ? (
-          <p className="guest-inbox-empty">Conversation will appear here…</p>
-        ) : (
-          <ChatBubbles messages={chatMessages} />
-        )}
+
+        <div
+          className={`guest-inbox-main-body${canJumpIn ? " guest-inbox-main-body--with-jumpin" : ""}`}
+        >
+          {chatMessages.length === 0 ? (
+            <p className="guest-inbox-empty">Conversation will appear here…</p>
+          ) : (
+            <ChatBubbles messages={chatMessages} scrollRef={chatScrollRef} />
+          )}
+        </div>
+
+        {canJumpIn && !staffComposeOpen ? (
+          <footer className="guest-inbox-jumpin guest-inbox-jumpin--sticky">
+            <button
+              type="button"
+              className="guest-inbox-jumpin-btn"
+              onClick={() => setStaffComposeOpen(true)}
+            >
+              Jump in
+            </button>
+          </footer>
+        ) : null}
+
+        {canJumpIn && staffComposeOpen ? (
+          <footer className="guest-inbox-jumpin guest-inbox-jumpin--compose guest-inbox-jumpin--sticky">
+            <div className="guest-inbox-staff-compose">
+              <label className="guest-inbox-staff-label" htmlFor="guest-inbox-staff-reply">
+                Reply
+              </label>
+              <textarea
+                id="guest-inbox-staff-reply"
+                className="guest-inbox-staff-input"
+                rows={3}
+                value={staffDraft}
+                onChange={(e) => setStaffDraft(e.target.value)}
+                placeholder="Your message to the guest…"
+              />
+              <div className="guest-inbox-staff-actions">
+                <button type="button" className="guest-inbox-staff-send" onClick={sendStaffReply}>
+                  Send
+                </button>
+                <button
+                  type="button"
+                  className="guest-inbox-staff-cancel"
+                  onClick={() => {
+                    setStaffComposeOpen(false);
+                    setStaffDraft("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </footer>
+        ) : null}
       </section>
     </div>
   );
