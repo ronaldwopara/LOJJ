@@ -47,14 +47,16 @@ export function ReviewPlatformIcon({
   }
 
   return (
-    <Image
-      src={PLATFORM_IMAGES[platform]}
-      alt={PLATFORM_ALT[platform]}
-      width={size}
-      height={size}
-      className="review-platform-img"
-      unoptimized
-    />
+    <span className="review-platform-img-wrap">
+      <Image
+        src={PLATFORM_IMAGES[platform]}
+        alt={PLATFORM_ALT[platform]}
+        width={size}
+        height={size}
+        className={`review-platform-img${platform === "hotels" ? " review-platform-img--hotels" : ""}`}
+        unoptimized
+      />
+    </span>
   );
 }
 

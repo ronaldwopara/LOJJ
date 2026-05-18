@@ -2,125 +2,428 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import DemoColumnSplitter from "@/components/solutions/DemoColumnSplitter";
+
+import { Badge } from "@heroui/react";
+
 import {
-  DEMO_OPS_BASE_QUEUE,
-  useDemoSimulation,
-} from "@/components/solutions/DemoSimulationContext";
-import type { DemoQueueItem, OpsTaskStatus } from "@/lib/solutions";
+  IconBell,
+  IconCalendar,
+  IconCheckSquare,
+  IconClipboard,
+  IconLayoutGrid,
+  IconLink,
+  IconMessage,
+  IconPaperclip,
+  IconSearch,
+  IconSparkles,
+  IconStar,
+  IconSettings,
+} from "@/components/solutions/demo-icons";
+import { useDemoSimulation } from "@/components/solutions/DemoSimulationContext";
 
-const COLUMNS: { id: OpsTaskStatus; label: string; tone: string }[] = [
-  { id: "todo", label: "To-Do", tone: "ops-kanban-col--todo" },
-  { id: "assigned", label: "Assigned", tone: "ops-kanban-col--assigned" },
-  { id: "doing", label: "Doing", tone: "ops-kanban-col--doing" },
-  { id: "done", label: "Done", tone: "ops-kanban-col--done" },
-];
+type KanbanTag = { label: string; tone: "blue" | "orange" | "green" | "pink" };
 
-const priorityClass: Record<DemoQueueItem["priority"], string> = {
-  high: "ops-kanban-priority-high",
-  medium: "ops-kanban-priority-medium",
-  low: "ops-kanban-priority-low",
+type KanbanTask = {
+  id: string;
+  title: string;
+  description: string;
+  column: "todo" | "ongoing" | "done";
+  tags?: KanbanTag[];
+  urgent?: boolean;
+  date?: string;
+  comments?: number;
+  attachments?: number;
+  links?: number;
+  checklist?: string;
+  avatars?: number;
+  synced?: boolean;
 };
 
-function groupByStatus(items: DemoQueueItem[]): Record<OpsTaskStatus, DemoQueueItem[]> {
-  const grouped: Record<OpsTaskStatus, DemoQueueItem[]> = {
-    todo: [],
-    assigned: [],
-    doing: [],
-    done: [],
-  };
-  for (const item of items) {
-    grouped[item.status].push(item);
-  }
-  return grouped;
+const BASE_TASKS: KanbanTask[] = [
+  {
+    id: "t1",
+    title: "Room 704 — extra towels",
+    description: "Deliver four bath towels before evening turndown",
+    column: "todo",
+    tags: [
+      { label: "Housekeeping", tone: "blue" },
+      { label: "Guest request", tone: "orange" },
+    ],
+    urgent: true,
+    date: "Today",
+    comments: 2,
+    checklist: "0/2",
+    avatars: 2,
+  },
+  {
+    id: "t2",
+    title: "Room 315 — AC not cooling",
+    description: "Thermostat stuck at 74°F; maintenance filter check in progress",
+    column: "todo",
+    tags: [
+      { label: "Maintenance", tone: "green" },
+      { label: "Priority", tone: "pink" },
+    ],
+    urgent: true,
+    date: "Today",
+    attachments: 1,
+    comments: 4,
+    avatars: 1,
+  },
+  {
+    id: "t3",
+    title: "Lobby — luggage hold follow-up",
+    description: "Guest returns at 4 PM — tags waiting at bell desk",
+    column: "todo",
+    tags: [
+      { label: "Front Desk", tone: "pink" },
+      { label: "Bell", tone: "blue" },
+    ],
+    date: "Today",
+    links: 1,
+    avatars: 1,
+  },
+  {
+    id: "t4",
+    title: "Room 218 — minibar restock",
+    description: "Restock sparkling water and snacks before 6 PM arrival",
+    column: "ongoing",
+    tags: [{ label: "Housekeeping", tone: "blue" }],
+    date: "Today",
+    comments: 1,
+    checklist: "1/3",
+    avatars: 2,
+  },
+  {
+    id: "t5",
+    title: "Banquet — AV setup for wedding",
+    description: "Projector, microphones, and seating layout for Riverside Ballroom",
+    column: "ongoing",
+    date: "Today",
+    links: 3,
+    avatars: 2,
+  },
+  {
+    id: "t6",
+    title: "Room 507 — crib delivery",
+    description: "Housekeeping delivering crib to Priya Patel in Room 507",
+    column: "ongoing",
+    tags: [{ label: "Housekeeping", tone: "blue" }],
+    date: "Today",
+    checklist: "2/3",
+    avatars: 1,
+  },
+  {
+    id: "t7",
+    title: "Room 119 — folio invoice copy",
+    description: "Print corporate folio for Daniel Reeves at checkout",
+    column: "ongoing",
+    tags: [{ label: "Front Desk", tone: "pink" }],
+    date: "Today",
+    links: 1,
+    avatars: 1,
+  },
+];
+
+const COLUMNS = [
+  { id: "todo" as const, label: "To-do" },
+  { id: "ongoing" as const, label: "On-going" },
+  { id: "done" as const, label: "Done" },
+];
+
+function SidebarIcon({ children }: { children: React.ReactNode }) {
+  return <span className="acme-nav-icon">{children}</span>;
 }
+
+function TaskCard({ task }: { task: KanbanTask }) {
+  return (
+    <article
+      className={`acme-task-card${task.synced ? " acme-task-card--synced" : ""}${task.urgent ? " acme-task-card--urgent" : ""}`}
+    >
+      <div className="acme-task-card-head">
+        <h5 className="acme-task-card-title">{task.title}</h5>
+        {task.urgent ? (
+          <span className="acme-task-urgent" aria-label="Priority">
+            !
+          </span>
+        ) : (
+          <span className="acme-task-status-dot" aria-hidden />
+        )}
+      </div>
+      <p className="acme-task-card-desc">{task.description}</p>
+      {task.tags?.length ? (
+        <div className="acme-task-tags">
+          {task.tags.map((tag) => (
+            <span key={tag.label} className={`acme-task-tag acme-task-tag--${tag.tone}`}>
+              {tag.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      <footer className="acme-task-card-foot">
+        {task.date ? <span className="acme-task-meta">{task.date}</span> : null}
+        {task.comments != null ? (
+          <span className="acme-task-meta">
+            <IconMessage size={12} /> {task.comments}
+          </span>
+        ) : null}
+        {task.attachments != null ? (
+          <span className="acme-task-meta">
+            <IconPaperclip size={12} /> {task.attachments}
+          </span>
+        ) : null}
+        {task.links != null ? (
+          <span className="acme-task-meta">
+            <IconLink size={12} /> {task.links}
+          </span>
+        ) : null}
+        {task.checklist ? (
+          <span className="acme-task-meta">
+            <IconCheckSquare size={12} /> {task.checklist}
+          </span>
+        ) : null}
+        {task.avatars ? (
+          <span className="acme-task-avatars" aria-hidden>
+            {Array.from({ length: task.avatars }, (_, i) => (
+              <span key={i} className="acme-task-avatar" />
+            ))}
+          </span>
+        ) : null}
+      </footer>
+    </article>
+  );
+}
+
+const SIDEBAR_WIDTH_DEFAULT = 200;
+const SIDEBAR_WIDTH_MIN = 140;
+const SIDEBAR_WIDTH_MAX_RATIO = 0.42;
 
 export default function OpsLeadKanbanDemo() {
   const { opsExtraQueue } = useDemoSimulation();
-  const items = useMemo(
-    () => [...opsExtraQueue, ...DEMO_OPS_BASE_QUEUE],
-    [opsExtraQueue],
-  );
-  const byColumn = useMemo(() => groupByStatus(items), [items]);
-  const [activeId, setActiveId] = useState(items[0]?.id ?? "");
-  const active = useMemo(
-    () => items.find((item) => item.id === activeId) ?? items[0],
-    [items, activeId],
-  );
-
-  useEffect(() => {
-    if (items.length && !items.some((r) => r.id === activeId)) {
-      setActiveId(items[0].id);
-    }
-  }, [items, activeId]);
-
   const hadSyncedRef = useRef(false);
-  useEffect(() => {
-    const hasSynced = opsExtraQueue.some((i) => i.id === "demo-late-checkout");
-    if (hasSynced && !hadSyncedRef.current) {
-      setActiveId("demo-late-checkout");
-      hadSyncedRef.current = true;
-    }
-    if (!hasSynced) hadSyncedRef.current = false;
+  const splitRef = useRef<HTMLDivElement>(null);
+  const [sidebarWidthPx, setSidebarWidthPx] = useState<number | null>(null);
+
+  const syncedTask = useMemo<KanbanTask | null>(() => {
+    const item = opsExtraQueue.find((i) => i.id === "demo-late-checkout");
+    if (!item) return null;
+    return {
+      id: item.id,
+      title: item.title,
+      description: item.note ?? "Late checkout confirmed for Alex Johnson, Room 412.",
+      column: "done",
+      tags: [{ label: "Front Desk", tone: "green" }],
+      date: "Now",
+      avatars: 1,
+      synced: true,
+    };
   }, [opsExtraQueue]);
 
+  const tasks = useMemo(() => {
+    if (!syncedTask) return BASE_TASKS;
+    return [...BASE_TASKS, syncedTask];
+  }, [syncedTask]);
+
+  const byColumn = useMemo(() => {
+    const grouped: Record<(typeof COLUMNS)[number]["id"], KanbanTask[]> = {
+      todo: [],
+      ongoing: [],
+      done: [],
+    };
+    for (const task of tasks) grouped[task.column].push(task);
+    return grouped;
+  }, [tasks]);
+
+  useEffect(() => {
+    const hasSynced = Boolean(syncedTask);
+    if (hasSynced && !hadSyncedRef.current) hadSyncedRef.current = true;
+    if (!hasSynced) hadSyncedRef.current = false;
+  }, [syncedTask]);
+
+  const onSidebarSplitterPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const root = splitRef.current;
+    if (!root) return;
+    const startX = e.clientX;
+    const startW = sidebarWidthPx ?? SIDEBAR_WIDTH_DEFAULT;
+
+    const onMove = (ev: PointerEvent) => {
+      const maxW = root.getBoundingClientRect().width * SIDEBAR_WIDTH_MAX_RATIO;
+      const next = Math.min(maxW, Math.max(SIDEBAR_WIDTH_MIN, startW + (ev.clientX - startX)));
+      setSidebarWidthPx(next);
+    };
+
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const splitStyle =
+    sidebarWidthPx != null
+      ? ({ "--acme-sidebar-w": `${Math.round(sidebarWidthPx)}px` } as React.CSSProperties)
+      : undefined;
+
   return (
-    <div className="ops-kanban">
-      <div className="ops-kanban-toolbar">
-        <h4 className="ops-kanban-toolbar-title">Your tasks</h4>
-        <div className="ops-kanban-toolbar-actions" aria-hidden>
-          <span className="ops-kanban-btn ops-kanban-btn--primary">Add a task</span>
-          <span className="ops-kanban-btn ops-kanban-btn--ghost">Invite</span>
+    <div ref={splitRef} className="acme-app demo-ui-font demo-scroll-hidden" style={splitStyle}>
+      <aside className="acme-sidebar demo-scroll-hidden" aria-label="Workspace navigation">
+        <header className="acme-sidebar-head">
+          <span className="acme-sidebar-logo" aria-hidden />
+          <div className="acme-sidebar-brand">
+            <span className="acme-sidebar-brand-name">Riverside Hotel</span>
+            <span className="acme-sidebar-brand-user">Ops Lead</span>
+          </div>
+        </header>
+
+        <div className="acme-sidebar-search">
+          <span className="acme-sidebar-search-icon" aria-hidden>
+            <IconSearch size={14} />
+          </span>
+          <span className="acme-sidebar-search-text">Search tasks or rooms</span>
+          <span className="acme-sidebar-search-kbd">/</span>
         </div>
-      </div>
 
-      <div className="ops-kanban-board" role="region" aria-label="Task board columns">
-        {COLUMNS.map((col) => (
-          <section
-            key={col.id}
-            className={`ops-kanban-col ${col.tone}`}
-            aria-label={`${col.label} column`}
-          >
-            <header className="ops-kanban-col-head">
-              <span className="ops-kanban-col-label">{col.label}</span>
-              <span className="ops-kanban-col-count">{byColumn[col.id].length}</span>
-            </header>
-            <div className="ops-kanban-col-cards">
-              {byColumn[col.id].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`ops-kanban-card${
-                    item.id === active?.id ? " ops-kanban-card--active" : ""
-                  }${item.id === "demo-late-checkout" ? " ops-kanban-card--synced" : ""}${
-                    item.status === "done" ? " ops-kanban-card--done" : ""
-                  }`}
-                  onClick={() => setActiveId(item.id)}
-                  aria-pressed={item.id === active?.id}
-                >
-                  <div className="ops-kanban-card-top">
-                    <span className={`ops-kanban-priority ${priorityClass[item.priority]}`}>
-                      {item.priority}
-                    </span>
-                    <span className="ops-kanban-card-eta">{item.eta}</span>
+        <nav className="acme-sidebar-nav">
+          <span className="acme-nav-item acme-nav-item--assistant">
+            <SidebarIcon>
+              <IconSparkles size={14} />
+            </SidebarIcon>
+            LOJJ Assistant
+          </span>
+          <span className="acme-nav-item">
+            <SidebarIcon>
+              <IconBell size={14} />
+            </SidebarIcon>
+            Notifications
+            <Badge color="danger" size="sm" variant="soft">
+              5
+            </Badge>
+          </span>
+          <span className="acme-nav-item">
+            <SidebarIcon>
+              <IconLayoutGrid size={14} />
+            </SidebarIcon>
+            Dashboard
+          </span>
+          <span className="acme-nav-item">
+            <SidebarIcon>
+              <IconStar size={14} />
+            </SidebarIcon>
+            Assigned to me
+          </span>
+          <span className="acme-nav-item acme-nav-item--active">
+            <SidebarIcon>
+              <IconClipboard size={14} />
+            </SidebarIcon>
+            Tasks
+          </span>
+          <span className="acme-nav-item">
+            <SidebarIcon>
+              <IconClipboard size={14} />
+            </SidebarIcon>
+            Housekeeping
+          </span>
+          <span className="acme-nav-item">
+            <SidebarIcon>
+              <IconSettings size={14} />
+            </SidebarIcon>
+            Maintenance
+          </span>
+          <span className="acme-nav-item">
+            <SidebarIcon>
+              <IconCalendar size={14} />
+            </SidebarIcon>
+            Shift schedule
+          </span>
+        </nav>
+
+        <div className="acme-sidebar-section">
+          <p className="acme-sidebar-section-label">Departments</p>
+          <span className="acme-nav-item acme-nav-item--sub">
+            <SidebarIcon>
+              <IconClipboard size={14} />
+            </SidebarIcon>
+            Housekeeping
+          </span>
+          <span className="acme-nav-item acme-nav-item--sub">
+            <SidebarIcon>
+              <IconSettings size={14} />
+            </SidebarIcon>
+            Engineering
+          </span>
+          <span className="acme-nav-item acme-nav-item--sub">
+            <SidebarIcon>
+              <IconBell size={14} />
+            </SidebarIcon>
+            Front Desk
+          </span>
+        </div>
+      </aside>
+
+      <DemoColumnSplitter
+        label="Resize sidebar and task board"
+        onPointerDown={onSidebarSplitterPointerDown}
+        onDoubleClick={() => setSidebarWidthPx(null)}
+      />
+
+      <main className="acme-main">
+        <header className="acme-main-head">
+          <div className="acme-main-title-row">
+            <span className="acme-main-star" aria-hidden>
+              <IconSparkles size={14} />
+            </span>
+            <h4 className="acme-main-title">Riverside task board</h4>
+          </div>
+          <div className="acme-main-toolbar" aria-hidden>
+            <span className="acme-toolbar-btn">Filter</span>
+            <span className="acme-toolbar-btn">Sort</span>
+            <span className="acme-toolbar-btn acme-toolbar-btn--pro">
+              <span className="acme-toolbar-pro-star">
+                <IconSparkles size={12} />
+              </span>{" "}
+              Automate
+            </span>
+          </div>
+        </header>
+
+        <div className="acme-kanban-board demo-scroll-hidden" role="region" aria-label="Task board">
+          {COLUMNS.map((col) => (
+            <section key={col.id} className="acme-kanban-col demo-scroll-hidden" aria-label={`${col.label} column`}>
+              <header className="acme-kanban-col-head">
+                <span className="acme-kanban-col-radio" aria-hidden />
+                <h5 className="acme-kanban-col-title">{col.label}</h5>
+                <span className="acme-kanban-col-actions" aria-hidden>
+                  <span>+</span>
+                  <span>⋯</span>
+                </span>
+              </header>
+
+              <div className="acme-kanban-col-cards demo-scroll-hidden">
+                {byColumn[col.id].map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+                {col.id === "done" && byColumn.done.length === 0 ? (
+                  <div className="acme-kanban-empty">
+                    <p className="acme-kanban-empty-title">No tasks completed yet</p>
+                    <p className="acme-kanban-empty-sub">Completed guest requests will appear here</p>
                   </div>
-                  <p className="ops-kanban-card-title">{item.title}</p>
-                  {item.note ? <p className="ops-kanban-card-note">{item.note}</p> : null}
-                  <p className="ops-kanban-card-meta">{item.location}</p>
-                </button>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
+                ) : null}
+              </div>
 
-      {active ? (
-        <p className="ops-kanban-detail" aria-live="polite">
-          <strong>{active.title}</strong> — routing to {active.location} ({active.priority} priority).
-          {active.id === "demo-late-checkout"
-            ? " Synced from Guest Expert."
-            : ` Team ETA: ${active.eta}.`}
-        </p>
-      ) : null}
+              <button type="button" className="acme-kanban-add" aria-hidden>
+                + Add task
+              </button>
+            </section>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }

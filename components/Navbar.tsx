@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import { WaitlistDialogTrigger } from "@/components/WaitlistDialog";
+import { WAITLIST_BTN_LABEL_CLASS, WaitlistDialogTrigger } from "@/components/WaitlistDialog";
 
 const SCROLL_THRESHOLD = 50;
 
@@ -63,11 +63,13 @@ export default function Navbar() {
           </div>
 
           <div className="hidden items-center gap-4 md:flex">
-            <WaitlistDialogTrigger className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-[rgb(34,61,20)]/35 bg-transparent px-6 py-2 text-base font-medium text-[rgb(34,61,20)] transition-colors hover:bg-[rgb(34,61,20)]/8 disabled:pointer-events-none disabled:opacity-50">
+            <WaitlistDialogTrigger
+              className={`rotating-border-btn inline-flex h-10 cursor-pointer items-center justify-center rounded-full px-6 py-2 text-white transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 ${WAITLIST_BTN_LABEL_CLASS}`}
+            >
               Join waitlist
             </WaitlistDialogTrigger>
             <a href="mailto:info@lojj.io">
-              <button className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[rgb(34,61,20)] px-6 py-2 text-base font-medium text-[#ebeee3] transition-colors hover:bg-[rgb(34,61,20)]/90 disabled:pointer-events-none disabled:opacity-50">
+              <button className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-[rgb(34,61,20)]/35 bg-transparent px-6 py-2 text-base font-medium text-[rgb(34,61,20)] transition-colors hover:bg-[rgb(34,61,20)]/8 disabled:pointer-events-none disabled:opacity-50">
                 Contact
               </button>
             </a>
@@ -112,7 +114,7 @@ export default function Navbar() {
               onClick={closeMenu}
               className="rotating-border-btn flex items-center justify-center gap-3 px-10 h-[64px] rounded-full transition-all duration-300 button-strong-shadow"
             >
-              <span className="text-white font-bold text-base transition-colors">Join waitlist</span>
+              <span className={`${WAITLIST_BTN_LABEL_CLASS} text-white transition-colors`}>Join waitlist</span>
             </button>
           </WaitlistDialogTrigger>
           <div className="mt-4">

@@ -171,13 +171,14 @@ export const SOLUTIONS: SolutionDefinition[] = [
     anchor: "review-specialist",
     heading: "Review Specialist",
     summary:
-      "Score every guest touchpoint for review likelihood across Google, TripAdvisor, Hotels.com, Expedia, and Booking.com — then route high-intent stays through LOJJ so five-star drafts land on the right platform at the right moment.",
+      "LOJJ finds your happiest guests across the hotel and automatically asks them to leave a review based on how likely they are to post a positive one.",
     demo: {
       title: "Review routing",
       guests: [
-        { id: "g1", name: "Maya R.", signal: "Resolved checkout request", score: 92 },
-        { id: "g2", name: "Daniel K.", signal: "Praised concierge speed", score: 88 },
-        { id: "g3", name: "Amina T.", signal: "Shared positive feedback", score: 95 },
+        { id: "g1", name: "Alex Johnson", signal: "Resolved checkout request", score: 94 },
+        { id: "g2", name: "Sarah Williams", signal: "Praised concierge speed", score: 89 },
+        { id: "g3", name: "Marcus Chen", signal: "Shared positive feedback", score: 96 },
+        { id: "g4", name: "Priya Patel", signal: "High review likelihood", score: 86 },
       ],
     },
   },

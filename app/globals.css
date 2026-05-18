@@ -1,4 +1,28 @@
 @import "tailwindcss";
+@import "@heroui/react/styles";
+
+@theme inline {
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+}
 
 /* Custom Font Loading */
         @font-face {
@@ -1001,6 +1025,19 @@
             animation: mage-phone-profile-in 0.2s ease-out;
         }
 
+        .mage-phone-profile-sheet--drawer {
+            top: auto;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            max-height: min(78%, 520px);
+            border-radius: 20px 20px 0 0;
+            padding: 10px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+            box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.14);
+            animation: mage-phone-profile-drawer-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
         @keyframes mage-phone-profile-in {
             from {
                 transform: translateX(100%);
@@ -1010,12 +1047,46 @@
             }
         }
 
+        @keyframes mage-phone-profile-drawer-in {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
         .mage-phone-profile-sheet-handle {
-            width: 40px;
+            width: 36px;
             height: 4px;
             border-radius: 9999px;
-            background: #e5e5e5;
-            margin-bottom: 14px;
+            background: #d4d4d8;
+            margin: 4px auto 12px;
+            flex-shrink: 0;
+        }
+
+        .mage-phone-profile-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 999px;
+            background: rgba(120, 120, 128, 0.12);
+            color: #3a3a3c;
+            cursor: pointer;
+        }
+
+        .mage-phone-profile-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 18px;
         }
 
         .mage-phone-profile-title {
@@ -1028,44 +1099,114 @@
         }
 
         .mage-phone-profile-avatar {
-            width: 56px;
-            height: 56px;
+            width: 72px;
+            height: 72px;
             border-radius: 9999px;
             background: linear-gradient(160deg, #f0f0f5, #dcdce2);
             display: grid;
             place-items: center;
-            font-size: 1.05rem;
-            font-weight: 800;
+            font-size: 1.35rem;
+            font-weight: 700;
             letter-spacing: 0.02em;
-            color: #262626;
-            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .mage-phone-profile-avatar--brand {
+            background: var(--brand-green);
+            box-shadow: 0 8px 24px rgba(34, 61, 20, 0.22);
+        }
+
+        .mage-phone-profile-avatar--guest {
+            background: var(--demo-avatar-orb, #64748b);
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+        }
+
+        .mage-phone-booking-sheet .mage-phone-profile-hero {
+            margin-bottom: 14px;
+        }
+
+        .mage-phone-booking-rows {
+            margin: 0 0 20px;
+            padding: 0;
+            width: 100%;
+        }
+
+        .mage-phone-booking-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 12px;
+            border-radius: 12px;
+            background: #f7f7f8;
+        }
+
+        .mage-phone-booking-row + .mage-phone-booking-row {
+            margin-top: 8px;
+        }
+
+        .mage-phone-booking-row dt {
+            margin: 0;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #8e8e93;
+        }
+
+        .mage-phone-booking-row dd {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #1c1c1e;
+            text-align: right;
         }
 
         .mage-phone-profile-name {
-            margin: 0 0 12px;
-            font-size: 1.02rem;
-            font-weight: 800;
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
             letter-spacing: -0.02em;
             color: #111;
         }
 
+        .mage-phone-profile-subtitle {
+            margin: 0;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #8e8e93;
+        }
+
         .mage-phone-profile-meta {
-            list-style-type: disc;
-            list-style-position: outside;
-            margin: 0 0 18px;
-            padding: 0 0 0 1.1em;
+            list-style: none;
+            margin: 0 0 20px;
+            padding: 0;
             width: 100%;
-            font-size: 0.76rem;
-            line-height: 1.5;
-            color: #525252;
+            text-align: left;
+            font-size: 0.84rem;
+            line-height: 1.45;
+            color: #3a3a3c;
         }
 
         .mage-phone-profile-meta li {
-            display: list-item;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #f7f7f8;
         }
 
         .mage-phone-profile-meta li + li {
-            margin-top: 5px;
+            margin-top: 8px;
+        }
+
+        .mage-phone-profile-meta-dot {
+            flex-shrink: 0;
+            width: 6px;
+            height: 6px;
+            margin-top: 0.45em;
+            border-radius: 999px;
+            background: var(--brand-green);
         }
 
         .mage-phone-profile-done {
@@ -2904,10 +3045,6 @@
             color: rgba(235, 238, 227, 0.88);
         }
 
-        .landing-end-cta-btn span {
-            color: var(--brand-cream);
-        }
-
         .landing-end-cta-actions {
             display: flex;
             flex-wrap: wrap;
@@ -3381,22 +3518,6 @@
             bottom: 12px;
             width: 12px;
             cursor: ew-resize;
-        }
-
-        .demo-resize-handle--s {
-            bottom: 0;
-            left: 0;
-            right: 12px;
-            height: 12px;
-            cursor: ns-resize;
-        }
-
-        .demo-resize-handle--se {
-            bottom: 0;
-            right: 0;
-            width: 18px;
-            height: 18px;
-            cursor: nwse-resize;
         }
 
         .demo-resize-handle:hover {
@@ -4375,6 +4496,8 @@
             z-index: 1;
             opacity: 0;
             pointer-events: none;
+            transform: translateZ(0);
+            will-change: opacity;
         }
 
         .hero-lens.hero-lens {
@@ -4382,10 +4505,96 @@
             pointer-events: auto;
         }
 
+        .hero-lens-filters {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Magnified lens — soft upscale, chromatic fringe, optical polish */
+        .hero-lens-sharp .hero-canvas-shell--sharp {
+            isolation: isolate;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .hero-lens-sharp .hero-lens-viewport-inner {
+            position: relative;
+        }
+
+        .hero-lens-sharp .hero-canvas-shell--sharp .hero-canvas,
+        .hero-canvas.hero-canvas--lens-sharp {
+            image-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            filter: url(#hero-lens-chromatic) contrast(1.04) saturate(1.06) brightness(1.01);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        /* Rim + fringe — clipped to the lens circle (moves with the mask) */
+        .hero-lens-sharp .hero-lens-viewport::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: radial-gradient(
+                circle closest-side at 50% 50%,
+                transparent 62%,
+                rgba(255, 255, 255, 0.12) 70%,
+                rgba(140, 210, 255, 0.08) 73%,
+                rgba(255, 110, 150, 0.06) 75%,
+                rgba(0, 0, 0, 0.14) 82%,
+                transparent 92%
+            );
+            mix-blend-mode: soft-light;
+        }
+
+        .hero-lens-sharp .hero-lens-viewport::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            box-shadow:
+                inset 0 0 28px 8px rgba(0, 0, 0, 0.12),
+                inset 0 0 1px 0.5px rgba(255, 255, 255, 0.22);
+        }
+
+        .hero-lens-sharp .hero-lens-viewport-inner::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: radial-gradient(
+                ellipse 115% 90% at 50% 50%,
+                transparent 55%,
+                rgba(0, 0, 0, 0.07) 100%
+            );
+        }
+
         /* Only the magnified lens circle stays sharp; hide the duplicate base layer. */
         .hero-lens > .hero-canvas-shell--sharp {
             opacity: 0;
             pointer-events: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero-lens-sharp .hero-canvas-shell--sharp .hero-canvas,
+            .hero-canvas.hero-canvas--lens-sharp {
+                filter: contrast(1.02) saturate(1.03);
+                transform: none;
+            }
+
+            .hero-lens-sharp .hero-lens-viewport::before,
+            .hero-lens-sharp .hero-lens-viewport::after,
+            .hero-lens-sharp .hero-lens-viewport-inner::before {
+                display: none;
+            }
         }
 
         .hero-tagline-stack {
@@ -4450,7 +4659,9 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .hero-waitlist-trigger.rotating-border-btn {
+            .hero-waitlist-trigger.rotating-border-btn,
+            .landing-end-cta-btn.rotating-border-btn,
+            .footer-waitlist-btn.rotating-border-btn {
                 animation: none;
                 border-color: rgba(255, 255, 255, 0.35);
             }
@@ -4650,8 +4861,12 @@
         .guest-say-hi-phone {
             position: relative;
             display: flex;
-            justify-content: center;
-            min-width: 0;
+            justify-content: flex-start;
+            flex: 0 0 auto;
+            width: 360px;
+            min-width: 360px;
+            padding-right: 210px;
+            box-sizing: content-box;
             overflow: visible;
         }
 
@@ -5317,11 +5532,23 @@
             overflow: hidden;
         }
 
+        .review-platform-img-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 0;
+        }
+
         .review-platform-img {
             width: 28px;
             height: 28px;
             object-fit: contain;
             border-radius: 6px;
+        }
+
+        .review-platform-img--hotels {
+            display: block;
+            object-fit: contain;
         }
 
         .review-list-card {
@@ -5565,21 +5792,31 @@
             background: rgba(0, 0, 0, 0.06);
         }
 
-        /* Guest phone mock — 360×490/1000 shell, inner 430×935 @ 0.750802 */
+        /* Guest phone mock — inner 430×935 scaled to fit screen clip inside bezel */
         .guest-phone-stage {
             position: relative;
-            width: 360px;
-            max-width: min(360px, 94vw);
+            width: auto;
+            max-width: min(560px, 96vw);
             margin-inline: auto;
             color: #0f0f0f;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            letter-spacing: -0.08px;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "SF Pro Text",
+                "SF Pro Display",
+                var(--font-inter),
+                "Inter",
+                system-ui,
+                sans-serif;
+            letter-spacing: -0.31px;
             isolation: isolate;
         }
 
         .guest-phone-device {
             position: relative;
-            width: 100%;
+            flex: 0 0 360px;
+            width: 360px;
+            max-width: 360px;
             aspect-ratio: 490 / 1000;
             isolation: isolate;
         }
@@ -5847,61 +6084,73 @@
         .lojj-phone-topbar {
             position: absolute;
             z-index: 40;
-            top: 52px;
+            top: 58px;
             left: 0;
             right: 0;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: start;
-            column-gap: 8px;
-            padding: 0 14px;
+            height: 61px;
+            padding-bottom: 5px;
+            box-sizing: border-box;
             pointer-events: none;
+            border-bottom: 1px solid rgba(60, 60, 67, 0.12);
         }
 
-        .lojj-phone-topbar-back,
-        .lojj-phone-topbar-profile {
+        .lojj-phone-topbar--imessage .lojj-phone-topbar-back,
+        .lojj-phone-topbar--imessage .lojj-phone-topbar-profile {
             pointer-events: auto;
-            flex-shrink: 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            margin: 4px 0 0;
+            width: 36px;
+            height: 36px;
+            margin: 0;
             padding: 0;
             border: none;
-            border-radius: 999px;
+            border-radius: 0;
             cursor: pointer;
             color: #1c1c1e;
-            background: rgba(235, 235, 240, 0.92);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            background: transparent;
+            box-shadow: none;
         }
 
         .lojj-phone-topbar-back {
-            justify-self: start;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
         }
 
-        .lojj-phone-topbar-brand {
-            grid-column: 2;
-            justify-self: center;
+        .lojj-phone-topbar-contact {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            pointer-events: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            justify-content: flex-start;
+            gap: 2px;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #1c1c1e;
             min-width: 0;
-            pointer-events: none;
+            z-index: 1;
         }
 
         .lojj-phone-topbar-logo-wrap {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 52px;
-            height: 52px;
+            width: 40px;
+            height: 40px;
             border-radius: 999px;
             background: #fff;
             box-shadow:
-                0 1px 2px rgba(0, 0, 0, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.1),
                 inset 0 0 0 1px rgba(0, 0, 0, 0.06);
             overflow: hidden;
         }
@@ -5913,42 +6162,48 @@
             object-fit: cover;
         }
 
-        .lojj-phone-topbar-pill {
+        .lojj-phone-topbar-contact-label {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            height: 32px;
-            padding: 0 12px 0 14px;
-            border-radius: 999px;
-            background: rgba(235, 235, 240, 0.92);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
-            color: #1c1c1e;
+            justify-content: center;
+            gap: 2px;
+            width: 100%;
         }
 
-        .lojj-phone-topbar-pill-text {
-            font-family: var(--font-season-mix);
-            font-size: 15px;
+        .lojj-phone-topbar-contact-name {
+            font-size: 13px;
             font-weight: 600;
             letter-spacing: -0.02em;
-            line-height: 1;
+            line-height: 1.2;
+            color: #1c1c1e;
+            text-align: center;
+            transform: translateX(5px);
         }
 
-        .lojj-phone-topbar-brand-chevron {
-            opacity: 0.85;
+        .lojj-phone-topbar-contact-chevron {
+            opacity: 0.45;
+            flex-shrink: 0;
         }
 
         .lojj-phone-topbar-profile {
-            justify-self: end;
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
         }
 
+        .lojj-phone-topbar-contact:focus-visible,
         .lojj-phone-topbar-back:focus-visible,
         .lojj-phone-topbar-profile:focus-visible {
             outline: 2px solid rgba(34, 61, 20, 0.45);
             outline-offset: 2px;
+            border-radius: 8px;
         }
 
         .guest-phone-ui .mage-phone-profile-scrim,
-        .guest-phone-ui .mage-phone-profile-sheet {
+        .guest-phone-ui .mage-phone-profile-sheet,
+        .guest-phone-ui .mage-phone-booking-sheet {
             z-index: 120;
         }
 
@@ -5974,18 +6229,11 @@
             flex: 1;
             min-height: 0;
             overflow-y: auto;
-            margin-top: 200px;
-            padding: 12px 14px 12px;
+            margin-top: 176px;
+            padding: 10px 14px 28px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            mask-image: linear-gradient(
-                to bottom,
-                transparent 0%,
-                #000 8%,
-                #000 92%,
-                transparent 100%
-            );
+            gap: 11px;
             scrollbar-width: none;
         }
 
@@ -6024,7 +6272,9 @@
 
         .guest-phone-bubble {
             position: relative;
-            max-width: 72%;
+            box-sizing: border-box;
+            max-width: min(78%, 320px);
+            min-width: 0;
             min-height: 37px;
             padding: 8px 14px;
             display: flex;
@@ -6033,6 +6283,12 @@
             line-height: 1.25;
             letter-spacing: -0.01em;
             border-radius: 20px;
+            overflow-wrap: break-word;
+            word-break: normal;
+        }
+
+        .guest-phone-bubble > span {
+            min-width: 0;
         }
 
         .guest-phone-bubble--in {
@@ -6043,6 +6299,7 @@
         .guest-phone-bubble--out {
             background: #1a1a1a;
             color: #fff;
+            background-image: none;
         }
 
         .guest-phone-bubble--staff {
@@ -6639,4 +6896,1795 @@
         .guest-inbox-msg-time {
             font-size: 0.68rem;
             color: #9ca3af;
+        }
+
+        /* Demo UI font — SF Pro on Apple, Inter fallback */
+        .demo-ui-font {
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "SF Pro Text",
+                "SF Pro Display",
+                var(--font-inter),
+                "Inter",
+                system-ui,
+                sans-serif;
+            letter-spacing: -0.31px;
+        }
+
+        /* Guest phone — suggestions rail on the right (aligned with message area) */
+        .guest-phone-with-suggestions {
+            position: relative;
+            width: 360px;
+            max-width: 100%;
+        }
+
+        .guest-phone-suggestions-rail {
+            position: absolute;
+            left: calc(100% + 14px);
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding-top: clamp(64px, 13%, 104px);
+            min-width: max-content;
+            z-index: 5;
+            pointer-events: auto;
+        }
+
+        .guest-phone-suggestion-chip {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #fff;
+            color: #0f0f0f;
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 18px;
+            cursor: pointer;
+            line-height: 1.3;
+            box-shadow: 0 2px 8px rgba(15, 15, 15, 0.08);
+            transition: background 140ms ease, transform 140ms ease;
+            white-space: nowrap;
+        }
+
+        .guest-phone-suggestion-chip:hover {
+            background: #f7f7f7;
+            transform: translateX(2px);
+        }
+
+        .guest-phone-suggestion-chip--prompt {
+            border-color: rgba(34, 61, 20, 0.35);
+            color: var(--brand-green);
+            animation: guest-suggestion-glow 2.2s ease-in-out infinite;
+        }
+
+        @keyframes guest-suggestion-glow {
+            0%,
+            100% {
+                box-shadow:
+                    0 0 0 2px rgba(74, 140, 62, 0.12),
+                    0 4px 14px rgba(34, 61, 20, 0.08);
+            }
+            50% {
+                box-shadow:
+                    0 0 0 4px rgba(74, 140, 62, 0.22),
+                    0 6px 20px rgba(34, 61, 20, 0.14);
+            }
+        }
+
+        @media (min-width: 1020px) {
+            .guest-say-hi-grid {
+                grid-template-columns: minmax(570px, max-content) minmax(0, 1fr);
+                gap: clamp(40px, 6vw, 96px);
+                padding-left: clamp(20px, 3vw, 40px);
+            }
+
+            .guest-say-hi-copy {
+                padding-left: clamp(28px, 6vw, 96px);
+                margin-left: clamp(8px, 2vw, 40px);
+                align-self: start;
+            }
+        }
+
+        /* Safari demo shell */
+        .safari-demo-shell {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .solution-window--safari {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .solution-window--safari .solution-window-aspect-root {
+            height: auto;
+            max-height: none;
+        }
+
+        .solution-window--safari .solution-window-aspect-root > .solution-window-body,
+        .solution-window--guest-inbox.solution-window--safari .solution-window-aspect-root > .solution-window-body,
+        .solution-window--ops-kanban.solution-window--safari .solution-window-aspect-root > .solution-window-body {
+            padding: 0;
+            background: transparent;
+            flex: none;
+        }
+
+        .solution-window--manager-split.solution-window--safari .solution-window-aspect-root {
+            height: auto;
+            max-height: none;
+        }
+
+        /* Inbox v2 — image 2 style */
+        .inbox-v2 {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            background: #fff;
+            color: #262626;
+        }
+
+        .inbox-v2-rail {
+            flex: 0 0 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            background: #171717;
+            color: #fafafa;
+        }
+
+        .inbox-v2-rail-logo {
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: #fafafa;
+            color: #171717;
+            font-size: 0.75rem;
+        }
+
+        .inbox-v2-nav-icon {
+            display: grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            color: #a3a3a3;
+        }
+
+        .inbox-v2-rail-spacer {
+            flex: 1;
+        }
+
+        .inbox-v2-list-col {
+            flex: 0 0 220px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            border-right: 1px solid #f0f0f0;
+            background: #fcfcfc;
+        }
+
+        .inbox-v2-list-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .inbox-v2-list-title {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #262626;
+            flex: 1;
+        }
+
+        .inbox-v2-list-tools {
+            display: flex;
+            gap: 6px;
+            color: #a3a3a3;
+            font-size: 0.72rem;
+        }
+
+        .inbox-v2-thread-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px;
+        }
+
+        .inbox-v2-thread {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .inbox-v2-thread:hover {
+            background: #f5f5f5;
+        }
+
+        .inbox-v2-thread--active {
+            background: #f0f0f0;
+        }
+
+        .inbox-v2-thread-avatar {
+            flex: 0 0 32px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .inbox-v2-thread-body {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .inbox-v2-thread-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .inbox-v2-thread-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #262626;
+        }
+
+        .inbox-v2-thread-time {
+            font-size: 0.68rem;
+            color: #a3a3a3;
+        }
+
+        .inbox-v2-thread-preview {
+            display: block;
+            font-size: 0.72rem;
+            color: #737373;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .inbox-v2-chat-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: #fff;
+        }
+
+        .inbox-v2-chat-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .inbox-v2-chat-head-avatar {
+            flex-shrink: 0;
+        }
+
+        .inbox-v2-chat-title {
+            margin: 0;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .inbox-v2-chat-badge {
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .inbox-v2-chat-body {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inbox-v2-chat-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .inbox-v2-msg {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            max-width: 92%;
+        }
+
+        .inbox-v2-msg--guest {
+            align-self: flex-start;
+        }
+
+        .inbox-v2-msg--assistant,
+        .inbox-v2-msg--staff {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .inbox-v2-msg-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .inbox-v2-msg--assistant .inbox-v2-msg-content,
+        .inbox-v2-msg--staff .inbox-v2-msg-content {
+            align-items: flex-end;
+        }
+
+        .inbox-v2-msg-role {
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: #a3a3a3;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .inbox-v2-msg-avatar {
+            flex: 0 0 24px;
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .inbox-v2-msg-avatar--guest {
+            background: #22c55e;
+        }
+
+        .inbox-v2-msg-avatar--agent {
+            background: #262626;
+        }
+
+        .inbox-v2-bubble {
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .inbox-v2-bubble p {
+            margin: 0;
+        }
+
+        .inbox-v2-bubble--guest {
+            background: #f5f5f5;
+            color: #262626;
+            border-bottom-left-radius: 4px;
+        }
+
+        .inbox-v2-bubble--assistant,
+        .inbox-v2-bubble--staff {
+            background: #262626;
+            color: #fafafa;
+            border-bottom-right-radius: 4px;
+        }
+
+        .inbox-v2-msg-time {
+            font-size: 0.62rem;
+            color: #a3a3a3;
+        }
+
+        .inbox-v2-empty {
+            margin: auto;
+            color: #a3a3a3;
+            font-size: 0.82rem;
+        }
+
+        .inbox-v2-jumpin {
+            padding: 8px 16px 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .inbox-v2-jumpin-btn {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            background: #fff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .inbox-v2-jumpin-btn:hover {
+            background: #fafafa;
+        }
+
+        .inbox-v2-staff-compose {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .inbox-v2-staff-input {
+            width: 100%;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font: inherit;
+            resize: vertical;
+        }
+
+        .inbox-v2-staff-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .inbox-v2-staff-send,
+        .inbox-v2-staff-cancel {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .inbox-v2-staff-send {
+            background: #262626;
+            color: #fff;
+            border: none;
+        }
+
+        .inbox-v2-staff-cancel {
+            background: transparent;
+            border: 1px solid #e5e5e5;
+        }
+
+        .inbox-v2-compose-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px 14px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .inbox-v2-compose-field {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #fafafa;
+            color: #a3a3a3;
+            font-size: 0.75rem;
+        }
+
+        .inbox-v2-compose-send {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: #2563eb;
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 0.82rem;
+        }
+
+        /* Acme kanban — v0 task board */
+        .acme-app {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            background: #fff;
+            color: #171717;
+            overflow: hidden;
+        }
+
+        .acme-sidebar {
+            flex: 0 0 var(--acme-sidebar-w, 200px);
+            width: var(--acme-sidebar-w, 200px);
+            max-width: 42%;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            border-right: none;
+            background: #fafafa;
+            padding: 12px 10px;
+            overflow-y: auto;
+        }
+
+        .acme-sidebar-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .acme-sidebar-logo {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: #171717;
+        }
+
+        .acme-sidebar-brand-name {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .acme-sidebar-brand-user {
+            display: block;
+            font-size: 0.65rem;
+            color: #737373;
+        }
+
+        .acme-sidebar-search {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            background: #fff;
+            color: #a3a3a3;
+            font-size: 0.68rem;
+        }
+
+        .acme-sidebar-search-text {
+            flex: 1;
+        }
+
+        .acme-sidebar-search-kbd {
+            padding: 1px 4px;
+            border-radius: 4px;
+            background: #f5f5f5;
+            font-size: 0.62rem;
+        }
+
+        .acme-sidebar-nav,
+        .acme-sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .acme-sidebar-section {
+            margin-top: 12px;
+        }
+
+        .acme-sidebar-section-label {
+            margin: 0 0 4px;
+            padding: 0 8px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #a3a3a3;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .acme-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            color: #525252;
+        }
+
+        .acme-nav-item--active {
+            background: #f0f0f0;
+            color: #171717;
+            font-weight: 600;
+        }
+
+        .acme-nav-item--assistant {
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        .acme-nav-item--sub {
+            font-size: 0.68rem;
+        }
+
+        .acme-nav-icon {
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .acme-nav-badge {
+            margin-left: auto;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 999px;
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .acme-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding: 12px 14px;
+            overflow: hidden;
+        }
+
+        .acme-main-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .acme-main-title-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .acme-main-star {
+            color: #7c3aed;
+            font-size: 0.82rem;
+        }
+
+        .acme-main-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .acme-main-toolbar {
+            display: flex;
+            gap: 6px;
+        }
+
+        .acme-toolbar-btn {
+            padding: 5px 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            background: #fff;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #525252;
+        }
+
+        .acme-toolbar-btn--pro {
+            border: none;
+            background: linear-gradient(135deg, #ede9fe, #fce7f3);
+            color: #7c3aed;
+        }
+
+        .acme-kanban-board {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-height: 0;
+            overflow-x: auto;
+        }
+
+        .acme-kanban-col {
+            flex: 0 0 220px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 8px;
+        }
+
+        .acme-kanban-col-head {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .acme-kanban-col-radio {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            border: 1.5px solid #d4d4d4;
+        }
+
+        .acme-kanban-col-title {
+            margin: 0;
+            flex: 1;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .acme-kanban-col-actions {
+            display: flex;
+            gap: 6px;
+            color: #a3a3a3;
+            font-size: 0.72rem;
+        }
+
+        .acme-kanban-col-cards {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
+        }
+
+        .acme-task-card {
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .acme-task-card--synced {
+            border-color: #86efac;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+        }
+
+        .acme-task-card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .acme-task-card-title {
+            margin: 0;
+            font-size: 0.76rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .acme-task-urgent {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            background: #fee2e2;
+            color: #dc2626;
+            display: grid;
+            place-items: center;
+            font-size: 0.68rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .acme-task-status-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1.5px solid #d4d4d4;
+            flex-shrink: 0;
+        }
+
+        .acme-task-card-desc {
+            margin: 0 0 8px;
+            font-size: 0.68rem;
+            color: #737373;
+            line-height: 1.4;
+        }
+
+        .acme-task-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .acme-task-tag {
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-size: 0.58rem;
+            font-weight: 600;
+        }
+
+        .acme-task-tag--blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .acme-task-tag--orange {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .acme-task-tag--green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .acme-task-tag--pink {
+            background: #fce7f3;
+            color: #be185d;
+        }
+
+        .acme-task-card-foot {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.62rem;
+            color: #a3a3a3;
+        }
+
+        .acme-task-avatars {
+            display: flex;
+            margin-left: auto;
+        }
+
+        .acme-task-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fde047, #f97316);
+            border: 1.5px solid #fff;
+            margin-left: -4px;
+        }
+
+        .acme-task-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .acme-kanban-empty {
+            padding: 20px 8px;
+            text-align: center;
+        }
+
+        .acme-kanban-empty-title {
+            margin: 0 0 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #525252;
+        }
+
+        .acme-kanban-empty-sub {
+            margin: 0;
+            font-size: 0.65rem;
+            color: #a3a3a3;
+        }
+
+        .acme-kanban-add {
+            margin-top: 8px;
+            padding: 6px;
+            border: none;
+            background: transparent;
+            color: #a3a3a3;
+            font-size: 0.68rem;
+            text-align: left;
+            cursor: default;
+        }
+
+        /* Help desk v4 — image 4 */
+        .helpdesk-v4 {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .helpdesk-v4-rail {
+            flex: 0 0 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            background: #fafafa;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-rail-logo {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: #171717;
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 0.65rem;
+        }
+
+        .helpdesk-v4-rail-icon {
+            font-size: 0.82rem;
+            opacity: 0.45;
+        }
+
+        .helpdesk-v4-rail-icon--active {
+            opacity: 1;
+        }
+
+        .helpdesk-v4-rail-spacer {
+            flex: 1;
+        }
+
+        .helpdesk-v4-inbox {
+            flex: 0 0 180px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-inbox-head {
+            padding: 10px 10px 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-inbox-head h4 {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .helpdesk-v4-inbox-sub {
+            display: block;
+            font-size: 0.65rem;
+            color: #a3a3a3;
+        }
+
+        .helpdesk-v4-inbox-tools {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            color: #a3a3a3;
+            font-size: 0.68rem;
+        }
+
+        .helpdesk-v4-thread-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .helpdesk-v4-thread {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .helpdesk-v4-thread--active {
+            background: #f5f5f5;
+        }
+
+        .helpdesk-v4-thread-avatar {
+            flex: 0 0 28px;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+        }
+
+        .helpdesk-v4-thread-body {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .helpdesk-v4-thread-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
+            font-size: 0.72rem;
+        }
+
+        .helpdesk-v4-thread-top strong {
+            font-weight: 700;
+        }
+
+        .helpdesk-v4-thread-top span:last-child {
+            color: #a3a3a3;
+            font-size: 0.62rem;
+        }
+
+        .helpdesk-v4-thread-preview {
+            display: block;
+            font-size: 0.65rem;
+            color: #737373;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .helpdesk-v4-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-chat-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-chat-head h4 {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .helpdesk-v4-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: #ea580c;
+            letter-spacing: 0.04em;
+        }
+
+        .helpdesk-v4-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: #ea580c;
+        }
+
+        .helpdesk-v4-activity {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .helpdesk-v4-activity-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 0 0 4px;
+            font-size: 0.62rem;
+            color: #a3a3a3;
+        }
+
+        .helpdesk-v4-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .helpdesk-v4-msg {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            max-width: 88%;
+        }
+
+        .helpdesk-v4-msg--guest {
+            align-self: flex-start;
+        }
+
+        .helpdesk-v4-msg--agent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .helpdesk-v4-msg-avatar {
+            flex: 0 0 22px;
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 0.58rem;
+            font-weight: 700;
+        }
+
+        .helpdesk-v4-msg-avatar--lojj {
+            background: #262626;
+        }
+
+        .helpdesk-v4-msg-bubble {
+            padding: 8px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            line-height: 1.45;
+        }
+
+        .helpdesk-v4-msg--guest .helpdesk-v4-msg-bubble {
+            background: #f5f5f5;
+            color: #262626;
+        }
+
+        .helpdesk-v4-msg--agent .helpdesk-v4-msg-bubble {
+            background: #262626;
+            color: #fafafa;
+        }
+
+        .helpdesk-v4-compose {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-compose-field {
+            flex: 1;
+            padding: 7px 10px;
+            border-radius: 8px;
+            background: #fafafa;
+            color: #a3a3a3;
+            font-size: 0.68rem;
+        }
+
+        .helpdesk-v4-compose-send {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background: #2563eb;
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 0.75rem;
+        }
+
+        .helpdesk-v4-coworker {
+            flex: 0 0 var(--helpdesk-coworker-w, 220px);
+            width: var(--helpdesk-coworker-w, 220px);
+            max-width: 48%;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: #fafafa;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .helpdesk-v4-coworker-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .helpdesk-v4-coworker-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .helpdesk-v4-coworker-tools {
+            display: flex;
+            gap: 6px;
+            color: #a3a3a3;
+            font-size: 0.72rem;
+        }
+
+        .helpdesk-v4-coworker-prompt {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            background: #fff;
+            font-size: 0.68rem;
+            color: #525252;
+            margin-bottom: 10px;
+        }
+
+        .helpdesk-v4-coworker-thoughts {
+            margin-bottom: 8px;
+        }
+
+        .helpdesk-v4-coworker-thoughts p {
+            margin: 0 0 4px;
+            font-size: 0.62rem;
+            color: #a3a3a3;
+        }
+
+        .helpdesk-v4-coworker-reply {
+            margin: 0 0 10px;
+            font-size: 0.68rem;
+            line-height: 1.45;
+            color: #404040;
+        }
+
+        .helpdesk-v4-email-card {
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .helpdesk-v4-email-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.68rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .helpdesk-v4-email-subject,
+        .helpdesk-v4-email-body {
+            margin: 0 0 6px;
+            font-size: 0.65rem;
+            line-height: 1.45;
+            color: #525252;
+        }
+
+        .helpdesk-v4-email-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .helpdesk-v4-email-dismiss,
+        .helpdesk-v4-email-send {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .helpdesk-v4-email-dismiss {
+            background: transparent;
+            border: 1px solid #e5e5e5;
+        }
+
+        .helpdesk-v4-email-send {
+            background: #262626;
+            color: #fff;
+            border: none;
+        }
+
+        .helpdesk-v4-coworker-compose {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-top: 8px;
+        }
+
+        .helpdesk-v4-coworker-input {
+            flex: 1;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+            background: #fff;
+            font-size: 0.65rem;
+            color: #a3a3a3;
+        }
+
+        .helpdesk-v4-coworker-send {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            background: #2563eb;
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 0.72rem;
+        }
+
+        /* Review routing — wider beam + marquee below */
+        .review-specialist-grid--stacked {
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1020px) {
+            .review-specialist-grid--stacked {
+                grid-template-columns: minmax(0, 1fr) minmax(260px, 0.32fr);
+            }
+        }
+
+        .review-routing-shell--wide {
+            height: auto;
+            max-height: none;
+        }
+
+        .review-routing-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .review-beam-stage--wide {
+            flex: none;
+            max-width: 100%;
+            width: 100%;
+            min-height: 280px;
+            height: min(360px, 42vh);
+        }
+
+        .review-marquee-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            overflow: hidden;
+            mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+        }
+
+        .review-marquee {
+            --gap: 12px;
+            padding: 4px 0;
+        }
+
+        .review-marquee-card {
+            position: relative;
+            flex: 0 0 auto;
+            width: 300px;
+            padding: 16px 18px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+            box-shadow: 0 8px 24px -14px rgba(15, 23, 42, 0.28);
+            overflow: hidden;
+        }
+
+        .review-marquee-platform-mark {
+            position: absolute;
+            right: 10px;
+            bottom: 8px;
+            opacity: 0.14;
+            transform: scale(1.35);
+            pointer-events: none;
+        }
+
+        .review-marquee-platform-mark .review-platform-svg,
+        .review-marquee-platform-mark .review-platform-img {
+            width: 34px;
+            height: 34px;
+        }
+
+        .review-marquee-quote-mark {
+            position: absolute;
+            top: 8px;
+            right: 14px;
+            font-size: 2.4rem;
+            line-height: 1;
+            color: rgba(15, 23, 42, 0.08);
+            pointer-events: none;
+        }
+
+        .review-marquee-card-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .review-marquee-card-meta {
+            min-width: 0;
+        }
+
+        .review-marquee-name {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .review-marquee-stars {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            margin-top: 2px;
+        }
+
+        .review-marquee-star {
+            font-size: 0.72rem;
+            color: #d1d5db;
+        }
+
+        .review-marquee-star--on,
+        .review-marquee-star--half {
+            color: #fbbf24;
+        }
+
+        .review-marquee-rating {
+            margin-left: 4px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .review-marquee-quote {
+            margin: 0;
+            font-size: 0.76rem;
+            line-height: 1.55;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .review-marquee-platform-label {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.62rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .demo-scroll-hidden {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .demo-scroll-hidden::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        .inbox-v2-list-col {
+            flex: 0 0 var(--inbox-v2-list-w, 220px);
+            width: var(--inbox-v2-list-w, 220px);
+        }
+
+        .inbox-v2-splitter {
+            flex: 0 0 6px;
+            width: 6px;
+            cursor: col-resize;
+            position: relative;
+            background: transparent;
+            touch-action: none;
+        }
+
+        .inbox-v2-splitter::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.1);
+        }
+
+        .inbox-v2-splitter:hover::after {
+            width: 2px;
+            background: rgba(15, 23, 42, 0.22);
+        }
+
+        .demo-col-splitter {
+            flex: 0 0 6px;
+            width: 6px;
+            cursor: col-resize;
+            position: relative;
+            background: transparent;
+            touch-action: none;
+            flex-shrink: 0;
+        }
+
+        .demo-col-splitter::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 1px;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.1);
+        }
+
+        .demo-col-splitter:hover::after {
+            width: 2px;
+            background: rgba(15, 23, 42, 0.22);
+        }
+
+        #help-desk .solution-demo-gutter {
+            display: none;
+        }
+
+        @media (min-width: 1020px) {
+            #help-desk .solution-demo-row--sidecopy {
+                grid-template-columns: minmax(260px, 0.42fr) minmax(0, 1fr);
+                gap: clamp(20px, 3vw, 40px);
+            }
+        }
+
+        .inbox-v2-thread-avatar-ui,
+        .inbox-v2-msg-avatar-ui {
+            flex-shrink: 0;
+        }
+
+        .demo-avatar {
+            display: inline-grid;
+            place-items: center;
+            border-radius: 999px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .demo-avatar--sm {
+            width: 28px;
+            height: 28px;
+            font-size: 0.58rem;
+        }
+
+        .demo-avatar--md {
+            width: 36px;
+            height: 36px;
+            font-size: 0.72rem;
+        }
+
+        .demo-avatar--lg {
+            width: 44px;
+            height: 44px;
+            font-size: 0.85rem;
+        }
+
+        .demo-avatar--orb {
+            background: var(--demo-avatar-orb, #64748b);
+            color: #fff;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        .demo-avatar--photo {
+            object-fit: cover;
+        }
+
+        .helpdesk-v4-work {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            border-right: none;
+        }
+
+        .helpdesk-v4-work-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-work-head h4 {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .helpdesk-v4-work-pill {
+            font-size: 0.62rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #f5f5f5;
+            color: #737373;
+        }
+
+        .helpdesk-v4-work-stage {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            transition: opacity 320ms ease;
+        }
+
+        .helpdesk-v4-docs {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 10px;
+            height: 100%;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .helpdesk-v4-docs--solo {
+            display: block;
+            grid-template-columns: unset;
+        }
+
+        .helpdesk-v4-docs--solo > h5 {
+            margin: 0 0 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #404040;
+        }
+
+        .helpdesk-v4-ops-ghost {
+            height: 100%;
+            padding: 12px 14px;
+            overflow: hidden;
+        }
+
+        .helpdesk-v4-ops-ghost > h5 {
+            margin: 0 0 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #404040;
+        }
+
+        .helpdesk-v4-ops-ghost-cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            height: calc(100% - 28px);
+        }
+
+        .helpdesk-v4-ops-ghost-col {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-ops-ghost-label {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #a3a3a3;
+        }
+
+        .helpdesk-v4-ops-ghost-card {
+            display: block;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #ececec 0%, #f5f5f5 50%, #ececec 100%);
+            background-size: 200% 100%;
+            animation: ops-ghost-shimmer 1.8s ease-in-out infinite;
+        }
+
+        .helpdesk-v4-ops-ghost-card--short {
+            height: 28px;
+            width: 72%;
+        }
+
+        .helpdesk-v4-ops-ghost-card--accent {
+            background: linear-gradient(90deg, #d1fae5 0%, #ecfdf5 50%, #d1fae5 100%);
+            background-size: 200% 100%;
+        }
+
+        @keyframes ops-ghost-shimmer {
+            0% {
+                background-position: 100% 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
+        }
+
+        .helpdesk-v4-rail-logo,
+        .helpdesk-v4-rail-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #737373;
+        }
+
+        .helpdesk-v4-rail-icon--active {
+            color: #1c1c1e;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .helpdesk-v4-docs-list h5,
+        .helpdesk-v4-kanban-outline h5 {
+            margin: 0 0 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #404040;
+        }
+
+        .helpdesk-v4-doc-card {
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+            background: #fafafa;
+        }
+
+        .helpdesk-v4-doc-card h6 {
+            margin: 0 0 4px;
+            font-size: 0.68rem;
+            font-weight: 700;
+        }
+
+        .helpdesk-v4-doc-card p {
+            margin: 0;
+            font-size: 0.62rem;
+            line-height: 1.45;
+            color: #737373;
+        }
+
+        .helpdesk-v4-kanban-cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .helpdesk-v4-kanban-mini-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 6px;
+            border-radius: 8px;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+        }
+
+        .helpdesk-v4-kanban-mini-label {
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: #737373;
+            text-transform: uppercase;
+        }
+
+        .helpdesk-v4-kanban-mini-card {
+            padding: 4px 6px;
+            border-radius: 6px;
+            background: #fff;
+            border: 1px solid #ececec;
+            font-size: 0.58rem;
+            color: #525252;
+        }
+
+        .helpdesk-v4-msg--animate {
+            animation: helpdesk-msg-in 420ms ease both;
+        }
+
+        @keyframes helpdesk-msg-in {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .helpdesk-v4-msg-avatar-ui {
+            flex-shrink: 0;
         }

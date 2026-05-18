@@ -28,6 +28,9 @@ import { submitWaitlistForm } from "@/lib/waitlistSubmit";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Primary waitlist CTA label typography — medium weight, shared across all waitlist buttons. */
+export const WAITLIST_BTN_LABEL_CLASS = "font-medium text-base tracking-tight";
+
 type WaitlistDialogContextValue = {
   openWaitlist: () => void;
 };
@@ -209,7 +212,7 @@ export function FooterWaitlistCta() {
       <div className="footer-cta">
         <h2 className="footer-cta-heading">Get early access</h2>
         <WaitlistDialogTrigger className="footer-waitlist-btn rotating-border-btn inline-flex items-center justify-center gap-3 px-10 sm:px-12 h-[52px] sm:h-[58px] rounded-full transition-all duration-300 button-strong-shadow cursor-pointer">
-          <span className="footer-waitlist-btn-label font-bold text-base tracking-tight">Join the waitlist</span>
+          <span className={`footer-waitlist-btn-label ${WAITLIST_BTN_LABEL_CLASS}`}>Join the waitlist</span>
         </WaitlistDialogTrigger>
       </div>
 

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 
 import HeroIntroTagline from "@/components/HeroIntroTagline";
 import ScrollCanvas from "@/components/ScrollCanvas";
-import { WaitlistDialogTrigger } from "@/components/WaitlistDialog";
+import { WAITLIST_BTN_LABEL_CLASS, WaitlistDialogTrigger } from "@/components/WaitlistDialog";
 import { Lens } from "@/components/ui/lens";
 import { heroTaglineExitT, heroVisibilityEntranceT } from "@/lib/hero-scroll";
 
@@ -16,6 +16,8 @@ const PIN_CLASSES = [
   "hero-pin-layer--pinned",
   "hero-pin-layer--after",
 ] as const;
+
+const HERO_LENS_SIZE_PX = 260;
 
 interface HeroSectionProps {
   ready: boolean;
@@ -36,7 +38,6 @@ export default function HeroSection({ ready, onLoadProgress }: HeroSectionProps)
   const [lensPosition, setLensPosition] = useState<{ x: number; y: number } | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
 
-  const exitT = heroTaglineExitT(scrollProgress);
   const visibilityT = heroVisibilityEntranceT(scrollProgress);
   const updateLensCenter = useCallback(() => {
     const el = pinLayerRef.current;
@@ -198,18 +199,58 @@ export default function HeroSection({ ready, onLoadProgress }: HeroSectionProps)
           </motion.div>
 
           {ready && lensPosition && (
-            <motion.div ref={lensLayerRef} className="hero-lens-layer" aria-hidden={visibilityT < 0.05}>
+            <motion.div
+              ref={lensLayerRef}
+              className="hero-lens-layer"
+              aria-hidden={visibilityT < 0.05}
+            >
+              <svg aria-hidden className="hero-lens-filters" focusable="false">
+                <defs>
+                  <filter
+                    id="hero-lens-chromatic"
+                    x="-12%"
+                    y="-12%"
+                    width="124%"
+                    height="124%"
+                    colorInterpolationFilters="sRGB"
+                  >
+                    <feOffset in="SourceGraphic" dx="1.1" dy="0.25" result="shift-r" />
+                    <feColorMatrix
+                      in="shift-r"
+                      type="matrix"
+                      values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.88 0"
+                      result="chan-r"
+                    />
+                    <feOffset in="SourceGraphic" dx="-1.1" dy="-0.25" result="shift-b" />
+                    <feColorMatrix
+                      in="shift-b"
+                      type="matrix"
+                      values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 0.88 0"
+                      result="chan-b"
+                    />
+                    <feColorMatrix
+                      in="SourceGraphic"
+                      type="matrix"
+                      values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 0.92 0"
+                      result="chan-g"
+                    />
+                    <feBlend in="chan-r" in2="chan-g" mode="screen" result="rg" />
+                    <feBlend in="rg" in2="chan-b" mode="screen" />
+                  </filter>
+                </defs>
+              </svg>
               <Lens
-                className="hero-lens h-full w-full rounded-none"
+                className="hero-lens hero-lens-sharp h-full w-full rounded-none"
+                viewportClassName="hero-lens-viewport"
                 zoomFactor={1.55}
-                lensSize={260}
+                lensSize={HERO_LENS_SIZE_PX}
                 lensColor="white"
                 defaultPosition={lensPosition}
                 duration={0.2}
                 ariaLabel="Sharp detail through the lens"
               >
-                <motion.div className="hero-canvas-shell hero-canvas-shell--sharp">
-                  <ScrollCanvas progressRef={progressRef} ready={ready} />
+                <motion.div className="hero-canvas-shell hero-canvas-shell--sharp hero-lens-viewport-inner">
+                  <ScrollCanvas progressRef={progressRef} ready={ready} lensSharp />
                 </motion.div>
               </Lens>
             </motion.div>
@@ -247,7 +288,7 @@ export default function HeroSection({ ready, onLoadProgress }: HeroSectionProps)
             transition={{ duration: 0.65, delay: 0.92, ease: [0.22, 1, 0.36, 1] }}
           >
             <WaitlistDialogTrigger className="hero-waitlist-trigger rotating-border-btn inline-flex h-[58px] cursor-pointer items-center justify-center gap-3 rounded-full px-11 transition-all duration-300 group button-strong-shadow pointer-events-auto sm:h-[66px] sm:px-14">
-              <span className="text-base font-bold tracking-tight text-white transition-colors sm:text-lg">
+              <span className={`${WAITLIST_BTN_LABEL_CLASS} text-white transition-colors sm:text-lg`}>
                 Join the waitlist
               </span>
             </WaitlistDialogTrigger>

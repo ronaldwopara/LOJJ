@@ -3,18 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const MIN_WIDTH_PX = 260;
-const MIN_HEIGHT_PX = 200;
-const MAX_HEIGHT_PX = 1200;
-
-type Edge = "e" | "s" | "se";
-
-type DragSession = {
-  edge: Edge;
-  startX: number;
-  startY: number;
-  startW: number;
-  startH: number;
-};
 
 type ResizableDemoWindowProps = {
   className?: string;
@@ -23,20 +11,16 @@ type ResizableDemoWindowProps = {
   fillWidth?: boolean;
 };
 
-/**
- * Desktop preview shell: drag edges to resize. Default size comes from the parent
- * shell’s fixed CSS height; only pointer drags change dimensions.
- */
+/** Demo shell — drag the right edge to resize width. Use column splitters inside for panel layout. */
 export default function ResizableDemoWindow({
   className,
   children,
   fillWidth = false,
 }: ResizableDemoWindowProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const sessionRef = useRef<DragSession | null>(null);
+  const sessionRef = useRef<{ startX: number; startW: number } | null>(null);
   const [widthPx, setWidthPx] = useState<number | null>(null);
-  const [heightPx, setHeightPx] = useState<number | null>(null);
-  const [dragging, setDragging] = useState<Edge | null>(null);
+  const [dragging, setDragging] = useState(false);
 
   const shellWidth = useCallback(() => {
     const el = rootRef.current;
@@ -70,69 +54,39 @@ export default function ResizableDemoWindow({
     return () => ro.disconnect();
   }, [fillWidth]);
 
-  const applyResize = useCallback(
-    (e: PointerEvent) => {
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: PointerEvent) => {
       const s = sessionRef.current;
       if (!s) return;
       const maxW = shellWidth();
-      const dx = e.clientX - s.startX;
-      const dy = e.clientY - s.startY;
-
-      if (s.edge === "e") {
-        const w = Math.min(maxW, Math.max(MIN_WIDTH_PX, s.startW + dx));
-        setWidthPx(w);
-      } else if (s.edge === "s") {
-        const h = Math.min(
-          MAX_HEIGHT_PX,
-          Math.max(MIN_HEIGHT_PX, s.startH + dy),
-        );
-        setHeightPx(h);
-      } else {
-        const w = Math.min(maxW, Math.max(MIN_WIDTH_PX, s.startW + dx));
-        const h = Math.min(
-          MAX_HEIGHT_PX,
-          Math.max(MIN_HEIGHT_PX, s.startH + dy),
-        );
-        setWidthPx(w);
-        setHeightPx(h);
-      }
-    },
-    [shellWidth],
-  );
-
-  useEffect(() => {
-    if (!dragging) return;
+      const w = Math.min(maxW, Math.max(MIN_WIDTH_PX, s.startW + (e.clientX - s.startX)));
+      setWidthPx(w);
+    };
     const up = () => {
       sessionRef.current = null;
-      setDragging(null);
+      setDragging(false);
     };
-    const move = (e: PointerEvent) => applyResize(e);
-    window.addEventListener("pointermove", move);
+    window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", up);
     window.addEventListener("pointercancel", up);
     return () => {
-      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", up);
     };
-  }, [dragging, applyResize]);
+  }, [dragging, shellWidth]);
 
   const onPointerDown = useCallback(
-    (edge: Edge) => (e: React.PointerEvent) => {
-      if (fillWidth && (edge === "e" || edge === "se")) return;
+    (e: React.PointerEvent) => {
+      if (fillWidth) return;
       e.preventDefault();
       e.stopPropagation();
       const el = rootRef.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
-      sessionRef.current = {
-        edge,
-        startX: e.clientX,
-        startY: e.clientY,
-        startW: r.width,
-        startH: r.height,
-      };
-      setDragging(edge);
+      sessionRef.current = { startX: e.clientX, startW: r.width };
+      setDragging(true);
       (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
     },
     [fillWidth],
@@ -141,11 +95,9 @@ export default function ResizableDemoWindow({
   const onDoubleClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     setWidthPx(null);
-    setHeightPx(null);
   }, []);
 
   const useExplicitWidth = !fillWidth && widthPx != null;
-  const useExplicitHeight = heightPx != null;
 
   return (
     <div
@@ -155,12 +107,6 @@ export default function ResizableDemoWindow({
         width: useExplicitWidth ? `${Math.round(widthPx)}px` : "100%",
         maxWidth: "100%",
         minWidth: 0,
-        ...(useExplicitHeight
-          ? {
-              height: `${Math.round(heightPx)}px`,
-              maxHeight: `${Math.round(heightPx)}px`,
-            }
-          : {}),
         minHeight: 0,
         overflow: "hidden",
         marginInline: useExplicitWidth ? "auto" : undefined,
@@ -169,11 +115,7 @@ export default function ResizableDemoWindow({
         boxSizing: "border-box",
       }}
       onDoubleClick={onDoubleClick}
-      title={
-        fillWidth
-          ? "Drag the bottom edge to resize height. Double-click to reset."
-          : "Drag edges to resize. Double-click to reset size."
-      }
+      title={fillWidth ? undefined : "Drag the right edge to resize width. Double-click to reset."}
     >
       {children}
       {!fillWidth ? (
@@ -181,21 +123,7 @@ export default function ResizableDemoWindow({
           className="demo-resize-handle demo-resize-handle--e"
           role="presentation"
           aria-hidden
-          onPointerDown={onPointerDown("e")}
-        />
-      ) : null}
-      <div
-        className="demo-resize-handle demo-resize-handle--s"
-        role="presentation"
-        aria-hidden
-        onPointerDown={onPointerDown("s")}
-      />
-      {!fillWidth ? (
-        <div
-          className="demo-resize-handle demo-resize-handle--se"
-          role="presentation"
-          aria-hidden
-          onPointerDown={onPointerDown("se")}
+          onPointerDown={onPointerDown}
         />
       ) : null}
     </div>

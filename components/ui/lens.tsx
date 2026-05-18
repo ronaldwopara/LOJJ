@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useMotionTemplate } from "motion/react"
 
 import { cn } from "@/lib/utils"
@@ -32,6 +32,8 @@ interface LensProps {
   /** The aria label of the lens */
   ariaLabel?: string
   className?: string
+  /** Applied to the masked magnified viewport wrapper */
+  viewportClassName?: string
 }
 
 export function Lens({
@@ -45,6 +47,7 @@ export function Lens({
   lensColor = "black",
   ariaLabel = "Zoom Area",
   className,
+  viewportClassName,
 }: LensProps) {
   if (zoomFactor < 1) {
     throw new Error("zoomFactor must be greater than 1")
@@ -54,21 +57,58 @@ export function Lens({
   }
 
   const [isHovering, setIsHovering] = useState(false)
-  const [mousePosition, setMousePosition] = useState<Position>(position)
+  const [mousePosition, setMousePosition] = useState<Position>(
+    () => defaultPosition ?? position,
+  )
   const containerRef = useRef<HTMLDivElement>(null)
+  const pendingPosRef = useRef<Position | null>(null)
+  const rafRef = useRef<number | null>(null)
 
   const currentPosition = useMemo(() => {
     if (isStatic) return position
-    if (defaultPosition && !isHovering) return defaultPosition
     return mousePosition
-  }, [isStatic, position, defaultPosition, isHovering, mousePosition])
+  }, [isStatic, position, mousePosition])
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+  const applyPointerPosition = useCallback((clientX: number, clientY: number) => {
+    const el = containerRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    pendingPosRef.current = {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    }
+    if (rafRef.current !== null) return
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null
+      if (pendingPosRef.current) setMousePosition(pendingPosRef.current)
     })
+  }, [])
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      applyPointerPosition(e.clientX, e.clientY)
+    },
+    [applyPointerPosition],
+  )
+
+  const handlePointerEnter = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      setIsHovering(true)
+      applyPointerPosition(e.clientX, e.clientY)
+    },
+    [applyPointerPosition],
+  )
+
+  useEffect(() => {
+    if (defaultPosition && !isHovering) {
+      setMousePosition(defaultPosition)
+    }
+  }, [defaultPosition, isHovering])
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+    }
   }, [])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -90,7 +130,7 @@ export function Lens({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
         transition={{ duration }}
-        className="absolute inset-0 overflow-hidden"
+        className={cn("absolute inset-0 overflow-hidden", viewportClassName)}
         style={{
           maskImage,
           WebkitMaskImage: maskImage,
@@ -109,15 +149,15 @@ export function Lens({
         </motion.div>
       </motion.div>
     )
-  }, [currentPosition, maskImage, zoomFactor, children, duration])
+  }, [currentPosition, maskImage, zoomFactor, children, duration, viewportClassName])
 
   return (
     <div
       ref={containerRef}
       className={cn("relative z-20 overflow-hidden rounded-xl", className)}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      onMouseMove={handleMouseMove}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={() => setIsHovering(false)}
+      onPointerMove={handlePointerMove}
       onKeyDown={handleKeyDown}
       role="region"
       aria-label={ariaLabel}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Playfair_Display } from "next/font/google";
+import { Inter, Montserrat, Playfair_Display } from "next/font/google";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
@@ -13,6 +13,12 @@ const playfair = Playfair_Display({
 const montserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -81,7 +87,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${montserrat.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${montserrat.variable} ${inter.variable}`}>
       <head>
         <link rel="icon" href="/favicon.png" sizes="any" />
         <link
@@ -94,6 +100,7 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font -- icon font in App Router root layout */}
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
           rel="stylesheet"

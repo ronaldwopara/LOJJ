@@ -3,6 +3,7 @@
 import DemoWindowChrome from "@/components/solutions/DemoWindowChrome";
 import { useDemoSimulation } from "@/components/solutions/DemoSimulationContext";
 import OpsLeadKanbanDemo from "@/components/solutions/OpsLeadKanbanDemo";
+import SafariDemoShell from "@/components/solutions/SafariDemoShell";
 import type { SolutionDefinition } from "@/lib/solutions";
 
 type OpsLeadSectionsProps = {
@@ -25,20 +26,12 @@ export default function OpsLeadSections({ solution }: OpsLeadSectionsProps) {
           ariaLabel="Ops Lead task board"
           onCopyLink={copyLink}
           onResetScenario={() => demo.resetOpsExtras()}
-          shellClassName="solution-window--ops-kanban"
+          shellClassName="solution-window--ops-kanban solution-window--safari"
           fillWidth
         >
-          <div className="solution-window-bar solution-window-bar--light">
-            <span className="window-dots" aria-hidden>
-              <span className="window-dot" />
-              <span className="window-dot" />
-              <span className="window-dot" />
-            </span>
-            <span className="window-title">{solution.demo.title}</span>
-          </div>
-          <div className="solution-window-body solution-window-body--ops-kanban">
+          <SafariDemoShell url="riverside.lojj.io/tasks">
             <OpsLeadKanbanDemo />
-          </div>
+          </SafariDemoShell>
         </DemoWindowChrome>
 
         <div className="ops-lead-copy">

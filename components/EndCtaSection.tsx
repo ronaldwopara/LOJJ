@@ -3,7 +3,7 @@
 import { motion, useInView, type Variants } from "motion/react";
 import { useRef } from "react";
 
-import { WaitlistDialogTrigger } from "@/components/WaitlistDialog";
+import { WAITLIST_BTN_LABEL_CLASS, WaitlistDialogTrigger } from "@/components/WaitlistDialog";
 import { Highlighter } from "@/components/ui/highlighter";
 
 function LojjFaceMark() {
@@ -101,12 +101,14 @@ export default function EndCtaSection() {
             reviews—without adding headcount.
           </p>
           <div className="landing-end-cta-actions">
-            <WaitlistDialogTrigger className="landing-end-cta-btn rotating-border-btn inline-flex items-center justify-center gap-3 px-10 sm:px-12 h-[52px] sm:h-[58px] rounded-full transition-all duration-300 button-strong-shadow cursor-pointer">
-              <span className="font-bold text-base tracking-tight">Join the waitlist</span>
+            <WaitlistDialogTrigger
+              className={`landing-end-cta-btn rotating-border-btn inline-flex h-10 cursor-pointer items-center justify-center rounded-full px-6 py-2 text-white transition-all duration-300 button-strong-shadow disabled:pointer-events-none disabled:opacity-50 sm:h-[52px] sm:min-h-[52px] ${WAITLIST_BTN_LABEL_CLASS}`}
+            >
+              Join the waitlist
             </WaitlistDialogTrigger>
             <a
               href="mailto:info@lojj.io?subject=Talk%20to%20sales"
-              className="pill-btn-ghost landing-end-cta-sales-btn"
+              className="landing-end-cta-sales-btn inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-[var(--brand-cream)]/55 bg-transparent px-6 py-2 text-base font-medium text-[var(--brand-cream)] transition-colors hover:bg-[var(--brand-cream)]/12 sm:h-[52px] sm:min-h-[52px]"
             >
               Talk to sales
             </a>

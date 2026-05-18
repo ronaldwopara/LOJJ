@@ -55,7 +55,7 @@ function firstName(displayName: string) {
 }
 
 const GUEST_INTRO =
-  "Hello! I'm LOJJ, your hotel assistant. I can help with room service, amenities, local recommendations, or any questions about your stay. What can I do for you?";
+  "Hello Alex! I'm LOJJ, your Riverside Hotel assistant. I can help with Wi‑Fi, checkout, parking, amenities, or anything about your stay in Room 412.";
 
 const GUEST_WIFI_REPLY =
   "The WiFi network is 'HotelGuest' and the password is on the card in your room. Let me know if you have any trouble connecting! Do you require any further assistance? (Yes / No)";
@@ -83,12 +83,12 @@ export function guestReviewDraftBody(guestId: string) {
 
 const LATE_CHECKOUT_TASK: DemoQueueItem = {
   id: "demo-late-checkout",
-  title: "Guest — late checkout request",
+  title: "Room 412 — late checkout",
   location: "Front Desk",
   priority: "medium",
-  eta: "Pending",
-  status: "todo",
-  note: "Guest Expert flagged a 1:00 PM checkout request.",
+  eta: "Confirmed",
+  status: "done",
+  note: "Alex Johnson requested 1:00 PM checkout — confirmed and logged.",
 };
 
 type GuestPhase = "idle" | "after_hi" | "after_topic" | "after_followup_no";
@@ -307,8 +307,8 @@ export function DemoSimulationProvider({ children }: { children: ReactNode }) {
     if (guestPhase === "idle") return initialGuestSuggestions;
     if (guestPhase === "after_hi") {
       return [
-        { id: "wifi", label: "I can't find the wi-fi password." },
         { id: "late", label: "Can I get a late checkout?" },
+        { id: "wifi", label: "I can't find the wi-fi password." },
         { id: "park", label: "Where should I park overnight?" },
       ];
     }

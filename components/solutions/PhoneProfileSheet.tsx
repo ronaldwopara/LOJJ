@@ -2,6 +2,8 @@
 
 import { useEffect, useId } from "react";
 
+import { IconX } from "@/components/solutions/demo-icons";
+
 type PhoneProfileSheetProps = {
   open: boolean;
   onClose: () => void;
@@ -23,7 +25,7 @@ function deriveInitials(name: string) {
 export default function PhoneProfileSheet({
   open,
   onClose,
-  title = "Guest",
+  title = "Contact",
   name,
   initials,
   meta,
@@ -48,24 +50,35 @@ export default function PhoneProfileSheet({
       <button type="button" className="mage-phone-profile-scrim" aria-label="Close profile" onClick={onClose} />
       <aside
         id={profileSheetId}
-        className="mage-phone-profile-sheet"
+        className="mage-phone-profile-sheet mage-phone-profile-sheet--drawer"
         role="dialog"
         aria-modal="true"
         aria-labelledby={profileTitleId}
       >
         <div className="mage-phone-profile-sheet-handle" aria-hidden />
-        <h2 id={profileTitleId} className="mage-phone-profile-title">
-          {title}
-        </h2>
-        <div className="mage-phone-profile-avatar" aria-hidden>
-          {avatar}
+        <button type="button" className="mage-phone-profile-close" aria-label="Close" onClick={onClose}>
+          <IconX size={18} />
+        </button>
+
+        <div className="mage-phone-profile-hero">
+          <div className="mage-phone-profile-avatar mage-phone-profile-avatar--brand" aria-hidden>
+            {avatar}
+          </div>
+          <p className="mage-phone-profile-name">{name}</p>
+          <p id={profileTitleId} className="mage-phone-profile-subtitle">
+            {title}
+          </p>
         </div>
-        <p className="mage-phone-profile-name">{name}</p>
+
         <ul className="mage-phone-profile-meta">
           {meta.map((line) => (
-            <li key={line}>{line}</li>
+            <li key={line}>
+              <span className="mage-phone-profile-meta-dot" aria-hidden />
+              {line}
+            </li>
           ))}
         </ul>
+
         <button type="button" className="mage-phone-profile-done" onClick={onClose}>
           Done
         </button>

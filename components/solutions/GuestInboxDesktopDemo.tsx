@@ -1,157 +1,187 @@
 "use client";
 
+import { Badge } from "@heroui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import DemoAvatar from "@/components/solutions/DemoAvatar";
+import {
+  IconArrowUp,
+  IconInbox,
+  IconMenu,
+  IconPaperclip,
+  IconSearch,
+  IconSettings,
+  IconSort,
+  IconSparkles,
+  IconUsers,
+} from "@/components/solutions/demo-icons";
 import {
   useDemoSimulation,
   type DemoChatMessage,
 } from "@/components/solutions/DemoSimulationContext";
+import { DEMO_GUESTS, LIVE_GUEST, guestById, guestLabel, type DemoGuestProfile } from "@/lib/demo-guests";
 
 type InboxThread = {
   id: string;
-  name: string;
+  guestId: string;
   preview: string;
   time: string;
-  initials: string;
-  group?: string;
   staticMessages?: DemoChatMessage[];
 };
 
-const STATIC_THREADS: InboxThread[] = [
-  {
-    id: "daniel",
-    name: "Daniel K.",
-    preview: "Garage B works — thank you!",
-    time: "Yesterday",
-    initials: "DK",
-    group: "Yesterday",
-    staticMessages: [
-      {
-        id: "d1",
-        role: "user",
-        body: "Where should I park overnight?",
-        time: "6:14 PM",
-      },
-      {
-        id: "d2",
-        role: "assistant",
-        body: "Overnight parking is in Garage B, levels 2 to 4. Show your room key at entry for guest validation.",
-        time: "6:14 PM",
-      },
-      {
-        id: "d3",
-        role: "user",
-        body: "Garage B works — thank you!",
-        time: "6:15 PM",
-      },
-    ],
+const STATIC_THREADS: InboxThread[] = DEMO_GUESTS.filter((g) => g.id !== LIVE_GUEST.id).map(
+  (guest) => {
+    if (guest.id === "sarah") {
+      return {
+        id: guest.id,
+        guestId: guest.id,
+        preview: "Can we arrange a crib for tonight?",
+        time: "Yesterday",
+        staticMessages: [
+          { id: "s1", role: "user", body: "Can we arrange a crib for tonight?", time: "9:14 AM" },
+          {
+            id: "s2",
+            role: "assistant",
+            body: "Absolutely — I've notified housekeeping for Room 305. A crib will be delivered within 30 minutes.",
+            time: "9:15 AM",
+          },
+          {
+            id: "s3",
+            role: "staff",
+            body: "Front desk here — housekeeping is on the way with the crib. They'll knock when it's outside your door.",
+            time: "9:16 AM",
+          },
+        ],
+      };
+    }
+    if (guest.id === "marcus") {
+      return {
+        id: guest.id,
+        guestId: guest.id,
+        preview: "Garage B works — thank you!",
+        time: "Mon",
+        staticMessages: [
+          { id: "m1", role: "user", body: "Where should I park overnight?", time: "6:14 PM" },
+          {
+            id: "m2",
+            role: "assistant",
+            body: "Overnight parking is in Garage B, levels 2–4. Show your room key at entry for guest validation.",
+            time: "6:14 PM",
+          },
+          { id: "m3", role: "user", body: "Garage B works — thank you!", time: "6:15 PM" },
+        ],
+      };
+    }
+    if (guest.id === "priya") {
+      return {
+        id: guest.id,
+        guestId: guest.id,
+        preview: "Pool towels at the cabana?",
+        time: "Sun",
+        staticMessages: [
+          { id: "p1", role: "user", body: "What time does the pool close?", time: "4:40 PM" },
+          {
+            id: "p2",
+            role: "assistant",
+            body: "The pool is open 7 AM – 10 PM daily. Towels are at the cabana desk.",
+            time: "4:40 PM",
+          },
+        ],
+      };
+    }
+    return {
+      id: guest.id,
+      guestId: guest.id,
+      preview: "Invoice copy for my company stay",
+      time: "Sat",
+      staticMessages: [
+        { id: "d1", role: "user", body: "Can I get an invoice copy for my company stay?", time: "11:02 AM" },
+        {
+          id: "d2",
+          role: "assistant",
+          body: "Of course — I've sent a folio summary to the email on file and flagged front desk for a printed copy.",
+          time: "11:03 AM",
+        },
+      ],
+    };
   },
-  {
-    id: "amina",
-    name: "Amina T.",
-    preview: "Late checkout confirmed for 1 PM",
-    time: "Mon",
-    initials: "AT",
-    group: "This week",
-    staticMessages: [
-      {
-        id: "a1",
-        role: "user",
-        body: "Can I get a late checkout?",
-        time: "10:02 AM",
-      },
-      {
-        id: "a2",
-        role: "assistant",
-        body: "You can request 1:00 PM checkout based on availability. I've created a front-desk follow-up so the team can confirm shortly.",
-        time: "10:03 AM",
-      },
-      {
-        id: "a3",
-        role: "staff",
-        body: "Front desk confirmed 1:00 PM checkout for you — see you then!",
-        time: "10:18 AM",
-      },
-    ],
-  },
-  {
-    id: "james",
-    name: "James L.",
-    preview: "Pool hours?",
-    time: "Sun",
-    initials: "JL",
-    group: "This week",
-    staticMessages: [
-      {
-        id: "j1",
-        role: "user",
-        body: "What time does the pool close?",
-        time: "4:40 PM",
-      },
-      {
-        id: "j2",
-        role: "assistant",
-        body: "The pool is open 7 AM – 10 PM daily. Towels are at the cabana desk.",
-        time: "4:40 PM",
-      },
-    ],
-  },
-];
+);
 
-const SIDEBAR_WIDTH_DEFAULT = 260;
-const SIDEBAR_WIDTH_MIN = 180;
-const SIDEBAR_WIDTH_MAX_RATIO = 0.58;
+const LIST_WIDTH_DEFAULT = 220;
+const LIST_WIDTH_MIN = 160;
+const LIST_WIDTH_MAX_RATIO = 0.45;
 
 const PREVIEW_STEPS: Pick<DemoChatMessage, "role" | "body">[] = [
   { role: "user", body: "Hello" },
   {
     role: "assistant",
-    body: "Hello! I'm LOJJ, your hotel assistant. Ask about Wi-Fi, checkout, parking, or anything about your stay.",
+    body: "Hello Alex! I'm LOJJ, your Riverside Hotel assistant. Ask about Wi‑Fi, checkout, parking, or anything about your stay in Room 412.",
   },
 ];
 
 function roleLabel(role: DemoChatMessage["role"]) {
-  if (role === "user") return "Guest";
+  if (role === "user") return LIVE_GUEST.name.split(" ")[0] ?? "Guest";
   if (role === "staff") return "Staff";
   return "LOJJ";
 }
 
 function ChatBubbles({
   messages,
+  guest,
   scrollRef,
 }: {
   messages: DemoChatMessage[];
+  guest: DemoGuestProfile | undefined;
   scrollRef: React.RefObject<HTMLDivElement | null>;
 }) {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
-  }, [messages]);
+  }, [messages, scrollRef]);
 
   return (
-    <div ref={scrollRef} className="guest-inbox-chat-scroll" aria-live="polite">
+    <div ref={scrollRef} className="inbox-v2-chat-scroll demo-scroll-hidden" aria-live="polite">
       {messages.map((m) => {
         const isUser = m.role === "user";
         const isStaff = m.role === "staff";
         return (
           <div
             key={m.id}
-            className={`guest-inbox-msg guest-inbox-msg--${isUser ? "user" : isStaff ? "staff" : "assistant"}`}
+            className={`inbox-v2-msg inbox-v2-msg--${isUser ? "guest" : isStaff ? "staff" : "assistant"}`}
           >
-            <span className="guest-inbox-msg-role">{roleLabel(m.role)}</span>
-            <div
-              className={`guest-inbox-bubble guest-inbox-bubble--${
-                isUser ? "user" : isStaff ? "staff" : "assistant"
-              }`}
-            >
-              <p>{m.body}</p>
+            {isUser && guest ? <DemoAvatar guest={guest} size="sm" className="inbox-v2-msg-avatar-ui" /> : null}
+            <div className="inbox-v2-msg-content">
+              <span className="inbox-v2-msg-role">{roleLabel(m.role)}</span>
+              <div
+                className={`inbox-v2-bubble inbox-v2-bubble--${
+                  isUser ? "guest" : isStaff ? "staff" : "assistant"
+                }`}
+              >
+                <p>{m.body}</p>
+              </div>
+              <span className="inbox-v2-msg-time">{m.time}</span>
             </div>
-            <span className="guest-inbox-msg-time">{m.time}</span>
+            {!isUser ? (
+              <DemoAvatar
+                name={isStaff ? "Staff" : "LOJJ"}
+                initials={isStaff ? "SW" : "L"}
+                size="sm"
+                className="inbox-v2-msg-avatar-ui"
+              />
+            ) : null}
           </div>
         );
       })}
     </div>
+  );
+}
+
+function NavIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inbox-v2-nav-icon" aria-hidden>
+      {children}
+    </span>
   );
 }
 
@@ -161,7 +191,7 @@ export default function GuestInboxDesktopDemo() {
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const [selectedId, setSelectedId] = useState<string>("live");
   const [previewCount, setPreviewCount] = useState(0);
-  const [sidebarWidthPx, setSidebarWidthPx] = useState<number | null>(null);
+  const [listWidthPx, setListWidthPx] = useState<number | null>(null);
   const [staffComposeOpen, setStaffComposeOpen] = useState(false);
   const [staffDraft, setStaffDraft] = useState("");
 
@@ -200,11 +230,13 @@ export default function GuestInboxDesktopDemo() {
 
   const livePreview =
     displayLive.length > 0
-      ? displayLive[displayLive.length - 1]?.body.slice(0, 56) +
-        (displayLive[displayLive.length - 1]!.body.length > 56 ? "…" : "")
+      ? displayLive[displayLive.length - 1]?.body.slice(0, 48) +
+        (displayLive[displayLive.length - 1]!.body.length > 48 ? "…" : "")
       : "Tap Hello on the phone to start";
 
   const selectedStatic = STATIC_THREADS.find((t) => t.id === selectedId);
+  const selectedGuest =
+    selectedId === "live" ? LIVE_GUEST : guestById(selectedStatic?.guestId ?? "");
 
   const chatMessages =
     selectedId === "live" ? displayLive : (selectedStatic?.staticMessages ?? []);
@@ -231,14 +263,13 @@ export default function GuestInboxDesktopDemo() {
     const split = splitRef.current;
     if (!split) return;
 
-    const sidebar = split.querySelector<HTMLElement>(".guest-inbox-sidebar");
     const startX = e.clientX;
-    const startW = sidebarWidthPx ?? sidebar?.getBoundingClientRect().width ?? SIDEBAR_WIDTH_DEFAULT;
+    const startW = listWidthPx ?? LIST_WIDTH_DEFAULT;
 
     const onMove = (ev: PointerEvent) => {
-      const maxW = split.getBoundingClientRect().width * SIDEBAR_WIDTH_MAX_RATIO;
-      const next = Math.min(maxW, Math.max(SIDEBAR_WIDTH_MIN, startW + (ev.clientX - startX)));
-      setSidebarWidthPx(next);
+      const maxW = split.getBoundingClientRect().width * LIST_WIDTH_MAX_RATIO;
+      const next = Math.min(maxW, Math.max(LIST_WIDTH_MIN, startW + (ev.clientX - startX)));
+      setListWidthPx(next);
     };
 
     const onUp = () => {
@@ -254,137 +285,160 @@ export default function GuestInboxDesktopDemo() {
   };
 
   const splitStyle =
-    sidebarWidthPx != null
-      ? ({ "--guest-inbox-sidebar-w": `${Math.round(sidebarWidthPx)}px` } as React.CSSProperties)
+    listWidthPx != null
+      ? ({ "--inbox-v2-list-w": `${Math.round(listWidthPx)}px` } as React.CSSProperties)
       : undefined;
 
+  const threadTitle =
+    selectedId === "live" && selectedGuest
+      ? guestLabel(selectedGuest)
+      : selectedGuest
+        ? guestLabel(selectedGuest)
+        : "Guest";
+
   return (
-    <div ref={splitRef} className="guest-inbox-split" style={splitStyle}>
-      <aside className="guest-inbox-sidebar" aria-label="Guest conversations">
-        <header className="guest-inbox-sidebar-head">
-          <h4 className="guest-inbox-sidebar-title">Inbox</h4>
-          <span className="guest-inbox-sidebar-meta">Riverside Hotel</span>
+    <div ref={splitRef} className="inbox-v2 demo-ui-font demo-scroll-hidden" style={splitStyle}>
+      <nav className="inbox-v2-rail" aria-label="App navigation">
+        <span className="inbox-v2-rail-logo" aria-hidden>
+          <IconSparkles size={16} />
+        </span>
+        <NavIcon>
+          <IconInbox size={16} />
+        </NavIcon>
+        <NavIcon>
+          <IconUsers size={16} />
+        </NavIcon>
+        <NavIcon>
+          <IconMenu size={16} />
+        </NavIcon>
+        <span className="inbox-v2-rail-spacer" />
+        <NavIcon>
+          <IconSettings size={16} />
+        </NavIcon>
+      </nav>
+
+      <aside className="inbox-v2-list-col" aria-label="Guest conversations">
+        <header className="inbox-v2-list-head">
+          <h4 className="inbox-v2-list-title">Riverside Inbox</h4>
+          <div className="inbox-v2-list-tools" aria-hidden>
+            <span className="inbox-v2-list-tool">
+              <IconSearch size={15} />
+            </span>
+            <span className="inbox-v2-list-tool">
+              <IconSort size={15} />
+            </span>
+            <span className="inbox-v2-list-tool">
+              <IconMenu size={15} />
+            </span>
+          </div>
         </header>
-        <div className="guest-inbox-thread-list" role="listbox" aria-label="Threads">
-          <p className="guest-inbox-group-label">Today</p>
+
+        <div className="inbox-v2-thread-list demo-scroll-hidden" role="listbox" aria-label="Threads">
           <button
             type="button"
             role="option"
             aria-selected={selectedId === "live"}
-            className={`guest-inbox-thread${selectedId === "live" ? " guest-inbox-thread--active" : ""}${
-              usingLive ? " guest-inbox-thread--synced" : ""
+            className={`inbox-v2-thread${selectedId === "live" ? " inbox-v2-thread--active" : ""}${
+              usingLive ? " inbox-v2-thread--synced" : ""
             }`}
             onClick={() => setSelectedId("live")}
           >
-            <span className="guest-inbox-thread-avatar guest-inbox-thread-avatar--live">You</span>
-            <span className="guest-inbox-thread-body">
-              <span className="guest-inbox-thread-top">
-                <span className="guest-inbox-thread-name">Room 412</span>
-                <span className="guest-inbox-thread-time">{usingLive ? "Now" : "Live"}</span>
+            <Badge.Anchor>
+              <DemoAvatar guest={LIVE_GUEST} size="sm" className="inbox-v2-thread-avatar-ui" />
+              {usingLive ? <Badge color="success" size="sm" placement="bottom-right" /> : null}
+            </Badge.Anchor>
+            <span className="inbox-v2-thread-body">
+              <span className="inbox-v2-thread-top">
+                <span className="inbox-v2-thread-name">{LIVE_GUEST.name}</span>
+                <span className="inbox-v2-thread-time">{usingLive ? "Now" : "Live"}</span>
               </span>
-              <span className="guest-inbox-thread-preview">{livePreview}</span>
+              <span className="inbox-v2-thread-preview">Room {LIVE_GUEST.room} · {livePreview}</span>
             </span>
           </button>
 
-          {["Yesterday", "This week"].map((group) => {
-            const rows = STATIC_THREADS.filter((t) => t.group === group);
-            if (!rows.length) return null;
+          {STATIC_THREADS.map((thread) => {
+            const guest = guestById(thread.guestId);
+            if (!guest) return null;
             return (
-              <div key={group}>
-                <p className="guest-inbox-group-label">{group}</p>
-                {rows.map((thread) => (
-                  <button
-                    key={thread.id}
-                    type="button"
-                    role="option"
-                    aria-selected={selectedId === thread.id}
-                    className={`guest-inbox-thread${
-                      selectedId === thread.id ? " guest-inbox-thread--active" : ""
-                    }`}
-                    onClick={() => setSelectedId(thread.id)}
-                  >
-                    <span className="guest-inbox-thread-avatar">{thread.initials}</span>
-                    <span className="guest-inbox-thread-body">
-                      <span className="guest-inbox-thread-top">
-                        <span className="guest-inbox-thread-name">{thread.name}</span>
-                        <span className="guest-inbox-thread-time">{thread.time}</span>
-                      </span>
-                      <span className="guest-inbox-thread-preview">{thread.preview}</span>
-                    </span>
-                  </button>
-                ))}
-              </div>
+              <button
+                key={thread.id}
+                type="button"
+                role="option"
+                aria-selected={selectedId === thread.id}
+                className={`inbox-v2-thread${selectedId === thread.id ? " inbox-v2-thread--active" : ""}`}
+                onClick={() => setSelectedId(thread.id)}
+              >
+                <DemoAvatar guest={guest} size="sm" className="inbox-v2-thread-avatar-ui" />
+                <span className="inbox-v2-thread-body">
+                  <span className="inbox-v2-thread-top">
+                    <span className="inbox-v2-thread-name">{guest.name}</span>
+                    <span className="inbox-v2-thread-time">{thread.time}</span>
+                  </span>
+                  <span className="inbox-v2-thread-preview">
+                    Room {guest.room} · {thread.preview}
+                  </span>
+                </span>
+              </button>
             );
           })}
         </div>
       </aside>
 
       <div
-        className="guest-inbox-splitter"
+        className="inbox-v2-splitter"
         role="separator"
         aria-orientation="vertical"
-        aria-label="Resize inbox and conversation columns"
+        aria-label="Resize guest list and conversation"
         tabIndex={0}
         onPointerDown={onSplitterPointerDown}
-        onDoubleClick={() => setSidebarWidthPx(null)}
+        onDoubleClick={() => setListWidthPx(null)}
         title="Drag to resize columns. Double-click to reset."
       />
 
-      <section className="guest-inbox-main" aria-label="Conversation">
-        <header className="guest-inbox-main-head">
-          <div>
-            <h4 className="guest-inbox-main-title">
-              {selectedId === "live" ? "Room 412" : selectedStatic?.name}
-            </h4>
-            <p className="guest-inbox-main-sub">
-              {selectedId === "live" ? "Current guest" : "Archived guest thread"}
-            </p>
-          </div>
+      <section className="inbox-v2-chat-col" aria-label="Conversation">
+        <header className="inbox-v2-chat-head">
+          {selectedGuest ? (
+            <DemoAvatar guest={selectedGuest} size="sm" className="inbox-v2-chat-head-avatar" />
+          ) : null}
+          <h4 className="inbox-v2-chat-title">{threadTitle}</h4>
+          {selectedId === "live" && usingLive ? (
+            <span className="inbox-v2-chat-badge">Live</span>
+          ) : null}
         </header>
 
-        <div
-          className={`guest-inbox-main-body${canJumpIn ? " guest-inbox-main-body--with-jumpin" : ""}`}
-        >
+        <div className={`inbox-v2-chat-body${canJumpIn ? " inbox-v2-chat-body--with-jumpin" : ""}`}>
           {chatMessages.length === 0 ? (
-            <p className="guest-inbox-empty">Conversation will appear here…</p>
+            <p className="inbox-v2-empty">Conversation will appear here…</p>
           ) : (
-            <ChatBubbles messages={chatMessages} scrollRef={chatScrollRef} />
+            <ChatBubbles messages={chatMessages} guest={selectedGuest} scrollRef={chatScrollRef} />
           )}
         </div>
 
         {canJumpIn && !staffComposeOpen ? (
-          <footer className="guest-inbox-jumpin guest-inbox-jumpin--sticky">
-            <button
-              type="button"
-              className="guest-inbox-jumpin-btn"
-              onClick={() => setStaffComposeOpen(true)}
-            >
+          <footer className="inbox-v2-jumpin">
+            <button type="button" className="inbox-v2-jumpin-btn" onClick={() => setStaffComposeOpen(true)}>
               Jump in
             </button>
           </footer>
         ) : null}
 
         {canJumpIn && staffComposeOpen ? (
-          <footer className="guest-inbox-jumpin guest-inbox-jumpin--compose guest-inbox-jumpin--sticky">
-            <div className="guest-inbox-staff-compose">
-              <label className="guest-inbox-staff-label" htmlFor="guest-inbox-staff-reply">
-                Reply
-              </label>
+          <footer className="inbox-v2-jumpin inbox-v2-jumpin--compose">
+            <div className="inbox-v2-staff-compose">
               <textarea
-                id="guest-inbox-staff-reply"
-                className="guest-inbox-staff-input"
-                rows={3}
+                className="inbox-v2-staff-input"
+                rows={2}
                 value={staffDraft}
                 onChange={(e) => setStaffDraft(e.target.value)}
-                placeholder="Your message to the guest…"
+                placeholder={`Write to ${LIVE_GUEST.name.split(" ")[0]}…`}
               />
-              <div className="guest-inbox-staff-actions">
-                <button type="button" className="guest-inbox-staff-send" onClick={sendStaffReply}>
+              <div className="inbox-v2-staff-actions">
+                <button type="button" className="inbox-v2-staff-send" onClick={sendStaffReply}>
                   Send
                 </button>
                 <button
                   type="button"
-                  className="guest-inbox-staff-cancel"
+                  className="inbox-v2-staff-cancel"
                   onClick={() => {
                     setStaffComposeOpen(false);
                     setStaffDraft("");
@@ -394,6 +448,20 @@ export default function GuestInboxDesktopDemo() {
                 </button>
               </div>
             </div>
+          </footer>
+        ) : null}
+
+        {!canJumpIn && !staffComposeOpen ? (
+          <footer className="inbox-v2-compose-bar" aria-hidden>
+            <span className="inbox-v2-compose-attach">
+              <IconPaperclip size={16} />
+            </span>
+            <span className="inbox-v2-compose-field">
+              Write to {(selectedGuest ?? LIVE_GUEST).name.split(" ")[0]}…
+            </span>
+            <span className="inbox-v2-compose-send">
+              <IconArrowUp size={16} />
+            </span>
           </footer>
         ) : null}
       </section>

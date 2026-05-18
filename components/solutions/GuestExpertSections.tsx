@@ -4,6 +4,7 @@ import DemoWindowChrome from "@/components/solutions/DemoWindowChrome";
 import { useDemoSimulation } from "@/components/solutions/DemoSimulationContext";
 import GuestPhone from "@/components/solutions/GuestPhone";
 import GuestInboxDesktopDemo from "@/components/solutions/GuestInboxDesktopDemo";
+import SafariDemoShell from "@/components/solutions/SafariDemoShell";
 import { Highlighter } from "@/components/ui/highlighter";
 import type { SolutionDefinition } from "@/lib/solutions";
 
@@ -29,6 +30,7 @@ export default function GuestExpertSections({ solution }: GuestExpertSectionsPro
               messages={phoneMessages}
               suggestions={demo.guestSuggestions}
               onPickSuggestion={demo.guestPickSuggestion}
+              highlightedSuggestionId={demo.guestPhase === "after_hi" ? "late" : undefined}
             />
           </div>
           <div className="guest-say-hi-copy">
@@ -52,8 +54,7 @@ export default function GuestExpertSections({ solution }: GuestExpertSectionsPro
           <div className="guest-inbox-copy">
             <h3 className="landing-h3">One inbox for every guest thread</h3>
             <p className="landing-p solution-summary">
-              Staff see live chats beside archived threads — same LOJJ assistant, desktop-ready for handoffs and review
-              flows.
+              Staff can view all guest chats in one place, and take over at any point to message a guest directly.
             </p>
           </div>
 
@@ -62,20 +63,12 @@ export default function GuestExpertSections({ solution }: GuestExpertSectionsPro
             ariaLabel="Guest Expert desktop inbox"
             onCopyLink={copyLink}
             onResetScenario={() => demo.resetGuestDemo()}
-            shellClassName="solution-window--guest-inbox"
+            shellClassName="solution-window--guest-inbox solution-window--safari"
             fillWidth
           >
-            <div className="solution-window-bar solution-window-bar--light">
-              <span className="window-dots" aria-hidden>
-                <span className="window-dot" />
-                <span className="window-dot" />
-                <span className="window-dot" />
-              </span>
-              <span className="window-title">Guest inbox</span>
-            </div>
-            <div className="solution-window-body solution-window-body--guest-inbox">
+            <SafariDemoShell url="riverside.lojj.io/inbox">
               <GuestInboxDesktopDemo />
-            </div>
+            </SafariDemoShell>
           </DemoWindowChrome>
         </div>
       </article>

@@ -10,8 +10,8 @@ type ReviewSpecialistSectionsProps = {
 export default function ReviewSpecialistSections({ solution }: ReviewSpecialistSectionsProps) {
   return (
     <article id={solution.anchor} className="solution-panel solution-panel--viewport review-specialist-section">
-      <div className="review-specialist-grid">
-        <div className="review-routing-shell" role="region" aria-label="Review Specialist routing demo">
+      <div className="review-specialist-grid review-specialist-grid--stacked">
+        <div className="review-routing-shell review-routing-shell--wide" role="region" aria-label="Review Specialist routing demo">
           <ReviewBeamDemo />
         </div>
 

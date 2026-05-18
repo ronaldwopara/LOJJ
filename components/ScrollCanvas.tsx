@@ -5,7 +5,8 @@ import { useEffect, useRef, useCallback } from "react";
 import { HERO_TOTAL_FRAMES } from "@/lib/hero-scroll";
 
 const TOTAL_FRAMES = HERO_TOTAL_FRAMES;
-const MAX_DPR = 2;
+const DEFAULT_MAX_DPR = 2;
+const LENS_MAX_DPR = 3;
 
 function frameSrc(index: number): string {
   const n = String(index + 1).padStart(4, "0");
@@ -34,12 +35,15 @@ interface ScrollCanvasProps {
   progressRef: React.RefObject<number>;
   ready: boolean;
   onLoadProgress?: (pct: number) => void;
+  /** Higher pixel density for the hero magnifier lens */
+  lensSharp?: boolean;
 }
 
 export default function ScrollCanvas({
   progressRef,
   ready,
   onLoadProgress,
+  lensSharp = false,
 }: ScrollCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const framesRef = useRef<(HTMLImageElement | null)[]>(
@@ -64,6 +68,11 @@ export default function ScrollCanvas({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    if (lensSharp) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+    }
+
     const img = framesRef.current[index];
     if (!img || !img.complete || !img.naturalWidth) {
       // Fallback: find nearest loaded frame
@@ -83,13 +92,14 @@ export default function ScrollCanvas({
     } else {
       drawCover(ctx, img, canvas.width, canvas.height);
     }
-  }, []);
+  }, [lensSharp]);
 
   // Resize canvas to match display size
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    const dprCap = lensSharp ? LENS_MAX_DPR : DEFAULT_MAX_DPR;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     const w = canvas.offsetWidth;
     const h = canvas.offsetHeight;
     if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
@@ -101,7 +111,7 @@ export default function ScrollCanvas({
       drawFrame(idx);
       lastFrameRef.current = -1; // force redraw on next tick
     }
-  }, [drawFrame, progressRef]);
+  }, [drawFrame, progressRef, lensSharp]);
 
   // Preload all frames
   useEffect(() => {
@@ -241,7 +251,7 @@ export default function ScrollCanvas({
   return (
     <canvas
       ref={canvasRef}
-      className="hero-canvas"
+      className={lensSharp ? "hero-canvas hero-canvas--lens-sharp" : "hero-canvas"}
       aria-label="Animated hero sequence"
       role="img"
     />

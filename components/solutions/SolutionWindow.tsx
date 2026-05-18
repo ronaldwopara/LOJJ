@@ -11,6 +11,7 @@ import {
 import MagePhoneChat from "@/components/solutions/MagePhoneChat";
 import ReviewGuestPhone from "@/components/solutions/ReviewGuestPhone";
 import ManagerSplitDemo from "@/components/solutions/ManagerSplitDemo";
+import SafariDemoShell from "@/components/solutions/SafariDemoShell";
 import type { SolutionDefinition } from "@/lib/solutions";
 
 type SolutionWindowProps = {
@@ -492,27 +493,30 @@ export default function SolutionWindow({ solution }: SolutionWindowProps) {
           solution.id === "guest"
             ? "solution-window--guest-tall"
             : solution.id === "manager"
-              ? "solution-window--manager-split"
+              ? "solution-window--manager-split solution-window--safari"
               : undefined
         }
       >
-        <div className="solution-window-bar">
-          <span className="window-dots" aria-hidden>
-            <span className="window-dot" />
-            <span className="window-dot" />
-            <span className="window-dot" />
-          </span>
-          <span className="window-title">{solution.demo.title}</span>
-        </div>
-        <div className={`solution-window-body${usesBrowserShell ? " solution-window-body--browser-first" : ""}`}>
-          {solution.id === "guest" ? <GuestDesktopPanel /> : null}
-          {solution.id === "reviews" ? (
-            <ReviewsDemoSynced />
-          ) : null}
-          {solution.id === "manager" && solution.demo.topics ? (
-            <ManagerSplitDemo key={managerDemoKey} topics={solution.demo.topics} />
-          ) : null}
-        </div>
+        {solution.id === "manager" && solution.demo.topics ? (
+          <SafariDemoShell url="riverside.lojj.io/help-desk">
+            <ManagerSplitDemo key={managerDemoKey} />
+          </SafariDemoShell>
+        ) : (
+          <>
+            <div className="solution-window-bar">
+              <span className="window-dots" aria-hidden>
+                <span className="window-dot" />
+                <span className="window-dot" />
+                <span className="window-dot" />
+              </span>
+              <span className="window-title">{solution.demo.title}</span>
+            </div>
+            <div className={`solution-window-body${usesBrowserShell ? " solution-window-body--browser-first" : ""}`}>
+              {solution.id === "guest" ? <GuestDesktopPanel /> : null}
+              {solution.id === "reviews" ? <ReviewsDemoSynced /> : null}
+            </div>
+          </>
+        )}
       </DemoWindowChrome>
     </div>
   );
